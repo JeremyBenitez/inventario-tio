@@ -9,7 +9,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); // Asegura la ubicación de las vistas
 
 // Middleware para archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'static')));
+
 
 // Usar las rutas
 app.use('/', indexRouter);
