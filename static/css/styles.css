@@ -271,6 +271,11 @@
         color: #e74c3c;
       }
 
+      .deposito-btn.active {
+        background-color: #007bff;
+        color: white;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .form-row {
