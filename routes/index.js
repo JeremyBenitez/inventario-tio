@@ -5,12 +5,13 @@ const router = express.Router();
 //aqui van las rutas de las vistas
 
 // Ruta para productos
-router.get('/inventario', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/inventario.html'));
-});
 
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/login.html'));
+});
+
+router.get('/inventario', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/inventario.html'));
 });
 
 router.get('/recepcion', (req, res) => {
