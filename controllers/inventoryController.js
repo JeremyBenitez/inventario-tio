@@ -1,24 +1,17 @@
-const inventoryModel = require('../models/inventoryModel');
+//agregar producto
 
-// Función para obtener todos los productos
-const getProducts = async (req, res) => {
-  try {
-    const products = await inventoryModel.getAllProducts();
-    res.status(200).json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+const db = require('../controllers/conexion'); // Importa la conexión a SQLite
+
+//insertar
+const agregarProducto = (nombre, categoria, deposito, stock, estado) => {
+  const sql = `INSERT INTO inventario (Nombre, Categoria, Deposito, Stock, Estado) VALUES (?, ?, ?, ?, ?)`;
+  db.run(sql, [nombre, categoria, deposito, stock, estado], function (err) {
+    if (err) {
+      console.error('❌ Error al insertar producto:', err.message);
+    } else {
+      console.log('✅ Producto agregado con ID:', this.lastID);
+    }
+  });
 };
-
-// Función para agregar un nuevo producto
-const addProduct = async (req, res) => {
-  try {
-    const newProduct = req.body;
-    const result = await inventoryModel.addProduct(newProduct);
-    res.status(201).json({ message: 'Producto agregado', productId: result.id });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-module.exports = { getProducts, addProduct };
+// Prueba insertando un nuevo producto
+agregarProducto("Laptop Dell", "Electrónica", "Principal", 10, "Disponible");
