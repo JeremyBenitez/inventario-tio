@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Realizamos la petición POST al backend
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('usuarios/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
