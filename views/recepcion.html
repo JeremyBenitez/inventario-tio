@@ -27,23 +27,23 @@
     <!-- Contenido principal -->
     <div class="container">
         <div class="content">
-            <div class="content-header">
-                <h2>Recepción de Mercancía</h2>
-                <button class="button" id="btn-nueva-recepcion"><i class="fas fa-plus"></i> Nueva Recepción</button>
-            </div>
 
             <!-- Formulario de recepción -->
             <form class="recepcion-form">
-                <div class="form-group">
-                    <label for="factura">Número de Factura:</label>
-                    <input type="text" id="factura" name="factura" required />
-                </div>
                 <div class="form-group">
                     <label for="fecha">Fecha de Recepción:</label>
                     <input type="date" id="fecha" name="fecha" required />
                 </div>
                 <div class="form-group">
-                    <label for="proveedor">Proveedor:</label>
+                    <label for="proveedor">Descripción</label>
+                    <input type="text" id="proveedor" name="proveedor" required />
+                </div>
+                <div class="form-group">
+                    <label for="proveedor">Destino</label>
+                    <input type="text" id="proveedor" name="proveedor" required />
+                </div>
+                <div class="form-group">
+                    <label for="proveedor">Cantidad</label>
                     <input type="text" id="proveedor" name="proveedor" required />
                 </div>
                 <div class="form-group">
@@ -52,29 +52,7 @@
                         <option value="Principal">Depósito Principal</option>
                         <option value="Secundario">Depósito Secundario</option>
                     </select>
-                </div>
-
-                <!-- Lista de productos recibidos -->
-                <div class="productos-recibidos">
-                    <h3>Productos Recibidos</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Cantidad</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-productos">
-                            <!-- Filas dinámicas para productos -->
-                        </tbody>
-                    </table>
-                    <button type="button" class="button" id="btn-agregar-producto"><i class="fas fa-plus"></i> Agregar Producto</button>
-                </div>
-
-                <div class="form-group">
+                <div id="observaciones" class="form-group">
                     <label for="observaciones">Observaciones:</label>
                     <textarea id="observaciones" name="observaciones" rows="3"></textarea>
                 </div>

@@ -276,6 +276,14 @@
         color: white;
       }
 
+      #observaciones {
+        margin: 10px;
+      }
+
+      #observaciones_des {
+        margin: 10px;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .form-row {
