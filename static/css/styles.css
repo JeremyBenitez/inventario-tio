@@ -271,6 +271,19 @@
         color: #e74c3c;
       }
 
+      .deposito-btn.active {
+        background-color: #007bff;
+        color: white;
+      }
+
+      #observaciones {
+        margin: 10px;
+      }
+
+      #observaciones_des {
+        margin: 10px;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .form-row {

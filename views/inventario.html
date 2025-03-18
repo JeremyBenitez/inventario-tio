@@ -1,0 +1,111 @@
+h<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Inventario - Departamento de Tecnología</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    
+  </head>
+  <body>
+    <!-- Cabecera -->
+    <div class="header">
+      <h1>Sistema de Inventario - Depto. Tecnología</h1>
+    </div>
+
+    <!-- Menú de navegación -->
+    <nav class="nav">
+      <div class="container">
+        <ul>
+          <li><a href="/inventario" class="active"><i class="fas fa-boxes"></i> Inventario</a></li>
+          <li><a href="/recepcion" class=""><i class="fas fa-truck-loading"></i> Recepción</a></li>
+          <li><a href="/despacho"><i class="fas fa-shipping-fast"></i> Despacho</a></li>
+      </ul>
+      </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container">
+      <div class="content">
+        <div class="content-header">
+          <h2>Inventario</h2>
+          <button class="button"><i class="fas fa-plus"></i> Nuevo Ítem</button>
+        </div>
+
+        <!-- Selección de depósito -->
+        <div class="deposito-selector">
+          <button class="deposito-btn active" id="btn-todos">Todos</button>
+          <button class="deposito-btn" id="btn-principal">Depósito Principal</button>
+          <button class="deposito-btn" id="btn-secundario">Depósito Secundario</button>
+        </div>
+
+        <!-- Búsqueda -->
+        <form class="search-form">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, ID o categoría..."
+          />
+          <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+        </form>
+
+        <!-- Tabla de inventario -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Depósito</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-deposito="Principal">
+                <td>TECH-001</td>
+                <td>Laptop Dell XPS 13</td>
+                <td>Laptops</td>
+                <td>Principal</td>
+                <td>15</td>
+                <td><span class="status status-new">Nuevo</span></td>
+                <td>
+                  <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                  <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              <tr data-deposito="Principal">
+                <td>TECH-002</td>
+                <td>Monitor HP 24"</td>
+                <td>Monitores</td>
+                <td>Principal</td>
+                <td>12</td>
+                <td><span class="status status-new">Nuevo</span></td>
+                <td>
+                  <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                  <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+              <tr data-deposito="Secundario">
+                <td>TECH-003</td>
+                <td>Teclado Logitech MX</td>
+                <td>Periféricos</td>
+                <td>Secundario</td>
+                <td>25</td>
+                <td><span class="status status-new">Nuevo</span></td>
+                <td>
+                  <button class="action-btn edit-btn"><i class="fas fa-edit"></i></button>
+                  <button class="action-btn delete-btn"><i class="fas fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/inventario.js"></script>
+  </body>
+</html>

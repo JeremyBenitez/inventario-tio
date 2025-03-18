@@ -5,13 +5,20 @@ const router = express.Router();
 //aqui van las rutas de las vistas
 
 // Ruta para productos
-router.get('/index', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/index.html'));
+router.get('/inventario', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/inventario.html'));
 });
 
-// Ruta para productos
-router.get('/index2', (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/index2.html'));
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/login.html'));
+});
+
+router.get('/recepcion', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/recepcion.html'));
+});
+
+router.get('/despacho', (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/despacho.html'));
 });
 
 // Ruta para inventario
