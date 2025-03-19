@@ -73,14 +73,13 @@
       </div>
     </div>
 
-    <!-- Modal para agregar nuevo ítem -->
+<!-- Modal para agregar nuevo ítem -->
 <div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Centrado y más grande -->
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-primary text-white"> <!-- Encabezado con color -->
         <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Nuevo Ítem</h5>
-        <!-- Botón de cierre (equis) -->
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <form id="formNuevoItem">
@@ -107,7 +106,9 @@
             <label for="estado" class="form-label">Estado:</label>
             <input type="text" class="form-control" id="estado" name="estado" required>
           </div>
-          <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
+          </div>
         </form>
       </div>
     </div>

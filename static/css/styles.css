@@ -284,6 +284,42 @@
         margin: 10px;
       }
 
+      /* Estilos personalizados para el modal */
+  #modalAgregarItem .modal-content {
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra */
+  }
+
+  #modalAgregarItem .modal-header {
+    border-bottom: none; /* Eliminar borde inferior del encabezado */
+    padding: 1.5rem; /* Más espacio interno */
+  }
+
+  #modalAgregarItem .modal-body {
+    padding: 1.5rem; /* Más espacio interno */
+  }
+
+  #modalAgregarItem .form-control {
+    border-radius: 5px; /* Bordes redondeados para los inputs */
+    border: 1px solid #ddd; /* Borde más suave */
+  }
+
+  #modalAgregarItem .form-control:focus {
+    border-color: #0d6efd; /* Cambiar color del borde al enfocar */
+    box-shadow: 0 0 5px rgba(13, 110, 253, 0.5); /* Sombra al enfocar */
+  }
+
+  #modalAgregarItem .btn-primary {
+    background-color: #0d6efd; /* Color primario */
+    border: none; /* Sin borde */
+    padding: 0.5rem 1rem; /* Espaciado interno */
+    font-size: 1rem; /* Tamaño de fuente */
+  }
+
+  #modalAgregarItem .btn-primary:hover {
+    background-color: #0b5ed7; /* Color al pasar el mouse */
+  }
+
       /* Responsive */
       @media (max-width: 768px) {
         .form-row {

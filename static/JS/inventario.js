@@ -266,3 +266,4 @@ document.getElementById('inputBuscar').addEventListener('input', function () {
     rows.forEach(row => row.style.display = '');
   }
 });
+ 
