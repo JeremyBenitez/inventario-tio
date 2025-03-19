@@ -73,47 +73,97 @@
       </div>
     </div>
 
-<!-- Modal para agregar nuevo ítem -->
-<div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Centrado y más grande -->
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white"> <!-- Encabezado con color -->
-        <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Nuevo Ítem</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form id="formNuevoItem">
-          <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre:</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" required>
+    <!-- Modal para agregar nuevo ítem -->
+    <div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- Centrado y más grande -->
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white"> <!-- Encabezado con color -->
+            <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Nuevo Ítem</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
           </div>
-          <div class="mb-3">
-            <label for="categoria" class="form-label">Categoría:</label>
-            <input type="text" class="form-control" id="categoria" name="categoria" required>
+          <div class="modal-body">
+            <form id="formNuevoItem">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required>
+              </div>
+              <div class="mb-3">
+                <label for="categoria" class="form-label">Categoría:</label>
+                <input type="text" class="form-control" id="categoria" name="categoria" required>
+              </div>
+              <div class="mb-3">
+                <label for="deposito" class="form-label">Depósito:</label>
+                <select id="deposito" name="deposito" class="form-select" required>
+                  <option value="Principal">Principal</option>
+                  <option value="Secundario">Secundario</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="stock" class="form-label">Stock:</label>
+                <input type="number" class="form-control" id="stock" name="stock" required>
+              </div>
+              <div class="mb-3">
+                <label for="estado" class="form-label">Estado:</label>
+                <input type="text" class="form-control" id="estado" name="estado" required>
+              </div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
+              </div>
+            </form>
           </div>
-          <div class="mb-3">
-            <label for="deposito" class="form-label">Depósito:</label>
-            <select id="deposito" name="deposito" class="form-select" required>
-              <option value="Principal">Principal</option>
-              <option value="Secundario">Secundario</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="stock" class="form-label">Stock:</label>
-            <input type="number" class="form-control" id="stock" name="stock" required>
-          </div>
-          <div class="mb-3">
-            <label for="estado" class="form-label">Estado:</label>
-            <input type="text" class="form-control" id="estado" name="estado" required>
-          </div>
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+
+    <!-- Modal para editar producto -->
+    <div id="modalEditarItem" class="modal fade" tabindex="-1" aria-labelledby="modalEditarItemLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <!-- Encabezado del modal -->
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalEditarItemLabel">Editar Producto</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <!-- Cuerpo del modal -->
+          <div class="modal-body">
+            <form id="formEditarItem">
+              <!-- Campo Nombre -->
+              <div class="mb-3">
+                <label for="editNombre" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="editNombre" name="nombre" required>
+              </div>
+              <!-- Campo Categoría -->
+              <div class="mb-3">
+                <label for="editCategoria" class="form-label">Categoría:</label>
+                <input type="text" class="form-control" id="editCategoria" name="categoria" required>
+              </div>
+              <!-- Campo Depósito -->
+              <div class="mb-3">
+                <label for="editDeposito" class="form-label">Depósito:</label>
+                <select id="editDeposito" name="deposito" class="form-select" required>
+                  <option value="Principal">Principal</option>
+                  <option value="Secundario">Secundario</option>
+                </select>
+              </div>
+              <!-- Campo Stock -->
+              <div class="mb-3">
+                <label for="editStock" class="form-label">Stock:</label>
+                <input type="number" class="form-control" id="editStock" name="stock" required>
+              </div>
+              <!-- Campo Estado -->
+              <div class="mb-3">
+                <label for="editEstado" class="form-label">Estado:</label>
+                <input type="text" class="form-control" id="editEstado" name="estado" required>
+              </div>
+              <!-- Botón de guardar cambios -->
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="/js/inventario.js"></script>
     <script src="/JS/logout.js"></script>
