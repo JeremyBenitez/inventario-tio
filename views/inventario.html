@@ -73,50 +73,46 @@
       </div>
     </div>
 
-    <!-- Modal para agregar nuevo ítem (inicialmente oculto) -->
-    <div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Nuevo Ítem</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <!-- Modal para agregar nuevo ítem -->
+<div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAgregarItemLabel">Agregar Nuevo Ítem</h5>
+        <!-- Botón de cierre (equis) -->
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNuevoItem">
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre:</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
           </div>
-          <div class="modal-body">
-            <form id="formNuevoItem">
-              <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre:</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" required>
-              </div>
-
-              <div class="mb-3">
-                <label for="categoria" class="form-label">Categoría:</label>
-                <input type="text" class="form-control" id="categoria" name="categoria" required>
-              </div>
-
-              <div class="mb-3">
-                <label for="deposito" class="form-label">Depósito:</label>
-                <select id="deposito" name="deposito" class="form-select" required>
-                  <option value="Principal">Principal</option>
-                  <option value="Secundario">Secundario</option>
-                </select>
-              </div>
-
-              <div class="mb-3">
-                <label for="stock" class="form-label">Stock:</label>
-                <input type="number" class="form-control" id="stock" name="stock" required>
-              </div>
-
-              <div class="mb-3">
-                <label for="estado" class="form-label">Estado:</label>
-                <input type="text" class="form-control" id="estado" name="estado" required>
-              </div>
-
-              <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
-            </form>
+          <div class="mb-3">
+            <label for="categoria" class="form-label">Categoría:</label>
+            <input type="text" class="form-control" id="categoria" name="categoria" required>
           </div>
-        </div>
+          <div class="mb-3">
+            <label for="deposito" class="form-label">Depósito:</label>
+            <select id="deposito" name="deposito" class="form-select" required>
+              <option value="Principal">Principal</option>
+              <option value="Secundario">Secundario</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="stock" class="form-label">Stock:</label>
+            <input type="number" class="form-control" id="stock" name="stock" required>
+          </div>
+          <div class="mb-3">
+            <label for="estado" class="form-label">Estado:</label>
+            <input type="text" class="form-control" id="estado" name="estado" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="guardarBtn">Guardar</button>
+        </form>
       </div>
     </div>
+  </div>
+</div>
 
     <script src="/js/inventario.js"></script>
     <script src="/JS/logout.js"></script>

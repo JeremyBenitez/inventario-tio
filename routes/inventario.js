@@ -56,21 +56,18 @@ router.delete('/eliminar/:id', (req, res) => {
 });
 
 
-// Actualizar un producto por ID
 router.put('/actualizar/:id', (req, res) => {
-    const { id } = req.params; // El ID del producto a actualizar
-    const { nombre, categoria, deposito, stock, estado } = req.body; // Los nuevos datos del producto
+    console.log("Datos recibidos en la actualización:", req.body); // Agregar este log
+    const { id } = req.params;
+    const { nombre, categoria, deposito, stock, estado } = req.body;
 
-    // Verifica si todos los campos necesarios están presentes
     if (!nombre || !categoria || !deposito || !stock || !estado) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    // Consulta SQL para actualizar el producto
     const sql = `UPDATE inventario SET Nombre = ?, Categoria = ?, Deposito = ?, Stock = ?, Estado = ? WHERE ID = ?`;
     const params = [nombre, categoria, deposito, stock, estado, id];
 
-    // Ejecutar la consulta de actualización
     db.run(sql, params, function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
@@ -82,5 +79,19 @@ router.put('/actualizar/:id', (req, res) => {
     });
 });
 
+router.get('/consultar/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = `SELECT * FROM inventario WHERE ID = ?`;
+
+    db.get(sql, [id], (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+        res.json(row);
+    });
+});
 
 module.exports = router;
