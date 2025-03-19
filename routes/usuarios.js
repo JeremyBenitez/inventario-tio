@@ -5,22 +5,6 @@ const db = require('../controllers/conexion');
 
 const router = express.Router();
 
-// Configuración de la sesión
-router.use(session({
-    secret: 'tu_clave_secreta', // Cambia esto por una clave secreta más segura
-    resave: false,
-    saveUninitialized: false,
-    cookie: { httpOnly: true }
-}));
-    
-// Middleware para verificar si el usuario está autenticado
-function checkAuth(req, res, next) {
-    if (req.session && req.session.userId) {
-        return next();  // El usuario está autenticado, continúa con la solicitud
-    } else {
-        return res.status(401).json({ error: 'No autenticado' });  // Si no está autenticado, redirige o responde con un error
-    }
-}
 
 // Ruta para registrar un usuario
 router.post('/registro', (req, res) => {
