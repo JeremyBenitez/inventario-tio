@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
   const btnsDepositos = document.querySelectorAll('.deposito-btn');
-  const rows = document.querySelectorAll('tbody tr');
 
   // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
     btn.addEventListener('click', function () {
-      const deposito = this.getAttribute('data-deposito') || 'todos';
+      const deposito = this.id === 'btn-todos' ? 'todos' : this.id === 'btn-principal' ? 'principal' : 'secundario';
       filterRows(deposito);
       setActiveButton(this);
     });
@@ -13,9 +12,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Función para filtrar las filas según el depósito
   function filterRows(deposito) {
+    const rows = document.querySelectorAll('#tabla-inventario tbody tr'); // Seleccionar las filas de la tabla
+
     rows.forEach(row => {
-      const rowDeposito = row.getAttribute('data-deposito');
-      row.style.display = (deposito === 'todos' || rowDeposito === deposito) ? '' : 'none';
+      const rowDeposito = row.getAttribute('data-deposito'); // Obtener el valor de data-deposito
+      if (deposito === 'todos' || rowDeposito === deposito) {
+        row.style.display = ''; // Mostrar la fila
+      } else {
+        row.style.display = 'none'; // Ocultar la fila
+      }
     });
   }
 
@@ -40,21 +45,22 @@ async function obtenerProductos() {
 
     productos.forEach(producto => {
       const row = document.createElement('tr');
-      row.setAttribute('data-deposito', producto.Deposito);
+      row.setAttribute('data-deposito', producto.Deposito.toLowerCase()); // Asegúrate de que el valor sea en minúsculas
       row.innerHTML = `
-        <td>${producto.ID}</td>
-        <td>${producto.Nombre}</td>
-        <td>${producto.Categoria}</td>
-        <td>${producto.Deposito}</td>
-        <td>${producto.Stock}</td>
-        <td><span class="status status-new">${producto.Estado}</span></td>
-        <td>
-          <button class="action-btn edit-btn" data-id="${producto.ID}"><i class="fas fa-edit"></i></button>
-          <button class="action-btn delete-btn" data-id="${producto.ID}"><i class="fas fa-trash"></i></button>
-        </td>
-      `;
+    <td>${producto.ID}</td>
+    <td>${producto.Nombre}</td>
+    <td>${producto.Categoria}</td>
+    <td>${producto.Deposito}</td>
+    <td>${producto.Stock}</td>
+    <td><span class="status status-new">${producto.Estado}</span></td>
+    <td>
+      <button class="action-btn edit-btn" data-id="${producto.ID}"><i class="fas fa-edit"></i></button>
+      <button class="action-btn delete-btn" data-id="${producto.ID}"><i class="fas fa-trash"></i></button>
+    </td>
+  `;
       tbody.appendChild(row);
     });
+
 
     agregarEventosBotones();
   } catch (error) {
@@ -72,6 +78,9 @@ function agregarEventosBotones() {
     button.addEventListener('click', () => eliminarProducto(button.getAttribute('data-id')));
   });
 }
+
+// Resto del código para editar, eliminar y agregar productos...
+
 
 // Función para editar un producto
 async function editarProducto(id) {
@@ -135,22 +144,49 @@ async function actualizarProducto(id) {
 
 // Función para eliminar un producto
 async function eliminarProducto(id) {
-  if (confirm('¿Estás seguro de eliminar este producto?')) {
+  const confirmacion = await Swal.fire({
+    title: '¿Estás seguro?',
+    text: "¡No podrás revertir esto!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (confirmacion.isConfirmed) {
     try {
       const response = await fetch(`http://localhost:3000/inventario/eliminar/${id}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.mensaje);
-        obtenerProductos();
+        await Swal.fire({
+          title: '¡Eliminado!',
+          text: data.mensaje,
+          icon: 'success',
+          confirmButtonText: 'Aceptar'
+        });
+        obtenerProductos(); // Recargar productos
       } else {
-        alert(data.error || 'Error al eliminar el producto');
+        await Swal.fire({
+          title: 'Error',
+          text: data.error || 'Error al eliminar el producto',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
       }
     } catch (error) {
       console.error('Error al eliminar el producto:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al eliminar el producto',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
     }
   }
-}
+};
 
 // Función para agregar un nuevo producto
 document.addEventListener('DOMContentLoaded', function () {
@@ -187,3 +223,4 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   };
 });
+
