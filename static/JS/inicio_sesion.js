@@ -47,9 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert(data.error || 'Hubo un error en el inicio de sesión');
             }
+            
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
             alert('Hubo un problema al procesar la solicitud');
         }
     });
 });
+

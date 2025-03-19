@@ -1,9 +1,26 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const session = require('express-session');
 const db = require('../controllers/conexion');
 
 const router = express.Router();
+
+// Configuración de la sesión
+router.use(session({
+    secret: 'tu_clave_secreta', // Cambia esto por una clave secreta más segura
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true }
+}));
+    
+// Middleware para verificar si el usuario está autenticado
+function checkAuth(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();  // El usuario está autenticado, continúa con la solicitud
+    } else {
+        return res.status(401).json({ error: 'No autenticado' });  // Si no está autenticado, redirige o responde con un error
+    }
+}
 
 // Ruta para registrar un usuario
 router.post('/registro', (req, res) => {
@@ -46,23 +63,21 @@ router.post('/login', (req, res) => {
             if (err) return res.status(500).json({ error: 'Error al comparar las contraseñas' });
             if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
+            // Si las credenciales son correctas, se guarda la información de la sesión
+            req.session.userId = row.id;  // Guarda el ID del usuario en la sesión
             res.json({ mensaje: 'Inicio de sesión exitoso' });
         });
     });
 });
 
-
-// // Middleware para verificar el token JWT
-// const verificarToken = (req, res, next) => {
-//     const token = req.headers['authorization'];
-//     if (!token) return res.status(403).json({ error: 'No se proporcionó un token' });
-
-//     jwt.verify(token, 'tu_clave_secreta', (err, decoded) => {
-//         if (err) return res.status(403).json({ error: 'Token inválido' });
-
-//         req.usuario = decoded;
-//         next();
-//     });
-// };
-
+// Ruta para cerrar sesión
+router.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'Error al cerrar sesión' });
+        }
+        res.clearCookie('connect.sid'); // Elimina la cookie de sesión
+        res.json({ mensaje: 'Sesión cerrada exitosamente' });
+    });
+});
 module.exports = router;

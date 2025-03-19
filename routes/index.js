@@ -22,14 +22,10 @@ router.get('/despacho', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/despacho.html'));
 });
 
-// Ruta para inventario
-router.get('/inventario', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/views/inventario.html'));
-});
-
-// Ruta para proveedores
-router.get('/proveedores', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/views/proveedores.html'));
+//definir la ruta de logout 
+router.post('/logout', (req, res) => {
+    req.session = null;  // Opción para destruir la sesión si usas express-session.
+    res.json({ mensaje: 'Sesión cerrada exitosamente' });
 });
 
 module.exports = router;
