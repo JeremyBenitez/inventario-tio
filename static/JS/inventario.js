@@ -184,3 +184,41 @@ async function eliminarProducto(id) {
     }
   }
 }
+
+// Función para agregar un nuevo producto
+document.addEventListener('DOMContentLoaded', function () {
+  const modalElement = document.getElementById('modalAgregarItem');
+  const modal = new bootstrap.Modal(modalElement);
+  const btnNuevoItem = document.getElementById('nuevoItemBtn');
+
+  btnNuevoItem.addEventListener('click', function () {
+    modal.show();
+  });
+
+  document.getElementById('formNuevoItem').onsubmit = function (event) {
+    event.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const categoria = document.getElementById('categoria').value;
+    const deposito = document.getElementById('deposito').value;
+    const stock = document.getElementById('stock').value;
+    const estado = document.getElementById('estado').value;
+
+    const nuevoItem = { nombre, categoria, deposito, stock, estado };
+
+    fetch('http://localhost:3000/inventario/agregar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(nuevoItem),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.mensaje);
+        modal.hide();
+        obtenerProductos(); // Recargar productos
+      })
+      .catch((error) => {
+        console.error('Error al agregar el ítem:', error);
+      });
+  };
+});
