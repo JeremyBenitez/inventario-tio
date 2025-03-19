@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const btnTodos = document.getElementById('btn-todos');
   const btnPrincipal = document.getElementById('btn-principal');
   const btnSecundario = document.getElementById('btn-secundario');
+  const rows = document.querySelectorAll('tbody tr');
 
   // Evento para el botón "Todos"
   btnTodos.addEventListener('click', function () {
@@ -23,14 +24,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Función para filtrar las filas según el depósito
   function filterRows(deposito) {
-    const rows = document.querySelectorAll('#tabla-inventario tbody tr'); // Seleccionar las filas de la tabla
-
     rows.forEach(row => {
-      const rowDeposito = row.getAttribute('data-deposito'); // Obtener el valor de data-deposito
+      const rowDeposito = row.getAttribute('data-deposito');
       if (deposito === 'todos' || rowDeposito === deposito) {
-        row.style.display = ''; // Mostrar la fila
+        row.style.display = ''; // Muestra la fila
       } else {
-        row.style.display = 'none'; // Ocultar la fila
+        row.style.display = 'none'; // Oculta la fila
       }
     });
   }
@@ -164,20 +163,10 @@ async function editarProducto(id) {
   }
 }
 
+
 // Función para eliminar un producto
 async function eliminarProducto(id) {
-  const confirmacion = await Swal.fire({
-    title: '¿Estás seguro?',
-    text: "¡No podrás revertir esto!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  });
-
-  if (confirmacion.isConfirmed) {
+  if (confirm('¿Estás seguro de eliminar este producto?')) {
     try {
       const response = await fetch(`http://localhost:3000/inventario/eliminar/${id}`, {
         method: 'DELETE'
@@ -185,29 +174,13 @@ async function eliminarProducto(id) {
       const data = await response.json();
 
       if (response.ok) {
-        await Swal.fire({
-          title: '¡Eliminado!',
-          text: data.mensaje,
-          icon: 'success',
-          confirmButtonText: 'Aceptar'
-        });
+        alert(data.mensaje);
         obtenerProductos(); // Recargar productos
       } else {
-        await Swal.fire({
-          title: 'Error',
-          text: data.error || 'Error al eliminar el producto',
-          icon: 'error',
-          confirmButtonText: 'Aceptar'
-        });
+        alert(data.error || 'Error al eliminar el producto');
       }
     } catch (error) {
       console.error('Error al eliminar el producto:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: 'Hubo un problema al eliminar el producto',
-        icon: 'error',
-        confirmButtonText: 'Aceptar'
-      });
     }
   }
 }
