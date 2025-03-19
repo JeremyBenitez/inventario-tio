@@ -249,3 +249,46 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   };
 });
+
+// Función para buscar productos
+function buscarProductos(termino) {
+  const rows = document.querySelectorAll('#tabla-inventario tbody tr'); // Seleccionar todas las filas de la tabla
+
+  rows.forEach(row => {
+    const id = row.querySelector('td:nth-child(1)').textContent.toLowerCase(); // Obtener el ID
+    const nombre = row.querySelector('td:nth-child(2)').textContent.toLowerCase(); // Obtener el nombre
+    const categoria = row.querySelector('td:nth-child(3)').textContent.toLowerCase(); // Obtener la categoría
+    const deposito = row.querySelector('td:nth-child(4)').textContent.toLowerCase(); // Obtener el depósito
+
+    // Verificar si el término de búsqueda coincide con alguno de los campos
+    if (
+      id.includes(termino) || // Buscar por ID
+      nombre.includes(termino) || // Buscar por nombre
+      categoria.includes(termino) || // Buscar por categoría
+      deposito.includes(termino) // Buscar por depósito
+    ) {
+      row.style.display = ''; // Mostrar la fila si coincide
+    } else {
+      row.style.display = 'none'; // Ocultar la fila si no coincide
+    }
+  });
+}
+
+// Evento para el formulario de búsqueda
+document.getElementById('formBuscar').addEventListener('submit', function (event) {
+  event.preventDefault(); // Evitar que el formulario se envíe
+
+  const termino = document.getElementById('inputBuscar').value.toLowerCase(); // Obtener el término de búsqueda
+  buscarProductos(termino); // Llamar a la función de búsqueda
+});
+
+// Evento para limpiar la búsqueda (opcional)
+document.getElementById('inputBuscar').addEventListener('input', function () {
+  const termino = this.value.toLowerCase(); // Obtener el término de búsqueda
+
+  if (termino === '') {
+    // Si el campo de búsqueda está vacío, mostrar todas las filas
+    const rows = document.querySelectorAll('#tabla-inventario tbody tr');
+    rows.forEach(row => row.style.display = '');
+  }
+});
