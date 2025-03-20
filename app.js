@@ -4,6 +4,7 @@ const session = require('express-session'); // Importar express-session
 const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
 const indexRouter = require('./routes/index'); // Importar las rutas
+const despachorecepcionRoutes = require('./routes/despachorecepcion');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(session({
 // Usar las rutas
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
+app.use('/despachorecepcion', despachorecepcionRoutes);
 app.use('/', indexRouter);
 
 // Manejo de errores

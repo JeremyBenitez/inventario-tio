@@ -1,73 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Despacho - Sistema de Inventario</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-</head>
-<body>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <!-- Cabecera -->
     <div class="header">
-        <h1>Sistema de Inventario - Depto. Tecnología</h1>
-        <!-- Botón de cierre de sesión -->
-        <button id="close-btn" class="logout-btn">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </button>
-      </div>
+      <h1>Sistema de Inventario - Depto. Tecnología</h1>
+      <!-- Botón de cierre de sesión -->
+      <button id="close-btn" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
 
     <!-- Menú de navegación -->
     <nav class="nav">
-        <div class="container">
-            <ul>
-                <li><a href="/inventario"><i class="fas fa-boxes"></i> Inventario</a></li>
-                <li><a href="/recepcion"><i class="fas fa-truck-loading"></i> Recepción</a></li>
-                <li><a href="/despacho" class="active"><i class="fas fa-shipping-fast"></i> Despacho</a></li>
-            </ul>
-        </div>
+      <div class="container">
+        <ul>
+          <li>
+            <a href="/inventario"><i class="fas fa-boxes"></i> Inventario</a>
+          </li>
+          <li>
+            <a href="/recepcion"
+              ><i class="fas fa-truck-loading"></i> Recepción</a
+            >
+          </li>
+          <li>
+            <a href="/despacho" class="active"
+              ><i class="fas fa-shipping-fast"></i> Despacho</a
+            >
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <!-- Contenido principal -->
     <div class="container">
-        <div class="content">
+      <div class="content">
+        <!-- Formulario de despacho -->
+        <form class="recepcion-form">
+          <div class="form-group">
+            <label for="fecha">Fecha de Recepción:</label>
+            <input type="date" id="fecha" name="fecha" required />
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <input type="text" id="descripcion" name="descripcion" required />
+          </div>
+          <div class="form-group">
+            <label for="destino">Destino:</label>
+            <input type="text" id="destino" name="destino" required />
+          </div>
+          <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" name="cantidad" required />
+          </div>
+          <div class="form-group">
+            <label for="deposito">Depósito de Destino:</label>
+            <select id="deposito" name="deposito" required>
+              <option value="Principal">Depósito Principal</option>
+              <option value="Secundario">Depósito Secundario</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="observaciones">Observaciones:</label>
+            <textarea
+              id="observaciones"
+              name="observaciones"
+              rows="3"
+            ></textarea>
+          </div>
 
-            <!-- Formulario de despacho -->
-            <form class="despacho-form">
-                <div class="form-group">
-                    <label for="despacho">Número de Despacho:</label>
-                    <input type="text" id="despacho" name="despacho" required />
-                </div>
-                <div class="form-group">
-                    <label for="fecha">Fecha de Despacho:</label>
-                    <input type="date" id="fecha" name="fecha" required />
-                </div>
-                <div class="form-group">
-                    <label for="destinatario">Destinatario:</label>
-                    <input type="text" id="destinatario" name="destinatario" required />
-                </div>
-                <div class="form-group">
-                    <label for="destinatario">Cantidad</label>
-                    <input type="text" id="destinatario" name="destinatario" required />
-                </div>
-                <div class="form-group">
-                    <label for="deposito">Depósito de Origen:</label>
-                    <select id="deposito" name="deposito" required>
-                        <option value="Principal">Depósito Principal</option>
-                        <option value="Secundario">Depósito Secundario</option>
-                    </select>
-                </div>
-
-                <div id="observaciones_des" class="form-group">
-                    <label for="observaciones">Observaciones:</label>
-                    <textarea id="observaciones" name="observaciones" rows="3"></textarea>
-                </div>
-
-                <button type="submit" class="button"><i class="fas fa-save"></i> Guardar Despacho</button>
-            </form>
-        </div>
+          <button type="submit" class="button">
+            <i class="fas fa-save"></i> Guardar Recepción
+          </button>
+        </form>
+      </div>
     </div>
 
     <script src="/js/despacho.js"></script>
-</body>
+  </body>
 </html>
