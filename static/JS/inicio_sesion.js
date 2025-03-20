@@ -28,12 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Realizamos la petición POST al backend
         try {
-            const response = await fetch('usuarios/login', {
+            const response = await fetch('/usuarios/login', {  // 🔹 Corregí la URL agregando la barra inicial
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ Usuario: Usuario, Password: Password }),
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',  // ✅ Enviar cookies de sesión
+                body: JSON.stringify({ Usuario, Password }),
             });
 
             // Procesamos la respuesta
@@ -54,5 +53,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
 
