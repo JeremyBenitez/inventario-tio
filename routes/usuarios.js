@@ -29,7 +29,7 @@ router.post('/registro', (req, res) => {
     });
 });
 
-// Ruta para iniciar sesión
+/// Ruta para iniciar sesión
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 
@@ -47,9 +47,18 @@ router.post('/login', (req, res) => {
             if (err) return res.status(500).json({ error: 'Error al comparar las contraseñas' });
             if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
-            // Si las credenciales son correctas, se guarda la información de la sesión
-            req.session.userId = row.id;  // Guarda el ID del usuario en la sesión
-            res.json({ mensaje: 'Inicio de sesión exitoso' });
+            // ✅ Guardar usuario en sesión correctamente
+            req.session.user = { id: row.id, Usuario: row.Usuario };
+
+            req.session.save(err => {  // ⏳ Asegurar que la sesión se guarda antes de responder
+                if (err) {
+                    console.error('Error al guardar la sesión:', err);
+                    return res.status(500).json({ error: 'Error al guardar la sesión' });
+                }
+
+                console.log('✅ Sesión guardada correctamente:', req.session);
+                res.json({ mensaje: 'Inicio de sesión exitoso' });
+            });
         });
     });
 });

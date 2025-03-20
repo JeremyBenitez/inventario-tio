@@ -1,13 +1,11 @@
-// auth.js
 const checkAuth = (req, res, next) => {
-    // Lógica de autenticación
-    const isAuthenticated = true; // Cambia esto según tu lógica
+    console.log('🔍 Sesión actual:', req.session); // Debug
 
-    if (isAuthenticated) {
-        next(); // Si está autenticado, pasa al siguiente middleware o ruta
-    } else {
-        res.status(401).send('No autorizado');
+    if (req.session && req.session.user) {
+        return next(); // ✅ Usuario autenticado, continuar
     }
+
+    return res.status(401).json({ error: 'No autorizado inicia sesion plasta eh mierda' }); // ❌ Usuario no autenticado
 };
 
-module.exports = { checkAuth }; // Exporta la función
+module.exports = { checkAuth };
