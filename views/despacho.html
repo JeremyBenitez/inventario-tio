@@ -28,14 +28,10 @@
             <a href="/inventario"><i class="fas fa-boxes"></i> Inventario</a>
           </li>
           <li>
-            <a href="/recepcion"
-              ><i class="fas fa-truck-loading"></i> Recepción</a
-            >
+            <a href="/recepcion"><i class="fas fa-truck-loading"></i> Recepción</a>
           </li>
           <li>
-            <a href="/despacho" class="active"
-              ><i class="fas fa-shipping-fast"></i> Despacho</a
-            >
+            <a href="/despacho" class="active"><i class="fas fa-shipping-fast"></i> Despacho</a>
           </li>
         </ul>
       </div>
@@ -45,25 +41,25 @@
     <div class="container">
       <div class="content">
         <!-- Formulario de despacho -->
-        <form class="recepcion-form">
+        <form class="despacho-form" action="/guardar_despacho" method="POST">
           <div class="form-group">
-            <label for="fecha">Fecha de Recepción:</label>
+            <label for="numero_despacho">Número de Despacho:</label>
+            <input type="text" id="numero_despacho" name="numero_despacho" required />
+          </div>
+          <div class="form-group">
+            <label for="fecha">Fecha de Despacho:</label>
             <input type="date" id="fecha" name="fecha" required />
           </div>
           <div class="form-group">
-            <label for="descripcion">Descripción:</label>
-            <input type="text" id="descripcion" name="descripcion" required />
-          </div>
-          <div class="form-group">
-            <label for="destino">Destino:</label>
-            <input type="text" id="destino" name="destino" required />
+            <label for="destinatario">Destinatario:</label>
+            <input type="text" id="destinatario" name="destinatario" required />
           </div>
           <div class="form-group">
             <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" name="cantidad" required />
+            <input type="text" id="cantidad" name="cantidad" required />
           </div>
           <div class="form-group">
-            <label for="deposito">Depósito de Destino:</label>
+            <label for="deposito">Depósito de Origen:</label>
             <select id="deposito" name="deposito" required>
               <option value="Principal">Depósito Principal</option>
               <option value="Secundario">Depósito Secundario</option>
@@ -77,9 +73,8 @@
               rows="3"
             ></textarea>
           </div>
-
           <button type="submit" class="button">
-            <i class="fas fa-save"></i> Guardar Recepción
+            <i class="fas fa-save"></i> Guardar Despacho
           </button>
         </form>
       </div>

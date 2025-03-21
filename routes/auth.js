@@ -5,7 +5,7 @@ const checkAuth = (req, res, next) => {
         return next(); // ✅ Usuario autenticado, continuar
     }
 
-    return res.status(401).json({ error: 'No autorizado inicia sesion plasta eh mierda' }); // ❌ Usuario no autenticado
+    return res.status(401).json({ error: 'No autorizado, inicia sesión' }); // ❌ Usuario no autenticado
 };
 
 module.exports = { checkAuth };
