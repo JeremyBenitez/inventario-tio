@@ -1,24 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const logoutButton = document.getElementById('logoutButton');
-
+    const logoutButton = document.getElementById('close-btn');
+    
     if (logoutButton) {
-        logoutButton.addEventListener('click', async () => {
-            try {
-                const response = await fetch('usuarios/logout', {
-                    method: 'POST' // Usa POST en lugar de GET para el cierre de sesión
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data.mensaje); // Verifica en consola que la sesión se cerró
-                    window.location.href = '/'; // Redirige al login
-                } else {
-                    alert('Error al cerrar sesión. Inténtelo nuevamente.');
-                }
-            } catch (error) {
-                console.error('Error al cerrar sesión:', error);
-                alert('Hubo un problema al cerrar sesión.');
-            }
+      logoutButton.addEventListener('click', async () => {
+        // Confirmar cierre de sesión
+        Swal.fire({
+          title: '¿Cerrar sesión?',
+          text: '¿Estás seguro que deseas cerrar sesión?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, cerrar sesión',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Redireccionar a la ruta de logout
+            window.location.href = '/usuarios/logout';
+          }
         });
+      });
     }
-});
+  });

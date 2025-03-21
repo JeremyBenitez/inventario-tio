@@ -74,6 +74,9 @@
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
+                <th>Serial</th>
+                <th>Modelo</th>
+                <th>Marca</th>
                 <th>Depósito</th>
                 <th>Stock</th>
                 <th>Estado</th>
@@ -104,7 +107,22 @@
               </div>
               <div class="mb-3">
                 <label for="categoria" class="form-label">Categoría:</label>
-                <input type="text" class="form-control" id="categoria" name="categoria" required>
+                <select id="categoria" name="categoria" class="form-select" required>
+                  <option value="Principal">Dispositivo</option>
+                  <option value="Secundario">Consumible</option>
+                </select>  
+              </div>
+              <div class="mb-3">
+                <label for="serial" class="form-label">Serial:</label>
+                <input type="text" class="form-control" id="serial" name="serial" required>
+              </div>
+              <div class="mb-3">
+                <label for="modelo" class="form-label">Modelo:</label>
+                <input type="text" class="form-control" id="modelo" name="modelo" required>
+              </div>
+              <div class="mb-3">
+                <label for="marca" class="form-label">Marca:</label>
+                <input type="text" class="form-control" id="marca" name="marca" required>
               </div>
               <div class="mb-3">
                 <label for="deposito" class="form-label">Depósito:</label>
@@ -150,7 +168,25 @@
               <!-- Campo Categoría -->
               <div class="mb-3">
                 <label for="editCategoria" class="form-label">Categoría:</label>
-                <input type="text" class="form-control" id="editCategoria" name="categoria" required>
+                <select id="editCategoria" name="editCategoria" class="form-select" required>
+                  <option value="Principal">Dispositivo</option>
+                  <option value="Secundario">Consumible</option>
+                </select> 
+              </div>
+              <!-- Campo Serial -->
+              <div class="mb-3">
+                <label for="editSerial" class="form-label">Serial:</label>
+                <input type="text" class="form-control" id="editSerial" name="serial" required>
+              </div>
+              <!-- Campo Modelo -->
+              <div class="mb-3">
+                <label for="editModelo" class="form-label">Modelo:</label>
+                <input type="text" class="form-control" id="editModelo" name="modelo" required>
+              </div>
+              <!-- Campo Marca -->
+              <div class="mb-3">
+                <label for="editmarca" class="form-label">Marca:</label>
+                <input type="text" class="form-control" id="editMarca" name="marca" required>
               </div>
               <!-- Campo Depósito -->
               <div class="mb-3">

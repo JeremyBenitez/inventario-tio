@@ -4,14 +4,14 @@ const db = require('../controllers/conexion'); // Importa la conexión SQLite
 
 // Agregar un producto
 router.post('/agregar', (req, res) => {
-    const { nombre, categoria, deposito, stock, estado } = req.body;
+    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado } = req.body;
 
-    if (!nombre || !categoria || !deposito || !stock || !estado) {
+    if (!nombre || !categoria || !serial || !modelo || !marca || !deposito || !stock || !estado) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const sql = `INSERT INTO inventario (Nombre, Categoria, Deposito, Stock, Estado) VALUES (?, ?, ?, ?, ?)`;
-    db.run(sql, [nombre, categoria, deposito, stock, estado], function (err) {
+    const sql = `INSERT INTO inventario (Nombre, Categoria, Serial, Modelo, Marca, Deposito, Stock, Estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    db.run(sql, [nombre, categoria, serial, modelo, marca, deposito, stock, estado], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -59,14 +59,14 @@ router.delete('/eliminar/:id', (req, res) => {
 router.put('/actualizar/:id', (req, res) => {
     console.log("Datos recibidos en la actualización:", req.body); // Agregar este log
     const { id } = req.params;
-    const { nombre, categoria, deposito, stock, estado } = req.body;
+    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado } = req.body;
 
-    if (!nombre || !categoria || !deposito || !stock || !estado) {
+    if (!nombre || !categoria || !serial || !modelo || !marca ||!deposito || !stock || !estado) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const sql = `UPDATE inventario SET Nombre = ?, Categoria = ?, Deposito = ?, Stock = ?, Estado = ? WHERE ID = ?`;
-    const params = [nombre, categoria, deposito, stock, estado, id];
+    const sql = `UPDATE inventario SET Nombre = ?, Categoria = ?, Serial = ?, Modelo = ?, Marca = ?, Deposito = ?, Stock = ?, Estado = ? WHERE ID = ?`;
+    const params = [nombre, categoria, serial, modelo, marca, deposito, stock, estado, id];
 
     db.run(sql, params, function (err) {
         if (err) {

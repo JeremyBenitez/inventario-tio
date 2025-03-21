@@ -43,6 +43,9 @@ async function obtenerProductos() {
       row.innerHTML = `
         <td>${producto.ID}</td>
         <td>${producto.Nombre}</td>
+        <td>${producto.Serial}</td>
+        <td>${producto.Modelo}</td>
+        <td>${producto.Marca}</td>
         <td>${producto.Categoria}</td>
         <td>${producto.Deposito}</td>
         <td>${producto.Stock}</td>
@@ -132,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const nuevoItem = {
       nombre: document.getElementById('nombre').value,
       categoria: document.getElementById('categoria').value,
+      serial: document.getElementById('serial').value,
+      modelo: document.getElementById('modelo').value,
+      marca: document.getElementById('marca').value,
       deposito: document.getElementById('deposito').value,
       stock: document.getElementById('stock').value,
       estado: document.getElementById('estado').value
@@ -222,6 +228,9 @@ async function abrirModalEditar(id) {
 
     document.getElementById('editNombre').value = producto.Nombre;
     document.getElementById('editCategoria').value = producto.Categoria;
+    document.getElementById('editSerial').value = producto.Serial;
+    document.getElementById('editModelo').value = producto.Modelo;
+    document.getElementById('editMarca').value = producto.Marca;
     document.getElementById('editDeposito').value = producto.Deposito;
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
@@ -235,6 +244,9 @@ async function abrirModalEditar(id) {
       const productoEditado = {
         nombre: document.getElementById('editNombre').value,
         categoria: document.getElementById('editCategoria').value,
+        serial: document.getElementById('editSerial').value,
+        modelo: document.getElementById('editModelo').value,
+        marca: document.getElementById('editMarca').value,
         deposito: document.getElementById('editDeposito').value,
         stock: document.getElementById('editStock').value,
         estado: document.getElementById('editEstado').value
@@ -287,4 +299,30 @@ async function abrirModalEditar(id) {
     });
   }
 }
+
+document.getElementById('close-btn').addEventListener('click', function () {
+  console.log('Botón de cerrar sesión clickeado');
+
+  fetch('/logout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      console.log('Respuesta del servidor:', response);
+      if (response.ok) {
+        // Redirige manualmente a la página principal
+        window.location.href = '/';
+      }
+    })
+    .catch((error) => {
+      console.error('Error al cerrar sesión:', error);
+    });
+});
+
+
+
+
+
 

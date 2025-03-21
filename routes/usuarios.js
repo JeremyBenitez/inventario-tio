@@ -6,30 +6,28 @@ const db = require('../controllers/conexion');
 const router = express.Router();
 
 
-// Ruta para registrar un usuario
 router.post('/registro', (req, res) => {
     const { Usuario, Password } = req.body;
 
     if (!Usuario || !Password) {
-        return res.status(400).json({ error: 'El usuario y la contraseña son obligatorios' });
+        return res.status(400).render('registro', { error: 'El usuario y la contraseña son obligatorios' });
     }
 
     bcrypt.hash(Password, 10, (err, hashedPassword) => {
         if (err) {
-            return res.status(500).json({ error: 'Error al generar el hash de la contraseña' });
+            return res.status(500).render('registro', { error: 'Error al generar el hash de la contraseña' });
         }
 
         const sql = `INSERT INTO inicio_usuario (Usuario, Password) VALUES (?, ?)`;
         db.run(sql, [Usuario, hashedPassword], function (err) {
             if (err) {
-                return res.status(500).json({ error: err.message });
+                return res.status(500).render('registro', { error: err.message });
             }
-            res.status(201).json({ mensaje: 'Usuario registrado exitosamente' });
+            res.redirect('/usuarios/login');  // Redirige al login después del registro
         });
     });
 });
 
-// Ruta para iniciar sesión
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 
@@ -42,12 +40,10 @@ router.post('/login', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-        // Comparar la contraseña con el hash almacenado
         bcrypt.compare(Password, row.Password, (err, isMatch) => {
             if (err) return res.status(500).json({ error: 'Error al comparar las contraseñas' });
             if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
-            // Si las credenciales son correctas, se guarda la información de la sesión
             req.session.userId = row.id;  // Guarda el ID del usuario en la sesión
             res.json({ mensaje: 'Inicio de sesión exitoso' });
         });
