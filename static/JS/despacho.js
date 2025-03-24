@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
     const despachoForm = document.querySelector('.despacho-form');
-    const recepcionForm = document.querySelector('.recepcion-form');
 
     if (despachoForm) {
         despachoForm.addEventListener('submit', async function (event) {
             event.preventDefault();
 
+            // Obtener valores del formulario
             const numero_despacho = document.getElementById('numero_despacho').value;
             const fecha_despacho = document.getElementById('fecha').value;
             const destinatario = document.getElementById('destinatario').value;
@@ -31,17 +31,42 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify(data)
                 });
 
-                if (!response.ok) {
-                    throw new Error('Error al guardar el despacho');
+                // Manejar la respuesta del servidor
+                if (response.ok) {
+                    // Intentar parsear como JSON, si falla usar mensaje genérico
+                    let responseData;
+                    try {
+                        responseData = await response.json();
+                    } catch (e) {
+                        responseData = { mensaje: 'Despacho registrado con éxito' };
+                    }
+                    
+                    await Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: responseData.mensaje || 'Despacho registrado correctamente',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    
+                    despachoForm.reset();
+                } else {
+                    // Manejar errores del servidor
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                    } catch (e) {
+                        errorData = { error: 'Error al procesar la respuesta del servidor' };
+                    }
+                    throw new Error(errorData.error || 'Error al guardar el despacho');
                 }
-
-                const responseData = await response.text();
-                alert(responseData);
-                despachoForm.reset();
             } catch (error) {
-                alert(error.message);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Hubo un problema al guardar el despacho',
+                    confirmButtonText: 'Aceptar'
+                });
             }
         });
     }
-
 });

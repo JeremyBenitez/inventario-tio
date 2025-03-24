@@ -160,6 +160,9 @@ document.addEventListener('DOMContentLoaded', function () {
           confirmButtonText: 'Aceptar'
         });
 
+        // Limpiar el formulario
+        this.reset();
+
         modal.hide();
         obtenerProductos();
       } else {

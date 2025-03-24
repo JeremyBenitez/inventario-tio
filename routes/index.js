@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
-const { checkAuth } = require('../routes/auth');
+
 
 // Ruta para el login (no requiere autenticación)
 router.get('/', (req, res) => {
@@ -9,17 +9,17 @@ router.get('/', (req, res) => {
 });
 
 // Ruta para inventario (requiere autenticación)
-router.get('/inventario', checkAuth, (req, res) => {
+router.get('/inventario', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/inventario.html'));
 });
 
 // Ruta para recepción (requiere autenticación)
-router.get('/recepcion', checkAuth, (req, res) => {
+router.get('/recepcion', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/recepcion.html'));
 });
 
 // Ruta para despacho (requiere autenticación)
-router.get('/despacho', checkAuth, (req, res) => {
+router.get('/despacho', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/despacho.html'));
 });
 
