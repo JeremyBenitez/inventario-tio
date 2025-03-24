@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Establecer fecha mínima (hoy)
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput) {
+        const today = new Date().toISOString().split('T')[0];
+        fechaInput.setAttribute('min', today);
+    }
+    
     const despachoForm = document.querySelector('.despacho-form');
 
     if (despachoForm) {
