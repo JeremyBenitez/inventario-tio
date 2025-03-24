@@ -3,6 +3,7 @@ const path = require('path');
 const session = require('express-session');
 const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
+const despachorecepcionRoutes = require('./routes/despachorecepcion')
 const indexRouter = require('./routes/index');
 
 const app = express();
@@ -41,6 +42,7 @@ function ensureAuthenticated(req, res, next) {
 // Usar las rutas con el middleware de autenticación
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
+app.use('/despachorecepcion', despachorecepcionRoutes);
 app.use('/', indexRouter);
 
 // Manejo de errores

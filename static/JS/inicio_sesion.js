@@ -24,10 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/usuarios/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ Usuario: Usuario, Password: Password }),
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',  // ✅ Enviar cookies de sesión
+                body: JSON.stringify({ Usuario, Password }),
             });
 
             if (!response.ok) {

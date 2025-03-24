@@ -1,10 +1,7 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
-const { checkAuth } = require('./auth');
-//aqui van las rutas de las vistas
-
-// Ruta para productos
+const { checkAuth } = require('../routes/auth');
 
 // Ruta para el login (no requiere autenticación)
 router.get('/', (req, res) => {

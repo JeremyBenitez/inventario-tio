@@ -94,4 +94,7 @@ router.get('/consultar/:id', (req, res) => {
     });
 });
 
+
+
+
 module.exports = router;
