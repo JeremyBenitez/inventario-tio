@@ -43,10 +43,10 @@ async function obtenerProductos() {
       row.innerHTML = `
         <td>${producto.ID}</td>
         <td>${producto.Nombre}</td>
+        <td>${producto.Categoria}</td>
         <td>${producto.Serial}</td>
         <td>${producto.Modelo}</td>
         <td>${producto.Marca}</td>
-        <td>${producto.Categoria}</td>
         <td>${producto.Deposito}</td>
         <td>${producto.Stock}</td>
         <td><span class="status status-new">${producto.Estado}</span></td>
