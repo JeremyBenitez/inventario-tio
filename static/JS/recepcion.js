@@ -72,3 +72,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+
+document.getElementById('close-btn').addEventListener('click', function () {
+    console.log('Botón de cerrar sesión clickeado');
+
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then((response) => {
+            console.log('Respuesta del servidor:', response);
+            if (response.ok) {
+                // Redirige manualmente a la página principal
+                window.location.href = '/';
+            }
+        })
+        .catch((error) => {
+            console.error('Error al cerrar sesión:', error);
+        });
+});

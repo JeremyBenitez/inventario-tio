@@ -86,7 +86,21 @@
       </div>
     </div>
 
+    <!-- <script>
+  // En cada página protegida (inventario.html, etc.)
+document.addEventListener('DOMContentLoaded', async () => {
+    const response = await fetch('/verificar-sesion', { credentials: 'include' });
+    const data = await response.json();
+    
+    if (!data.autenticado) {
+        window.location.href = '/';
+    }
+});
+
+
+</script> -->
     <script src="/js/recepcion.js"></script>
+       <script src="/js/auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </body>
 </html>
