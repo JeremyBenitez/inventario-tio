@@ -25,6 +25,7 @@ app.use(session({
 }));
 
 // Middleware global
+
 app.use(express.static(path.join(__dirname, 'static')));
 app.use(cookieParser()); // Añadir
 app.use(express.json());

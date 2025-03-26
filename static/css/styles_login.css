@@ -7,7 +7,8 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  background: url('/Img/fondo2.jpg') no-repeat center center fixed;
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,84 +16,182 @@ body {
   color: #333;
 }
 
-.login-container {
-  width: 100%;
-  max-width: 400px;
+.container {
+  display: flex;
+  width: 800px;
+  height: 500px;
+  max-width: 90%;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 15px;
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+  border: 0.1px solid rgba(128, 128, 128, 0.178);
+}
+
+.left {
+  width: 60%;
+  height: 100%;
   padding: 2rem;
 }
 
-.card {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  text-align: center;
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  backdrop-filter: blur(8px);
+  position: relative;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.form::before {
+  position: absolute;
+  content: "";
+  width: 40%;
+  height: 40%;
+  right: 1%;
+  z-index: -1;
+  background: radial-gradient(
+    circle,
+    rgba(110, 142, 251, 0.8) 20%,
+    rgba(92, 107, 192, 0.6) 60%,
+    rgba(92, 107, 192, 0.4) 100%
+  );
+  filter: blur(70px);
+  border-radius: 50%;
+}
+
+.right {
+  width: 40%;
+  height: 100%;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+}
+
+.container::after {
+  position: absolute;
+  content: "";
+  width: 80%;
+  height: 80%;
+  right: -40%;
+  background: radial-gradient(
+    circle,
+    rgba(157, 173, 203, 0.3) 61%,
+    rgba(99, 122, 159, 0.3) 100%
+  );
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .form-title {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
   color: #333;
+  font-size: 1.8rem;
 }
 
-.input-group {
-  margin-bottom: 1.5rem;
-  position: relative;
-}
-
-.input-label {
+.input {
+  background: rgba(253, 253, 253, 0.7);
+  outline: none;
+  border: 1px solid rgba(110, 142, 251, 0.3);
+  border-radius: 0.5rem;
+  padding: 12px;
+  margin: 15px auto;
+  width: 80%;
   display: block;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  color: #555;
+  color: #425981;
+  font-weight: 500;
+  font-size: 1em;
+  transition: all 0.3s ease;
 }
 
-.input-wrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 0.5rem;
-  transition: border-color 0.3s ease;
-}
-
-.input-wrapper:focus-within {
+.input:focus {
   border-color: #6e8efb;
+  box-shadow: 0 0 0 2px rgba(110, 142, 251, 0.2);
 }
 
-.input-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 0.5rem;
+.input-block {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  position: absolute;
+  left: 15%;
+  top: 35%;
+  pointer-events: none;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.forgot {
+  display: block;
+  margin: 5px 0 15px 0;
+  margin-left: 10%;
+  color: #5e7eb6;
+  font-size: 0.9em;
+  text-align: left;
+}
+
+.input:focus + label,
+.input:valid + label {
+  transform: translateY(-120%) scale(0.9);
+  transition: all 0.4s;
   color: #6e8efb;
 }
 
-.input-field {
-  flex: 1;
+.btn-submit {
+  background-color: #6e8efb;
+  color: white;
+  font-size: 1em;
+  box-shadow: 2px 4px 8px rgba(70, 70, 70, 0.178);
   border: none;
-  outline: none;
-  font-size: 1rem;
-  color: #333;
+  border-radius: 0.5rem;
+  padding: 12px;
+  margin: 15px auto;
+  width: 80%;
+  display: block;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #5a7de2;
 }
 
 .error-message {
   color: #ff4d4f;
   font-size: 0.8rem;
   display: none;
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
 
-.btn-submit {
-  background: #6e8efb;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  width: 100%;
-}
-
-.btn-submit:hover {
-  background: #5a7de2;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .left, .right {
+    width: 100%;
+  }
+  
+  .right {
+    height: 300px;
+  }
+  
+  .form {
+    padding: 2rem 1rem;
+  }
 }
