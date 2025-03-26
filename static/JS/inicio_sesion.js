@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/usuarios/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',  // ✅ Enviar cookies de sesión
                 body: JSON.stringify({ Usuario, Password }),
+                credentials: 'include' // Importante para cookies
             });
 
             if (!response.ok) {
@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log('Respuesta del servidor:', data);
 
-            // Mostrar mensaje de éxito con SweetAlert2 y redirigir después
+            // Almacenar el token en el almacenamiento local para API calls
+            localStorage.setItem('token', data.token);
+
             Swal.fire({
                 icon: 'success',
                 title: '¡Bienvenido!',
@@ -45,8 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                window.location.href = '/inventario';
+                // Redirigir con el token como parámetro para la primera carga
+                window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
             });
+
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
             Swal.fire({

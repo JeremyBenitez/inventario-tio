@@ -1,37 +1,30 @@
 const express = require('express');
 const path = require('path');
+const ensureAuthenticated = require('../routes/auth'); // Importa el middleware
+
 const router = express.Router();
 
-
-// Ruta para el login (no requiere autenticación)
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/login.html'));
 });
 
-// Ruta para inventario (requiere autenticación)
-router.get('/inventario', (req, res) => {
+// Rutas protegidas
+router.get('/inventario', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/inventario.html'));
+
 });
 
-// Ruta para recepción (requiere autenticación)
-router.get('/recepcion', (req, res) => {
+router.get('/recepcion', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/recepcion.html'));
 });
 
-// Ruta para despacho (requiere autenticación)
-router.get('/despacho', (req, res) => {
+router.get('/despacho', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/despacho.html'));
 });
 
-// Definir la ruta de logout
-router.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).json({ error: 'Error al cerrar sesión' });
-        }
-        res.clearCookie('connect.sid'); // Elimina la cookie de sesión
-        res.json({ mensaje: 'Sesión cerrada exitosamente' });
-    });
+// Ruta para verificar si el usuario está autenticado (para el frontend)
+router.get('/verificar-sesion', ensureAuthenticated, (req, res) => {
+    res.json({ autenticado: true });
 });
 
 module.exports = router;
