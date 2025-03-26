@@ -1,106 +1,98 @@
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-image: url('/Img/Fondo1.jpg'); /* Ruta a la imagen */
-    background-size: cover; /* Cubrir toda la pantalla */
-    background-position: center; /* Centrar la imagen */
-    background-repeat: no-repeat; /* No repetir la imagen */
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 2em;
-    background-color: #171717;
-    border-radius: 25px;
-    transition: 0.4s ease-in-out;
-    width: 300px; /* Ancho fijo para el formulario */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #333;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
 }
 
 .card {
-    background-image: linear-gradient(163deg, #00ff75 0%, #3700ff 100%);
-    border-radius: 22px;
-    transition: all 0.3s;
-    padding: 2px; /* Espacio para el efecto de borde */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  text-align: center;
 }
 
-.card2 {
-    border-radius: 0;
-    transition: all 0.2s;
+.form-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
-.card2:hover {
-    transform: scale(0.98);
-    border-radius: 20px;
+.input-group {
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
-.card:hover {
-    box-shadow: 0px 0px 30px 1px rgba(0, 255, 117, 0.3);
+.input-label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #555;
 }
 
-#heading {
-    text-align: center;
-    margin: 1em 0; /* Ajuste del margen */
-    color: rgb(255, 255, 255);
-    font-size: 1.2em;
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5rem;
+  transition: border-color 0.3s ease;
 }
 
-.field {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5em;
-    border-radius: 25px;
-    padding: 0.6em;
-    border: none;
-    outline: none;
-    color: white;
-    background-color: #171717;
-    box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+.input-wrapper:focus-within {
+  border-color: #6e8efb;
 }
 
 .input-icon {
-    height: 1.3em;
-    width: 1.3em;
-    fill: white;
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+  color: #6e8efb;
 }
 
 .input-field {
-    background: none;
-    border: none;
-    outline: none;
-    width: 100%;
-    color: #d3d3d3;
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
 }
 
-.form .btn {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    margin-top: 1.5em; /* Ajuste del margen */
+.error-message {
+  color: #ff4d4f;
+  font-size: 0.8rem;
+  display: none;
 }
 
-.button1 {
-    padding: 0.5em;
-    padding-left: 1.1em;
-    padding-right: 1.1em;
-    border-radius: 5px;
-    margin-right: 0.5em;
-    border: none;
-    outline: none;
-    transition: 0.4s ease-in-out;
-    background-color: #252525;
-    color: white;
-    font-size: large;
+.btn-submit {
+  background: #6e8efb;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
 }
 
-.button1:hover {
-    background-color: rgb(5, 84, 255);
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
+.btn-submit:hover {
+  background: #5a7de2;
 }
