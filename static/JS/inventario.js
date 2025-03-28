@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // Función para obtener los productos desde el backend
 async function obtenerProductos() {
   try {
-    const response = await fetch('http://localhost:3000/inventario/consultar');
+    const response = await fetch('http://10.21.5.14:3000/inventario/consultar');
     const productos = await response.json();
     const tbody = document.querySelector('#tabla-inventario tbody');
     tbody.innerHTML = ''; // Limpiar contenido previo
@@ -142,7 +142,7 @@ async function eliminarProducto(id) {
 
   if (confirmacion.isConfirmed) {
     try {
-      const response = await fetch(`http://localhost:3000/inventario/eliminar/${id}`, { method: 'DELETE' });
+      const response = await fetch(`http://10.21.5.14:3000/inventario/eliminar/${id}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok) {
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/inventario/agregar', {
+      const response = await fetch('http://10.21.5.14:3000/inventario/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuevoItem)
@@ -278,7 +278,7 @@ document.getElementById('inputBuscar').addEventListener('input', function () {
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`http://10.21.5.14:3000/inventario/consultar/${id}`);
     const producto = await response.json();
 
     document.getElementById('editNombre').value = producto.Nombre;
@@ -308,7 +308,7 @@ async function abrirModalEditar(id) {
       };
 
       try {
-        const response = await fetch(`http://localhost:3000/inventario/actualizar/${id}`, {
+        const response = await fetch(`http://10.21.5.14:3000/inventario/actualizar/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productoEditado)
@@ -380,13 +380,10 @@ document.getElementById('close-btn').addEventListener('click', function () {
 
 
 
-
-// Modificar las funciones registrarRecepcion y registrarDespacho para incluir validaciones:
-
 // Modificar la función registrarRecepcion
 async function registrarRecepcion(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`http://10.21.5.14:3000/inventario/consultar/${id}`);
     const producto = await response.json();
     
     const { value: formValues } = await Swal.fire({
@@ -409,10 +406,8 @@ async function registrarRecepcion(id) {
             </div>
             <div class="form-group">
               <label for="swal-deposito" class="form-label">Depósito</label>
-              <select id="swal-deposito" class="swal2-input">
-                <option value="Principal">Principal</option>
-                <option value="Secundario">Secundario</option>
-              </select>
+              <input type="text" id="swal-deposito" class="swal2-input" 
+                     value="${producto.Deposito}" readonly>
             </div>
           </div>
           
@@ -473,7 +468,7 @@ async function registrarRecepcion(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/despachorecepcion/guardar_recepcion', {
+      const response = await fetch('http://10.21.5.14:3000/despachorecepcion/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
@@ -521,7 +516,7 @@ async function registrarRecepcion(id) {
 
 async function registrarDespacho(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`http://10.21.5.14:3000/inventario/consultar/${id}`);
     const producto = await response.json();
     
     const { value: formValues } = await Swal.fire({
@@ -615,7 +610,7 @@ async function registrarDespacho(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/despachorecepcion/guardar_despacho', {
+      const response = await fetch('http://10.21.5.14:3000/despachorecepcion/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
