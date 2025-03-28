@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
-const despachorecepcionRoutes = require('./routes/despachorecepcion');
 const indexRouter = require('./routes/index');
 const logoutRoutes = require('./routes/logout');
 const app = express();
@@ -33,7 +32,6 @@ app.use(express.urlencoded({ extended: true }));
 // Usar las rutas
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
-app.use('/despachorecepcion', despachorecepcionRoutes);
 app.use('/', indexRouter);
 app.use('/logout', logoutRoutes);
 

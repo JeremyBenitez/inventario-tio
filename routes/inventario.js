@@ -94,7 +94,62 @@ router.get('/consultar/:id', (req, res) => {
     });
 });
 
+// 🚚 Ruta para guardar despacho
+router.post('/guardar_despacho', (req, res) => {
+    const { fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id } = req.body; // Nombres exactos
 
+    if (!fecha_despacho || !destinatario || !cantidad || !deposito_origen || !inventario_id) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios." });
+    }
+
+    db.get(`SELECT Stock FROM inventario WHERE ID = ?`, [inventario_id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "Producto no encontrado." });
+        if (row.Stock < cantidad) return res.status(400).json({ error: "Stock insuficiente." });
+
+        db.run(
+            `INSERT INTO Despachos (fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id)
+         VALUES (?, ?, ?, ?, ?)`, // 5 parámetros
+            [fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id],            function (err) {
+                if (err) return res.status(500).json({ error: err.message });
+
+                db.run(`UPDATE inventario SET Stock = Stock - ? WHERE ID = ?`, [cantidad, inventario_id], function (err) {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ message: "🚚 Despacho registrado y stock actualizado." });
+                });
+            }
+        );
+    });
+});
+
+// 📦 Ruta para guardar recepción
+router.post('/guardar_recepcion', (req, res) => {
+     const { fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id } = req.body;
+    
+    // Validación corregida
+    if (!fecha_recepcion || !descripcion || !destino || !cantidad || !deposito_destino || !inventario_id) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios." });
+    }
+
+
+    db.run(
+        `INSERT INTO Recepciones (fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id)
+         VALUES (?, ?, ?, ?, ?, ?)`, // 6 parámetros
+        [fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id],
+        // ... resto del código
+        function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+
+            db.run(`UPDATE inventario SET Stock = Stock + ? WHERE ID = ?`, [cantidad, inventario_id], function (err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: "📦 Recepción registrada y stock actualizado." });
+            });
+        }
+    );
+});
+
+// Exportamos el router correctamente
+module.exports = router;
 
 
 module.exports = router;
