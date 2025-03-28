@@ -14,13 +14,6 @@ router.get('/inventario', ensureAuthenticated, (req, res) => {
 
 });
 
-router.get('/recepcion', ensureAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/recepcion.html'));
-});
-
-router.get('/despacho', ensureAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/despacho.html'));
-});
 
 // Ruta para verificar si el usuario está autenticado (para el frontend)
 router.get('/verificar-sesion', ensureAuthenticated, (req, res) => {

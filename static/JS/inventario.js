@@ -37,9 +37,23 @@ async function obtenerProductos() {
     const tbody = document.querySelector('#tabla-inventario tbody');
     tbody.innerHTML = ''; // Limpiar contenido previo
 
+    // Dentro de la función obtenerProductos(), modificar la creación de las filas:
     productos.forEach(producto => {
       const row = document.createElement('tr');
       row.setAttribute('data-deposito', producto.Deposito.toLowerCase());
+      
+      // Determinar la clase CSS e icono según el estado
+      let estadoClass = 'status-new';
+      let estadoIcon = '<i class="fas fa-certificate"></i>';
+      
+      if (producto.Estado.toLowerCase() === 'usado') {
+        estadoClass = 'status-used';
+        estadoIcon = '<i class="fas fa-history"></i>';
+      } else if (producto.Estado.toLowerCase() === 'dañado') {
+        estadoClass = 'status-damaged';
+        estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+      }
+      
       row.innerHTML = `
         <td>${producto.ID}</td>
         <td>${producto.Nombre}</td>
@@ -48,11 +62,25 @@ async function obtenerProductos() {
         <td>${producto.Modelo}</td>
         <td>${producto.Marca}</td>
         <td>${producto.Deposito}</td>
+        <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado}</span></td>
         <td>${producto.Stock}</td>
-        <td><span class="status status-new">${producto.Estado}</span></td>
-        <td>
-          <button class="action-btn edit-btn" data-id="${producto.ID}"><i class="fas fa-edit"></i></button>
-          <button class="action-btn delete-btn" data-id="${producto.ID}"><i class="fas fa-trash"></i></button>
+        <td class="action-buttons">
+          <div class="action-group">
+            <button class="action-btn edit-btn" data-id="${producto.ID}" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" data-id="${producto.ID}" title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <div class="action-group">
+            <button class="action-btn receive-btn" data-id="${producto.ID}" title="Registrar Recepción">
+              <i class="fas fa-truck-loading"></i>
+            </button>
+            <button class="action-btn dispatch-btn" data-id="${producto.ID}" title="Registrar Despacho">
+              <i class="fas fa-shipping-fast"></i>
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(row);
@@ -64,7 +92,6 @@ async function obtenerProductos() {
   }
 }
 
-// Función para agregar eventos de editar y eliminar
 function agregarEventosBotones() {
   document.querySelectorAll('.delete-btn').forEach(button => {
     button.addEventListener('click', () => eliminarProducto(button.getAttribute('data-id')));
@@ -73,19 +100,44 @@ function agregarEventosBotones() {
   document.querySelectorAll('.edit-btn').forEach(button => {
     button.addEventListener('click', () => abrirModalEditar(button.getAttribute('data-id')));
   });
+
+  // Agregar eventos para los nuevos botones
+  document.querySelectorAll('.receive-btn').forEach(button => {
+    button.addEventListener('click', () => registrarRecepcion(button.getAttribute('data-id')));
+  });
+
+  document.querySelectorAll('.dispatch-btn').forEach(button => {
+    button.addEventListener('click', () => registrarDespacho(button.getAttribute('data-id')));
+  });
 }
 
 // Función para eliminar un producto
 async function eliminarProducto(id) {
   const confirmacion = await Swal.fire({
-    title: '¿Estás seguro?',
-    text: "¡No podrás revertir esto!",
-    icon: 'warning',
+    title: '<i class="fas fa-trash" style="color: #e74c3c"></i> ¿Eliminar Producto?',
+    html: `
+      <div class="text-center" style="padding: 20px;">
+        <div style="font-size: 5rem; color: #e74c3c; margin-bottom: 20px;">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p style="font-size: 1.2rem; margin-bottom: 10px;">¿Estás seguro que deseas eliminar este producto?</p>
+        <p style="color: #7f8c8d;">Esta acción no se puede deshacer y eliminará permanentemente el registro.</p>
+      </div>
+    `,
+    background: '#f8f9fa',
+    width: '600px',
+    padding: '0',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#95a5a6',
+    confirmButtonText: '<i class="fas fa-trash"></i> Sí, eliminar',
+    cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+    customClass: {
+      popup: 'action-modal modal-eliminar',
+      title: 'modal-title',
+      confirmButton: 'btn-submit',
+      cancelButton: 'btn-cancel'
+    }
   });
 
   if (confirmacion.isConfirmed) {
@@ -324,6 +376,290 @@ document.getElementById('close-btn').addEventListener('click', function () {
     });
 });
 
+
+
+
+
+
+// Modificar las funciones registrarRecepcion y registrarDespacho para incluir validaciones:
+
+// Modificar la función registrarRecepcion
+async function registrarRecepcion(id) {
+  try {
+    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const producto = await response.json();
+    
+    const { value: formValues } = await Swal.fire({
+      title: `<i class="fas fa-truck-loading"></i> Recepción`,
+      html: `
+        <div class="compact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-producto" class="form-label">Producto</label>
+              <input type="text" id="swal-producto" class="swal2-input" 
+                     value="${producto.Nombre}" readonly>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-cantidad" class="form-label">Cantidad</label>
+              <input type="number" id="swal-cantidad" class="swal2-input quantity-input" 
+                     placeholder="Cantidad" value="1" min="1">
+            </div>
+            <div class="form-group">
+              <label for="swal-deposito" class="form-label">Depósito</label>
+              <select id="swal-deposito" class="swal2-input">
+                <option value="Principal">Principal</option>
+                <option value="Secundario">Secundario</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-fecha" class="form-label">Fecha</label>
+              <input type="date" id="swal-fecha" class="swal2-input" 
+                     value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
+        </div>
+      `,
+      background: '#ffffff',
+      width: '450px',
+      padding: '0',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#2ecc71',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: '<i class="fas fa-save"></i> Registrar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+      customClass: {
+        popup: 'compact-action-modal recepcion-modal',
+        title: 'modal-title',
+        confirmButton: 'btn-submit',
+        cancelButton: 'btn-cancel',
+        container: 'modal-container'
+      },
+      preConfirm: () => {
+        const cantidad = document.getElementById('swal-cantidad').value;
+        const fecha = document.getElementById('swal-fecha').value;
+        
+        if (!cantidad || cantidad <= 0) {
+          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+          return false;
+        }
+        if (!fecha) {
+          Swal.showValidationMessage('Debe seleccionar una fecha');
+          return false;
+        }
+        
+        return {
+          productoId: id,
+          cantidad: cantidad,
+          deposito: document.getElementById('swal-deposito').value,
+          fecha: fecha
+        };
+      }
+    });
+
+    if (formValues) {
+      // Mostrar animación de carga
+      Swal.fire({
+        title: 'Procesando recepción...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const response = await fetch('http://localhost:3000/despachorecepcion/guardar_recepcion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formValues)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #4CAF50"></i> Recepción Registrada',
+          html: `
+            <div style="text-align: center;">
+              <p>${data.mensaje || 'La recepción se ha registrado correctamente'}</p>
+              <div style="margin-top: 20px; font-size: 2em; color: #4CAF50;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <p style="margin-top: 10px; font-weight: bold;">Stock actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha}</p>
+            </div>
+          `,
+          confirmButtonColor: '#4CAF50',
+          confirmButtonText: 'Aceptar'
+        });
+        obtenerProductos();
+      } else {
+        throw new Error(data.error || 'Error al registrar la recepción');
+      }
+    }
+  } catch (error) {
+    await Swal.fire({
+      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
+      html: `
+        <div style="text-align: center;">
+          <p>${error.message || 'Hubo un problema al registrar la recepción'}</p>
+          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
+            <i class="fas fa-times-circle"></i>
+          </div>
+        </div>
+      `,
+      confirmButtonColor: '#f44336',
+      confirmButtonText: 'Entendido'
+    });
+  }
+}
+
+async function registrarDespacho(id) {
+  try {
+    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const producto = await response.json();
+    
+    const { value: formValues } = await Swal.fire({
+      title: `<i class="fas fa-shipping-fast"></i> Despacho`,
+      html: `
+        <div class="compact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-producto-despacho" class="form-label">Producto</label>
+              <input type="text" id="swal-producto-despacho" class="swal2-input" 
+                     value="${producto.Nombre} (Stock: ${producto.Stock})" readonly>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-cantidad-despacho" class="form-label">Cantidad</label>
+              <input type="number" id="swal-cantidad-despacho" class="swal2-input quantity-input" 
+                     placeholder="Cantidad" value="1" min="1" max="${producto.Stock}">
+            </div>
+            <div class="form-group">
+              <label for="swal-destino" class="form-label">Destino</label>
+              <input type="text" id="swal-destino" class="swal2-input" 
+                     placeholder="Departamento o persona">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
+              <input type="date" id="swal-fecha-despacho" class="swal2-input" 
+                     value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
+        </div>
+      `,
+      background: '#ffffff',
+      width: '450px',
+      padding: '0',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#e67e22',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: '<i class="fas fa-paper-plane"></i> Despachar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+      customClass: {
+        popup: 'compact-action-modal despacho-modal',
+        title: 'modal-title',
+        confirmButton: 'btn-submit',
+        cancelButton: 'btn-cancel',
+        container: 'modal-container'
+      },
+      preConfirm: () => {
+        const cantidad = document.getElementById('swal-cantidad-despacho').value;
+        const destino = document.getElementById('swal-destino').value;
+        const fecha = document.getElementById('swal-fecha-despacho').value;
+        
+        if (!cantidad || cantidad <= 0) {
+          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+          return false;
+        }
+        if (cantidad > producto.Stock) {
+          Swal.showValidationMessage(`No hay suficiente stock (disponible: ${producto.Stock})`);
+          return false;
+        }
+        if (!destino) {
+          Swal.showValidationMessage('Debe especificar un destino');
+          return false;
+        }
+        if (!fecha) {
+          Swal.showValidationMessage('Debe seleccionar una fecha');
+          return false;
+        }
+        
+        return {
+          productoId: id,
+          cantidad: cantidad,
+          destino: destino,
+          fecha: fecha
+        };
+      }
+    });
+
+    if (formValues) {
+      // Mostrar animación de carga
+      Swal.fire({
+        title: 'Procesando despacho...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const response = await fetch('http://localhost:3000/despachorecepcion/guardar_despacho', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formValues)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #FF9800"></i> Despacho Registrado',
+          html: `
+            <div style="text-align: center;">
+              <p>${data.mensaje || 'El despacho se ha registrado correctamente'}</p>
+              <div style="margin-top: 20px; font-size: 2em; color: #FF9800;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <p style="margin-top: 10px; font-weight: bold;">Stock restante: ${parseInt(producto.Stock) - parseInt(formValues.cantidad)}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha}</p>
+            </div>
+          `,
+          confirmButtonColor: '#FF9800',
+          confirmButtonText: 'Aceptar'
+        });
+        obtenerProductos();
+      } else {
+        throw new Error(data.error || 'Error al registrar el despacho');
+      }
+    }
+  } catch (error) {
+    await Swal.fire({
+      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
+      html: `
+        <div style="text-align: center;">
+          <p>${error.message || 'Hubo un problema al registrar el despacho'}</p>
+          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
+            <i class="fas fa-times-circle"></i>
+          </div>
+        </div>
+      `,
+      confirmButtonColor: '#f44336',
+      confirmButtonText: 'Entendido'
+    });
+  }
+}
 
 
 

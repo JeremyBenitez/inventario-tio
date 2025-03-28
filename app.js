@@ -1,22 +1,22 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const cookieParser = require('cookie-parser'); // Añadir
-const cors = require('cors'); // Añadir
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
 const despachorecepcionRoutes = require('./routes/despachorecepcion');
 const indexRouter = require('./routes/index');
-const logoutRoutes = require('./routes/logout')
+const logoutRoutes = require('./routes/logout');
 const app = express();
 
-// Configuración de CORS
+// Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3000', // Puedes cambiarlo por tu IP si necesitas
   credentials: true
 }));
 
-// Configuración de sesión (puedes mantenerla para otras funcionalidades)
+// Configuración de sesión
 app.use(session({
   secret: '123',
   resave: false,
@@ -25,27 +25,28 @@ app.use(session({
 }));
 
 // Middleware global
-
 app.use(express.static(path.join(__dirname, 'static')));
-app.use(cookieParser()); // Añadir
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'static')));
 
 // Usar las rutas
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/despachorecepcion', despachorecepcionRoutes);
 app.use('/', indexRouter);
-app.use('/logout', logoutRoutes); // Añade esta línea
-// Manejo de errores
+app.use('/logout', logoutRoutes);
 
+// Manejo de errores
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Algo salió mal!');
 });
 
 const PORT = 3000;
-app.listen(PORT, () => {
+const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
+
+app.listen(PORT, HOST, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.14:${PORT}`);
 });
