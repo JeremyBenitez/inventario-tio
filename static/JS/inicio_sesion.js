@@ -13,10 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const Password = document.getElementById('Password').value;
 
         if (!Usuario || !Password) {
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Por favor, ingrese tanto el usuario como la contraseña.'
+                text: 'Por favor, ingrese tanto el usuario como la contraseña.',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.5)',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'swal-no-scroll'
+                }
             });
             return;
         }
@@ -26,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Usuario, Password }),
-                credentials: 'include' // Importante para cookies
+                credentials: 'include'
             });
 
             if (!response.ok) {
@@ -35,28 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            console.log('Respuesta del servidor:', data);
 
-            // Almacenar el token en el almacenamiento local para API calls
-            localStorage.setItem('token', data.token);
+            // Agregamos la clase al body para prevenir el scroll
+            document.body.classList.add('swal-open');
 
-            Swal.fire({
+            await Swal.fire({
+                title: '<span style="color: #4CAF50; font-size: 1.5rem;">¡Bienvenido!</span>',
+                html: '<div style="margin: 1rem 0; font-size: 1.1rem;">Inicio de sesión exitoso</div>',
                 icon: 'success',
-                title: '¡Bienvenido!',
-                text: 'Inicio de sesión exitoso',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.5)',
+                showConfirmButton: false,
                 timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                // Redirigir con el token como parámetro para la primera carga
-                window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
+                customClass: {
+                    container: 'swal-fixed-container',
+                    popup: 'swal-over-form'
+                },
+                willClose: () => {
+                    // Removemos la clase al cerrar el modal
+                    document.body.classList.remove('swal-open');
+                }
             });
+
+            // Redirigir después del modal
+            window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
 
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
-            Swal.fire({
+            await Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'Hubo un problema al procesar la solicitud'
+                text: error.message || 'Hubo un problema al procesar la solicitud',
+                position: 'center',
+                backdrop: 'rgba(0,0,0,0.5)',
+                customClass: {
+                    container: 'swal-no-scroll'
+                }
             });
         }
     });

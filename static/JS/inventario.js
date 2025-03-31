@@ -377,8 +377,7 @@ document.getElementById('close-btn').addEventListener('click', function () {
 });
 
 
-
-
+// Modificar las funciones registrarRecepcion y registrarDespacho para incluir validaciones:
 
 // Modificar la función registrarRecepcion
 async function registrarRecepcion(id) {
@@ -406,16 +405,16 @@ async function registrarRecepcion(id) {
             </div>
             <div class="form-group">
               <label for="swal-deposito" class="form-label">Depósito</label>
-              <input type="text" id="swal-deposito" class="swal2-input" 
+              <input type="text" id="swal-deposito" class="swal2-input"
                      value="${producto.Deposito}" readonly>
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label for="swal-fecha" class="form-label">Fecha</label>
-              <input type="date" id="swal-fecha" class="swal2-input" 
-                     value="${new Date().toISOString().split('T')[0]}">
+                <label for="swal-fecha-recepcion" class="form-label">Fecha</label>
+                <input type="date" id="swal-fecha-recepcion" class="swal2-input"
+                      value="${new Date().toISOString().split('T')[0]}">
             </div>
           </div>
         </div>
@@ -438,7 +437,7 @@ async function registrarRecepcion(id) {
       },
       preConfirm: () => {
         const cantidad = document.getElementById('swal-cantidad').value;
-        const fecha = document.getElementById('swal-fecha').value;
+        const fecha = document.getElementById('swal-fecha-recepcion').value;
         
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
@@ -449,11 +448,14 @@ async function registrarRecepcion(id) {
           return false;
         }
         
+        // Modificar el objeto formValues
         return {
-          productoId: id,
+          inventario_id: id,
+          descripcion: 'Recepción de productos', // ✅ Valor fijo o dinámico
+          destino: 'Almacén central',
           cantidad: cantidad,
-          deposito: document.getElementById('swal-deposito').value,
-          fecha: fecha
+          deposito_destino: document.getElementById('swal-deposito').value, // ✅ Usar campo existente
+          fecha_recepcion: fecha
         };
       }
     });
@@ -468,7 +470,7 @@ async function registrarRecepcion(id) {
         }
       });
 
-      const response = await fetch('http://10.21.5.14:3000/despachorecepcion/guardar_recepcion', {
+      const response = await fetch('http://10.21.5.14:3000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
@@ -486,7 +488,7 @@ async function registrarRecepcion(id) {
                 <i class="fas fa-check-circle"></i>
               </div>
               <p style="margin-top: 10px; font-weight: bold;">Stock actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}</p>
-              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_recepcion}</p>
             </div>
           `,
           confirmButtonColor: '#4CAF50',
@@ -545,12 +547,12 @@ async function registrarDespacho(id) {
           </div>
           
           <div class="form-row">
-            <div class="form-group">
-              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
-              <input type="date" id="swal-fecha-despacho" class="swal2-input" 
-                     value="${new Date().toISOString().split('T')[0]}">
-            </div>
-          </div>
+        <div class="form-group">
+            <label for="swal-fecha-despacho" class="form-label">Fecha</label>
+            <input type="date" id="swal-fecha-despacho" class="swal2-input"
+                   value="${new Date().toISOString().split('T')[0]}">
+        </div>
+    </div>
         </div>
       `,
       background: '#ffffff',
@@ -573,6 +575,7 @@ async function registrarDespacho(id) {
         const cantidad = document.getElementById('swal-cantidad-despacho').value;
         const destino = document.getElementById('swal-destino').value;
         const fecha = document.getElementById('swal-fecha-despacho').value;
+        const depositoOrigen = producto.Deposito; // ✅ Usar el depósito del producto
         
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
@@ -592,10 +595,11 @@ async function registrarDespacho(id) {
         }
         
         return {
-          productoId: id,
+          inventario_id: id,
+          destinatario: destino,
           cantidad: cantidad,
-          destino: destino,
-          fecha: fecha
+          fecha_despacho: fecha,
+          deposito_origen: depositoOrigen // ✅ Valor obtenido del producto
         };
       }
     });
@@ -610,7 +614,7 @@ async function registrarDespacho(id) {
         }
       });
 
-      const response = await fetch('http://10.21.5.14:3000/despachorecepcion/guardar_despacho', {
+      const response = await fetch('http://10.21.5.14:3000/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
@@ -628,7 +632,7 @@ async function registrarDespacho(id) {
                 <i class="fas fa-check-circle"></i>
               </div>
               <p style="margin-top: 10px; font-weight: bold;">Stock restante: ${parseInt(producto.Stock) - parseInt(formValues.cantidad)}</p>
-              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_despacho}</p>
             </div>
           `,
           confirmButtonColor: '#FF9800',

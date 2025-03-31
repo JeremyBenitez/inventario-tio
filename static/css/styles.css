@@ -157,9 +157,9 @@
   border-radius: 8px;
 }
 
-.table-rediseno {
-  width: 100%;
-  border-collapse: collapse;
+.table-rediseno td.action-buttons {
+  padding: 14px 8px; /* Ajusta el padding para que coincida con otras celdas */
+  border-bottom: 1px solid #e2e8f0; /* Asegura que tenga el mismo borde */
 }
 
 .table-rediseno thead {
@@ -178,9 +178,11 @@
 }
 
 .table-rediseno td {
-  padding: 14px 16px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle; /* Alinea el contenido verticalmente */
+}
+
+.table-rediseno td:nth-child(9) {
+  text-align: center;
 }
 
 .table-rediseno tr:last-child td {
@@ -197,7 +199,16 @@
   gap: 8px;
   flex-wrap: nowrap;
   justify-content: center;
+  align-items: center; /* Añade esto para centrar verticalmente */
+  height: 100%; /* Ocupa toda la altura de la celda */
 }
+
+.action-group {
+  display: flex;
+  gap: 5px;
+  align-items: center; /* Centra verticalmente los botones */
+}
+
 
 .action-btn {
   width: 34px;
@@ -965,4 +976,12 @@
 
 .status {
   animation: fadeInStatus 0.4s ease-out forwards;
+}
+
+.table-rediseno tr td {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-rediseno tr:last-child td {
+  border-bottom: none;
 }
