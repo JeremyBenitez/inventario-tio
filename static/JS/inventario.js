@@ -660,5 +660,10 @@ async function registrarDespacho(id) {
   }
 }
 
+document.getElementById('historialBtn').addEventListener('click', function() {
+  // Redireccionar a la ruta de historial
+  window.location.href = '/historial';
+});
+
 
 
