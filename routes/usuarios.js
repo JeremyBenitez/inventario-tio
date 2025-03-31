@@ -59,9 +59,5 @@ router.post('/login', (req, res) => {
     });
 });
 
-// router.post('/logout', (req, res) => {
-//     res.clearCookie('token');
-//     res.json({ mensaje: 'Sesión cerrada exitosamente' });
-// });
 
 module.exports = router;

@@ -6,6 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Configuración global de SweetAlert2 para evitar desplazamientos
+    const swalConfig = {
+        // Evitar que SweetAlert modifique el padding del body
+        heightAuto: false,
+        // Prevenir scroll
+        scrollbarPadding: false,
+        // Clase personalizada para controlar el scroll
+        customClass: {
+            container: 'swal-no-scroll'
+        }
+    };
+
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -14,15 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!Usuario || !Password) {
             await Swal.fire({
+                ...swalConfig,
                 icon: 'error',
-                title: 'Error',
-                text: 'Por favor, ingrese tanto el usuario como la contraseña.',
-                position: 'center',
-                backdrop: 'rgba(0,0,0,0.5)',
-                allowOutsideClick: false,
-                customClass: {
-                    container: 'swal-no-scroll'
-                }
+                title: 'Oops...',
+                html: '<span style="color: #555;">Por favor, ingrese tanto el <b>usuario</b> como la <b>contraseña</b></span>',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: `
+                    rgba(110, 142, 251, 0.15)
+                    url("/Img/nyan-cat.gif")
+                    center top
+                    no-repeat
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'Entendido'
             });
             return;
         }
@@ -42,41 +58,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Agregamos la clase al body para prevenir el scroll
-            document.body.classList.add('swal-open');
-
+            // Animación de éxito personalizada con configuración para evitar desplazamiento
             await Swal.fire({
-                title: '<span style="color: #4CAF50; font-size: 1.5rem;">¡Bienvenido!</span>',
-                html: '<div style="margin: 1rem 0; font-size: 1.1rem;">Inicio de sesión exitoso</div>',
+                ...swalConfig,
+                title: `<span style="color: #6e8efb;">¡Bienvenido, ${Usuario}!</span>`,
+                html: `
+                    <div style="margin: 20px 0; color: #425981;">
+                        <p>Inicio de sesión exitoso</p>
+                        <div style="margin-top: 15px; font-size: 0.9em; color: #6e8efb;">
+                            Redirigiendo al sistema...
+                        </div>
+                    </div>
+                `,
                 icon: 'success',
-                position: 'center',
-                backdrop: 'rgba(0,0,0,0.5)',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: `
+                    rgba(110, 142, 251, 0.1)
+                    left top
+                    no-repeat
+                `,
                 showConfirmButton: false,
-                timer: 1500,
-                customClass: {
-                    container: 'swal-fixed-container',
-                    popup: 'swal-over-form'
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
                 },
                 willClose: () => {
-                    // Removemos la clase al cerrar el modal
-                    document.body.classList.remove('swal-open');
+                    window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
                 }
             });
-
-            // Redirigir después del modal
-            window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
 
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
             await Swal.fire({
+                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'Hubo un problema al procesar la solicitud',
-                position: 'center',
-                backdrop: 'rgba(0,0,0,0.5)',
-                customClass: {
-                    container: 'swal-no-scroll'
-                }
+                html: `<span style="color: #555;">${error.message || 'Hubo un problema al procesar la solicitud'}</span>`,
+                background: 'rgba(255, 255, 255, 0.95)',
+                confirmButtonText: 'Intentar nuevamente'
             });
         }
     });

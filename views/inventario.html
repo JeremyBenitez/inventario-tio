@@ -45,20 +45,31 @@
           <button type="submit"><i class="fas fa-search"></i> Buscar</button>
         </form>
 
+        <!-- Selección de depósito -->
+        <div class="deposito-selector-rediseno">
+          <button class="deposito-btn-rediseno active" id="btn-todos">Todos</button>
+          <button class="deposito-btn-rediseno" id="btn-principal">
+            Depósito Principal
+          </button>
+          <button class="deposito-btn-rediseno" id="btn-secundario">
+            Depósito Secundario
+          </button>
+        </div>
+
         <!-- Tabla de inventario -->
         <div class="table-container table-container-rediseno">
           <table class="table-rediseno" id="tabla-inventario">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nombre</th>
+                <th>Nombre del Producto</th>
                 <th>Categoría</th>
-                <th>Serial</th>
+                <th>N° Serial</th>
                 <th>Modelo</th>
                 <th>Marca</th>
-                <th>Depósito</th>
+                <th>Deposito</th>
                 <th>Estado</th>
-                <th>Stock</th>
+                <th>Cantidad</th>
                 <th>Acciones</th>
               </tr>
             </thead>
