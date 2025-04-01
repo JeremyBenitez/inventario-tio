@@ -29,10 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
   obtenerProductos();
 });
 
-// Función para obtener los productos desde el backend
 let productos = [];
 let paginaActual = 1;
-const productosPorPagina = 5; // Cambia este valor según tus necesidades
+let productosPorPagina = 5; // Valor inicial
 
 async function obtenerProductos() {
   try {
@@ -111,7 +110,7 @@ function mostrarProductos() {
           <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
             <i class="fas fa-truck-loading"></i>
           </button>
-                <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
+          <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
             <i class="fas fa-shipping-fast"></i>
           </button>
         </div>
@@ -120,6 +119,9 @@ function mostrarProductos() {
 
     tbody.appendChild(row);
   });
+
+  // Llama a agregarEventosBotones después de llenar la tabla
+  agregarEventosBotones();
 }
 
 function actualizarBotonesPaginacion() {
@@ -142,6 +144,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
   const totalPaginas = Math.ceil(productos.length / productosPorPagina);
   if (paginaActual < totalPaginas) {
     paginaActual++;
+
     mostrarProductos();
     actualizarBotonesPaginacion();
   }
@@ -149,7 +152,6 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
 // Llama a obtenerProductos al cargar la página
 obtenerProductos();
-
 
 function agregarEventosBotones() {
   document.querySelectorAll('.delete-btn').forEach(button => {
@@ -169,6 +171,7 @@ function agregarEventosBotones() {
     button.addEventListener('click', () => registrarDespacho(button.getAttribute('data-id')));
   });
 }
+
 
 // Función para eliminar un producto
 async function eliminarProducto(id) {

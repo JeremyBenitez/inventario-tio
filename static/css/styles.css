@@ -975,81 +975,83 @@
   animation: fadeInStatus 0.4s ease-out forwards;
 }
 
-.table-rediseno tr td {
-  border-bottom: none; /* Eliminar esta regla duplicada */
+/* ==================== */
+/* ESTILOS COMPACTOS PARA TABLA (SOLO MODIFICAR ESTA SECCIÓN) */
+/* ==================== */
+
+.table-container-rediseno {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
 }
 
-.table-rediseno tr:last-child td {
-  border-bottom: none;
-}
-
-/* Agrega esto al final de tu archivo styles.css */
-
-/* Mejoras específicas para la tabla */
 .table-rediseno {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.table-rediseno thead {
+  background-color: #f8fafc;
 }
 
 .table-rediseno th, 
 .table-rediseno td {
-  padding: 12px 15px;
+  padding: 8px 10px;
   text-align: left;
   vertical-align: middle;
-  /* white-space: nowrap; */
   border-bottom: 1px solid #e2e8f0;
-  
 }
 
 /* Ajustes específicos por columna */
 .table-rediseno th:nth-child(1), 
 .table-rediseno td:nth-child(1) { /* ID */
   width: 5%;
-  min-width: 60px;
+  min-width: 50px;
 }
 
 .table-rediseno th:nth-child(2), 
 .table-rediseno td:nth-child(2) { /* Nombre */
   width: 15%;
-  min-width: 150px;
+  min-width: 120px;
   white-space: normal;
 }
 
 .table-rediseno th:nth-child(3), 
 .table-rediseno td:nth-child(3) { /* Categoría */
   width: 10%;
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .table-rediseno th:nth-child(4), 
 .table-rediseno td:nth-child(4) { /* Serial */
   width: 12%;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .table-rediseno th:nth-child(5), 
 .table-rediseno td:nth-child(5) { /* Modelo */
   width: 12%;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .table-rediseno th:nth-child(6), 
 .table-rediseno td:nth-child(6) { /* Marca */
-  width: 10%;
-  min-width: 100px;
+  width: 8%;
+  min-width: 80px;
 }
 
 .table-rediseno th:nth-child(7), 
 .table-rediseno td:nth-child(7) { /* Depósito */
-  width: 10%;
-  min-width: 100px;
+  width: 8%;
+  min-width: 80px;
 }
 
 .table-rediseno th:nth-child(8), 
 .table-rediseno td:nth-child(8) { /* Estado */
-  width: 10%;
-  min-width: 100px;
+  width: 8%;
+  min-width: 80px;
 }
 
 .table-rediseno th:nth-child(9), 
@@ -1061,27 +1063,11 @@
 
 .table-rediseno th:nth-child(10), 
 .table-rediseno td:nth-child(10) { /* Acciones */
-  width: 10%;
-  min-width: 180px;
+  width: 12%;
+  min-width: 150px;
   text-align: center;
 }
 
-/* Asegurar que el estado se vea bien */
-.status {
-  padding: 6px 10px;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Mejorar los botones de acción */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: nowrap;
-}
 
 #paginacion {
   display: flex;
@@ -1115,29 +1101,41 @@
   font-weight: bold;
 }
 
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 1200px) {
-  .table-rediseno th, 
-  .table-rediseno td {
-    padding: 10px 12px;
-    font-size: 0.9rem;
-  }
+/* Botones de acción más compactos */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  flex-wrap: nowrap;
 }
 
-@media (max-width: 992px) {
-  .table-container-rediseno {
-    overflow-x: auto;
-  }
-  
-  .table-rediseno {
-    min-width: 1000px;
-  }
+.action-btn {
+  width: 30px;
+  height: 30px;
 }
 
-/* Estilos para el botón de historial */
+.action-btn i {
+  font-size: 14px;
+}
+
+/* Estados más compactos */
+.status {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  min-width: 70px;
+}
+
+/* ==================== */
+/* FIN DE ESTILOS PARA TABLA */
+/* ==================== */
+
+/* ==================== */
+/* ESTILOS PARA BOTONES DE HISTORIAL */
+/* ==================== */
+
 .historial-btn-rediseno {
-  padding: 10px 20px;
-  background-color: #6b7280;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #6b7280, #4b5563);
   color: white;
   border: none;
   border-radius: 6px;
@@ -1147,14 +1145,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-right: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 .historial-btn-rediseno:hover {
-  background-color: #4b5563;
+  background: linear-gradient(135deg, #4b5563, #374151);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.historial-btn-rediseno:active {
+  transform: translateY(0);
 }
 
 .historial-btn-rediseno i {
@@ -1166,14 +1169,33 @@
   transform: scale(1.1);
 }
 
-/* Estilos para el contenedor de botones en el header */
+/* Efecto de onda al hacer clic */
+.historial-btn-rediseno::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255,255,255,0.3);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.historial-btn-rediseno:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Contenedor de botones en el header */
 .header-buttons {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Ajustes para responsive */
+/* Ajustes responsive para botones de historial */
 @media (max-width: 768px) {
   .header-buttons {
     width: 100%;
@@ -1182,7 +1204,7 @@
   }
   
   .historial-btn-rediseno {
-    padding: 8px 15px;
+    padding: 8px 14px;
     font-size: 14px;
   }
 }
@@ -1191,12 +1213,23 @@
   .header-buttons {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
   }
   
   .historial-btn-rediseno {
     width: 100%;
-    margin-right: 0;
-    margin-bottom: 10px;
     justify-content: center;
+  }
+}
+
+/* Animación de ripple (debe estar definida en tu CSS) */
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
   }
 }
