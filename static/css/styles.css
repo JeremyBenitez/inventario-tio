@@ -997,7 +997,7 @@
   padding: 12px 15px;
   text-align: left;
   vertical-align: middle;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   border-bottom: 1px solid #e2e8f0;
   
 }
@@ -1081,6 +1081,38 @@
   gap: 8px;
   justify-content: center;
   flex-wrap: nowrap;
+}
+
+#paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#paginacion button {
+  background-color: #007BFF; /* Azul */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 5px;
+  transition: background-color 0.3s;
+}
+
+#paginacion button:disabled {
+  background-color: #ccc; /* Gris para botones deshabilitados */
+  cursor: not-allowed;
+}
+
+#paginacion button:hover:not(:disabled) {
+  background-color: #0056b3; /* Azul más oscuro */
+}
+
+#paginaActual {
+  margin: 0 10px;
+  font-weight: bold;
 }
 
 /* Ajustes para pantallas pequeñas */

@@ -30,87 +30,126 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Función para obtener los productos desde el backend
+let productos = [];
+let paginaActual = 1;
+const productosPorPagina = 5; // Cambia este valor según tus necesidades
+
 async function obtenerProductos() {
   try {
     const response = await fetch('http://localhost:3000/inventario/consultar');
 
-    // Verificación adicional de respuesta
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
     }
 
-    const productos = await response.json();
-    const tbody = document.querySelector('#tabla-inventario tbody');
-    tbody.innerHTML = '';
+    productos = await response.json();
 
     // Validación de datos básica
     if (!Array.isArray(productos)) {
       throw new Error('La respuesta no es un array de productos');
     }
 
-    productos.forEach(producto => {
-      const row = document.createElement('tr');
-
-      // Manejo seguro de Depósito
-      const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
-      row.setAttribute('data-deposito', deposito);
-
-      // Manejo seguro de Estado con valor por defecto
-      const estado = producto.Estado?.toLowerCase() || 'desconocido';
-
-      // Configuración de estilos según estado
-      let estadoClass = 'status-new';
-      let estadoIcon = '<i class="fas fa-certificate"></i>';
-
-      if (estado === 'usado') {
-        estadoClass = 'status-used';
-        estadoIcon = '<i class="fas fa-history"></i>';
-      } else if (estado === 'dañado' || estado === 'dañado') {
-        estadoClass = 'status-damaged';
-        estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
-      }
-
-      // Template seguro con valores por defecto
-      row.innerHTML = `
-        <td>${producto.ID ?? 'N/A'}</td>
-        <td>${producto.Nombre ?? 'Sin nombre'}</td>
-        <td>${producto.Categoria ?? 'Sin categoría'}</td>
-        <td>${producto.Serial ?? 'N/A'}</td>
-        <td>${producto.Modelo ?? 'N/A'}</td>
-        <td>${producto.Marca ?? 'N/A'}</td>
-        <td>${producto.Deposito ?? 'No especificado'}</td>
-        <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
-        <td>${producto.Stock ?? '0'}</td>
-        <td class="action-buttons">
-          <div class="action-group">
-            <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-          <div class="action-group">
-            <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
-              <i class="fas fa-truck-loading"></i>
-            </button>
-            <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
-              <i class="fas fa-shipping-fast"></i>
-            </button>
-          </div>
-        </td>
-      `;
-
-      tbody.appendChild(row);
-    });
-
-    agregarEventosBotones();
+    mostrarProductos();
+    actualizarBotonesPaginacion();
   } catch (error) {
     console.error('Error al obtener los productos:', error);
-    // Opcional: Mostrar notificación al usuario
     alert(`Error al cargar productos: ${error.message}`);
   }
 }
+
+function mostrarProductos() {
+  const tbody = document.querySelector('#tabla-inventario tbody');
+  tbody.innerHTML = '';
+
+  const inicio = (paginaActual - 1) * productosPorPagina;
+  const fin = inicio + productosPorPagina;
+  const productosPagina = productos.slice(inicio, fin);
+
+  productosPagina.forEach(producto => {
+    const row = document.createElement('tr');
+
+    // Manejo seguro de Depósito
+    const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
+    row.setAttribute('data-deposito', deposito);
+
+    // Manejo seguro de Estado con valor por defecto
+    const estado = producto.Estado?.toLowerCase() || 'desconocido';
+
+    // Configuración de estilos según estado
+    let estadoClass = 'status-new';
+    let estadoIcon = '<i class="fas fa-certificate"></i>';
+
+    if (estado === 'usado') {
+      estadoClass = 'status-used';
+      estadoIcon = '<i class="fas fa-history"></i>';
+    } else if (estado === 'dañado') {
+      estadoClass = 'status-damaged';
+      estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+    }
+
+    // Template seguro con valores por defecto
+    row.innerHTML = `
+      <td>${producto.ID ?? 'N/A'}</td>
+      <td>${producto.Nombre ?? 'Sin nombre'}</td>
+      <td>${producto.Categoria ?? 'Sin categoría'}</td>
+      <td>${producto.Serial ?? 'N/A'}</td>
+      <td>${producto.Modelo ?? 'N/A'}</td>
+      <td>${producto.Marca ?? 'N/A'}</td>
+      <td>${producto.Deposito ?? 'No especificado'}</td>
+      <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
+      <td>${producto.Stock ?? '0'}</td>
+      <td class="action-buttons">
+        <div class="action-group">
+          <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <div class="action-group">
+          <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
+            <i class="fas fa-truck-loading"></i>
+          </button>
+                <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
+            <i class="fas fa-shipping-fast"></i>
+          </button>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+function actualizarBotonesPaginacion() {
+  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
+  document.getElementById('paginaActual').innerText = paginaActual;
+
+  document.getElementById('prevBtn').disabled = paginaActual === 1;
+  document.getElementById('nextBtn').disabled = paginaActual === totalPaginas;
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (paginaActual > 1) {
+    paginaActual--;
+    mostrarProductos();
+    actualizarBotonesPaginacion();
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
+  if (paginaActual < totalPaginas) {
+    paginaActual++;
+    mostrarProductos();
+    actualizarBotonesPaginacion();
+  }
+});
+
+// Llama a obtenerProductos al cargar la página
+obtenerProductos();
+
 
 function agregarEventosBotones() {
   document.querySelectorAll('.delete-btn').forEach(button => {
@@ -404,7 +443,7 @@ async function registrarRecepcion(id) {
   try {
     const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
     const producto = await response.json();
-    
+
     const { value: formValues } = await Swal.fire({
       title: `<i class="fas fa-truck-loading"></i> Recepción`,
       html: `
@@ -458,7 +497,7 @@ async function registrarRecepcion(id) {
       preConfirm: () => {
         const cantidad = document.getElementById('swal-cantidad').value;
         const fecha = document.getElementById('swal-fecha-recepcion').value;
-        
+
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
           return false;
@@ -467,7 +506,7 @@ async function registrarRecepcion(id) {
           Swal.showValidationMessage('Debe seleccionar una fecha');
           return false;
         }
-        
+
         // Modificar el objeto formValues
         return {
           inventario_id: id,
@@ -540,7 +579,7 @@ async function registrarDespacho(id) {
   try {
     const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
     const producto = await response.json();
-    
+
     const { value: formValues } = await Swal.fire({
       title: `<i class="fas fa-shipping-fast"></i> Despacho`,
       html: `
@@ -596,7 +635,7 @@ async function registrarDespacho(id) {
         const destino = document.getElementById('swal-destino').value;
         const fecha = document.getElementById('swal-fecha-despacho').value;
         const depositoOrigen = producto.Deposito; // ✅ Usar el depósito del producto
-        
+
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
           return false;
@@ -613,7 +652,7 @@ async function registrarDespacho(id) {
           Swal.showValidationMessage('Debe seleccionar una fecha');
           return false;
         }
-        
+
         return {
           inventario_id: id,
           destinatario: destino,
@@ -680,10 +719,9 @@ async function registrarDespacho(id) {
   }
 }
 
-document.getElementById('historialBtn').addEventListener('click', function() {
+document.getElementById('historialBtn').addEventListener('click', function () {
   // Redireccionar a la ruta de historial
   window.location.href = '/historial';
 });
-
 
 
