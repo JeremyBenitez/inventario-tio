@@ -6,6 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Configuración global de SweetAlert2 para evitar desplazamientos
+    const swalConfig = {
+        // Evitar que SweetAlert modifique el padding del body
+        heightAuto: false,
+        // Prevenir scroll
+        scrollbarPadding: false,
+        // Clase personalizada para controlar el scroll
+        customClass: {
+            container: 'swal-no-scroll'
+        }
+    };
+
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -13,10 +25,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const Password = document.getElementById('Password').value;
 
         if (!Usuario || !Password) {
-            Swal.fire({
+            await Swal.fire({
+                ...swalConfig,
                 icon: 'error',
-                title: 'Error',
-                text: 'Por favor, ingrese tanto el usuario como la contraseña.'
+                title: 'Oops...',
+                html: '<span style="color: #555;">Por favor, ingrese tanto el <b>usuario</b> como la <b>contraseña</b></span>',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: `
+                    rgba(110, 142, 251, 0.15)
+                    url("/Img/nyan-cat.gif")
+                    center top
+                    no-repeat
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'Entendido'
             });
             return;
         }
@@ -26,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Usuario, Password }),
-                credentials: 'include' // Importante para cookies
+                credentials: 'include'
             });
 
             if (!response.ok) {
@@ -35,28 +57,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            console.log('Respuesta del servidor:', data);
 
-            // Almacenar el token en el almacenamiento local para API calls
-            localStorage.setItem('token', data.token);
-
-            Swal.fire({
+            // Animación de éxito personalizada con configuración para evitar desplazamiento
+            await Swal.fire({
+                ...swalConfig,
+                title: `<span style="color: #6e8efb;">¡Bienvenido, ${Usuario}!</span>`,
+                html: `
+                    <div style="margin: 20px 0; color: #425981;">
+                        <p>Inicio de sesión exitoso</p>
+                        <div style="margin-top: 15px; font-size: 0.9em; color: #6e8efb;">
+                            Redirigiendo al sistema...
+                        </div>
+                    </div>
+                `,
                 icon: 'success',
-                title: '¡Bienvenido!',
-                text: 'Inicio de sesión exitoso',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                // Redirigir con el token como parámetro para la primera carga
-                window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: `
+                    rgba(110, 142, 251, 0.1)
+                    left top
+                    no-repeat
+                `,
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                willClose: () => {
+                    window.location.href = `/inventario?token=${encodeURIComponent(data.token)}`;
+                }
             });
 
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
-            Swal.fire({
+            await Swal.fire({
+                ...swalConfig,
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'Hubo un problema al procesar la solicitud'
+                html: `<span style="color: #555;">${error.message || 'Hubo un problema al procesar la solicitud'}</span>`,
+                background: 'rgba(255, 255, 255, 0.95)',
+                confirmButtonText: 'Intentar nuevamente'
             });
         }
     });

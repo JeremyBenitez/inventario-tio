@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const btnsDepositos = document.querySelectorAll('.deposito-btn');
+  const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
 
   // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
@@ -33,62 +33,82 @@ document.addEventListener('DOMContentLoaded', function () {
 async function obtenerProductos() {
   try {
     const response = await fetch('http://localhost:3000/inventario/consultar');
+
+    // Verificación adicional de respuesta
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
     const productos = await response.json();
     const tbody = document.querySelector('#tabla-inventario tbody');
-    tbody.innerHTML = ''; // Limpiar contenido previo
+    tbody.innerHTML = '';
 
-    // Dentro de la función obtenerProductos(), modificar la creación de las filas:
+    // Validación de datos básica
+    if (!Array.isArray(productos)) {
+      throw new Error('La respuesta no es un array de productos');
+    }
+
     productos.forEach(producto => {
       const row = document.createElement('tr');
-      row.setAttribute('data-deposito', producto.Deposito.toLowerCase());
-      
-      // Determinar la clase CSS e icono según el estado
+
+      // Manejo seguro de Depósito
+      const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
+      row.setAttribute('data-deposito', deposito);
+
+      // Manejo seguro de Estado con valor por defecto
+      const estado = producto.Estado?.toLowerCase() || 'desconocido';
+
+      // Configuración de estilos según estado
       let estadoClass = 'status-new';
       let estadoIcon = '<i class="fas fa-certificate"></i>';
-      
-      if (producto.Estado.toLowerCase() === 'usado') {
+
+      if (estado === 'usado') {
         estadoClass = 'status-used';
         estadoIcon = '<i class="fas fa-history"></i>';
-      } else if (producto.Estado.toLowerCase() === 'dañado') {
+      } else if (estado === 'dañado' || estado === 'dañado') {
         estadoClass = 'status-damaged';
         estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
       }
-      
+
+      // Template seguro con valores por defecto
       row.innerHTML = `
-        <td>${producto.ID}</td>
-        <td>${producto.Nombre}</td>
-        <td>${producto.Categoria}</td>
-        <td>${producto.Serial}</td>
-        <td>${producto.Modelo}</td>
-        <td>${producto.Marca}</td>
-        <td>${producto.Deposito}</td>
-        <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado}</span></td>
-        <td>${producto.Stock}</td>
+        <td>${producto.ID ?? 'N/A'}</td>
+        <td>${producto.Nombre ?? 'Sin nombre'}</td>
+        <td>${producto.Categoria ?? 'Sin categoría'}</td>
+        <td>${producto.Serial ?? 'N/A'}</td>
+        <td>${producto.Modelo ?? 'N/A'}</td>
+        <td>${producto.Marca ?? 'N/A'}</td>
+        <td>${producto.Deposito ?? 'No especificado'}</td>
+        <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
+        <td>${producto.Stock ?? '0'}</td>
         <td class="action-buttons">
           <div class="action-group">
-            <button class="action-btn edit-btn" data-id="${producto.ID}" title="Editar">
+            <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="action-btn delete-btn" data-id="${producto.ID}" title="Eliminar">
+            <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
               <i class="fas fa-trash"></i>
             </button>
           </div>
           <div class="action-group">
-            <button class="action-btn receive-btn" data-id="${producto.ID}" title="Registrar Recepción">
+            <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
               <i class="fas fa-truck-loading"></i>
             </button>
-            <button class="action-btn dispatch-btn" data-id="${producto.ID}" title="Registrar Despacho">
+            <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
               <i class="fas fa-shipping-fast"></i>
             </button>
           </div>
         </td>
       `;
+
       tbody.appendChild(row);
     });
 
     agregarEventosBotones();
   } catch (error) {
     console.error('Error al obtener los productos:', error);
+    // Opcional: Mostrar notificación al usuario
+    alert(`Error al cargar productos: ${error.message}`);
   }
 }
 

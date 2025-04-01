@@ -21,14 +21,12 @@ body {
   width: 800px;
   height: 500px;
   max-width: 90%;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
   background-color: rgba(255, 255, 255, 0.25);
   border-radius: 15px;
   box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
   border: 0.1px solid rgba(128, 128, 128, 0.178);
+  position: relative;
+  overflow: hidden;
 }
 
 .left {
@@ -43,7 +41,6 @@ body {
   justify-content: center;
   height: 100%;
   width: 100%;
-  left: 0;
   backdrop-filter: blur(8px);
   position: relative;
   background: rgba(255, 255, 255, 0.5);
@@ -132,15 +129,6 @@ label {
   transition: all 0.3s ease;
 }
 
-.forgot {
-  display: block;
-  margin: 5px 0 15px 0;
-  margin-left: 10%;
-  color: #5e7eb6;
-  font-size: 0.9em;
-  text-align: left;
-}
-
 .input:focus + label,
 .input:valid + label {
   transform: translateY(-120%) scale(0.9);
@@ -194,4 +182,54 @@ label {
   .form {
     padding: 2rem 1rem;
   }
+}
+
+/* Estilos para SweetAlert */
+.swal2-popup {
+  border-radius: 15px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(110, 142, 251, 0.3) !important;
+  box-shadow: 0 0 30px rgba(110, 142, 251, 0.2) !important;
+}
+
+.swal2-title {
+  color: #6e8efb !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+.swal2-confirm {
+  background-color: #6e8efb !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+  background-color: #5a7de2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(110, 142, 251, 0.3) !important;
+}
+
+.swal2-icon.swal2-success {
+  color: #6e8efb !important;
+  border-color: #6e8efb !important;
+}
+
+.swal2-icon.swal2-error {
+  color: #ff6b6b !important;
+  border-color: #ff6b6b !important;
+}
+
+.swal2-html-container {
+  color: #425981 !important;
+  font-size: 1.1rem !important;
+}
+
+/* Control de scroll con SweetAlert */
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+  overflow: visible !important;
+  padding-right: 0 !important;
 }

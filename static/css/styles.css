@@ -157,9 +157,9 @@
   border-radius: 8px;
 }
 
-.table-rediseno {
-  width: 100%;
-  border-collapse: collapse;
+.table-rediseno td.action-buttons {
+  padding: 27px 15px; /* Ajusta el padding para que coincida con otras celdas */
+
 }
 
 .table-rediseno thead {
@@ -177,10 +177,8 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
-.table-rediseno td {
-  padding: 14px 16px;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
+.table-rediseno td:nth-child(9) {
+  text-align: center;
 }
 
 .table-rediseno tr:last-child td {
@@ -197,6 +195,14 @@
   gap: 8px;
   flex-wrap: nowrap;
   justify-content: center;
+  align-items: center; /* Añade esto para centrar verticalmente */
+  height: 100%; /* Ocupa toda la altura de la celda */
+}
+
+.action-group {
+  display: flex;
+  gap: 5px;
+  align-items: center; /* Centra verticalmente los botones */
 }
 
 .action-btn {
@@ -966,3 +972,131 @@
 .status {
   animation: fadeInStatus 0.4s ease-out forwards;
 }
+
+.table-rediseno tr td {
+  border-bottom: none; /* Eliminar esta regla duplicada */
+}
+
+.table-rediseno tr:last-child td {
+  border-bottom: none;
+}
+
+/* Agrega esto al final de tu archivo styles.css */
+
+/* Mejoras específicas para la tabla */
+.table-rediseno {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.table-rediseno th, 
+.table-rediseno td {
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-bottom: 1px solid #e2e8f0;
+  
+}
+
+/* Ajustes específicos por columna */
+.table-rediseno th:nth-child(1), 
+.table-rediseno td:nth-child(1) { /* ID */
+  width: 5%;
+  min-width: 60px;
+}
+
+.table-rediseno th:nth-child(2), 
+.table-rediseno td:nth-child(2) { /* Nombre */
+  width: 15%;
+  min-width: 150px;
+  white-space: normal;
+}
+
+.table-rediseno th:nth-child(3), 
+.table-rediseno td:nth-child(3) { /* Categoría */
+  width: 10%;
+  min-width: 100px;
+}
+
+.table-rediseno th:nth-child(4), 
+.table-rediseno td:nth-child(4) { /* Serial */
+  width: 12%;
+  min-width: 120px;
+}
+
+.table-rediseno th:nth-child(5), 
+.table-rediseno td:nth-child(5) { /* Modelo */
+  width: 12%;
+  min-width: 120px;
+}
+
+.table-rediseno th:nth-child(6), 
+.table-rediseno td:nth-child(6) { /* Marca */
+  width: 10%;
+  min-width: 100px;
+}
+
+.table-rediseno th:nth-child(7), 
+.table-rediseno td:nth-child(7) { /* Depósito */
+  width: 10%;
+  min-width: 100px;
+}
+
+.table-rediseno th:nth-child(8), 
+.table-rediseno td:nth-child(8) { /* Estado */
+  width: 10%;
+  min-width: 100px;
+}
+
+.table-rediseno th:nth-child(9), 
+.table-rediseno td:nth-child(9) { /* Stock */
+  width: 6%;
+  min-width: 60px;
+  text-align: center;
+}
+
+.table-rediseno th:nth-child(10), 
+.table-rediseno td:nth-child(10) { /* Acciones */
+  width: 10%;
+  min-width: 180px;
+  text-align: center;
+}
+
+/* Asegurar que el estado se vea bien */
+.status {
+  padding: 6px 10px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mejorar los botones de acción */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 1200px) {
+  .table-rediseno th, 
+  .table-rediseno td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .table-container-rediseno {
+    overflow-x: auto;
+  }
+  
+  .table-rediseno {
+    min-width: 1000px;
+  }
+}
+
