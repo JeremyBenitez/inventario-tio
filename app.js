@@ -7,6 +7,7 @@ const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
 const indexRouter = require('./routes/index');
 const logoutRoutes = require('./routes/logout');
+const historialRoutes = require('./routes/historial');
 const app = express();
 
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 // Usar las rutas
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
+app.use('/historial', historialRoutes);
 app.use('/', indexRouter);
 app.use('/logout', logoutRoutes);
 
