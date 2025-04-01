@@ -241,21 +241,17 @@ document.addEventListener('DOMContentLoaded', function () {
 function buscarProductos(termino) {
   const rows = document.querySelectorAll('#tabla-inventario tbody tr');
   rows.forEach(row => {
-    const id = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
-    const nombre = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-    const categoria = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-    const deposito = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-
-    if (
-      id.includes(termino) ||
-      nombre.includes(termino) ||
-      categoria.includes(termino) ||
-      deposito.includes(termino)
-    ) {
-      row.style.display = '';
-    } else {
-      row.style.display = 'none';
-    }
+    let encontrado = false;
+    // Buscar en todas las celdas excepto en las acciones (última columna)
+    const celdas = row.querySelectorAll('td:not(:last-child)');
+    
+    celdas.forEach(celda => {
+      if (celda.textContent.toLowerCase().includes(termino)) {
+        encontrado = true;
+      }
+    });
+    
+    row.style.display = encontrado ? '' : 'none';
   });
 }
 
