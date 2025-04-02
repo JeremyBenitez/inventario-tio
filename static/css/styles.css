@@ -1275,6 +1275,7 @@
   .history-buttons-container {
     flex-direction: column;
     gap: 8px;
+    gap: 8px;
   }
   
   .history-btn {
