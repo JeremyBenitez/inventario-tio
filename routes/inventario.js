@@ -96,29 +96,43 @@ router.get('/consultar/:id', (req, res) => {
 
 // 🚚 Ruta para guardar despacho
 router.post('/guardar_despacho', (req, res) => {
-    const { fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id } = req.body; // Nombres exactos
+    const { fecha_despacho, destinatario, cantidad, descripcion, inventario_id } = req.body; // Ahora incluye inventario_id
 
-    if (!fecha_despacho || !destinatario || !cantidad || !deposito_origen || !inventario_id) {
-        return res.status(400).json({ error: "Todos los campos son obligatorios." });
+    if (!fecha_despacho || !destinatario || !cantidad || !inventario_id) {
+        return res.status(400).json({ error: "Fecha, destinatario, cantidad e inventario_id son obligatorios." });
     }
 
     db.get(`SELECT Stock FROM inventario WHERE ID = ?`, [inventario_id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(404).json({ error: "Producto no encontrado." });
+        if (!row) return res.status(404).json({ error: "Producto no encontrado en inventario." });
         if (row.Stock < cantidad) return res.status(400).json({ error: "Stock insuficiente." });
 
         db.run(
-            `INSERT INTO Despachos (fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id)
-         VALUES (?, ?, ?, ?, ?)`, // 5 parámetros
-            [fecha_despacho, destinatario, cantidad, deposito_origen, inventario_id],            function (err) {
+            `INSERT INTO Despachos (fecha_despacho, destinatario, cantidad, descripcion, inventario_id)
+             VALUES (?, ?, ?, ?, ?)`,
+            [fecha_despacho, destinatario, cantidad, descripcion || null, inventario_id],
+            function (err) {
                 if (err) return res.status(500).json({ error: err.message });
 
-                db.run(`UPDATE inventario SET Stock = Stock - ? WHERE ID = ?`, [cantidad, inventario_id], function (err) {
-                    if (err) return res.status(500).json({ error: err.message });
-                    res.json({ message: "🚚 Despacho registrado y stock actualizado." });
-                });
+                db.run(`UPDATE inventario SET Stock = Stock - ? WHERE ID = ?`,
+                    [cantidad, inventario_id],
+                    function (err) {
+                        if (err) return res.status(500).json({ error: err.message });
+                        res.json({ message: "🚚 Despacho registrado y stock actualizado." });
+                    }
+                );
             }
         );
+    });
+});
+
+// 🚚 Ruta para obtener el historial de despachos
+router.get('/historial/despacho', (req, res) => {
+    const query = `SELECT id, fecha_despacho, destinatario, cantidad, descripcion, inventario_id, deposito FROM Despachos ORDER BY fecha_despacho DESC`;
+
+    db.all(query, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
 });
 
