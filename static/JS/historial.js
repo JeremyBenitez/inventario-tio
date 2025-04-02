@@ -1,5 +1,6 @@
 // Función para abrir pestañas
 function openTab(tabName, event) {
+    console.log('Pestaña clickeada:', tabName);
     // Hide all tab content
     const tabContent = document.getElementsByClassName("tab-content");
     for (let i = 0; i < tabContent.length; i++) {
@@ -16,49 +17,75 @@ function openTab(tabName, event) {
     document.getElementById(tabName).classList.add("active");
     event.currentTarget.classList.add("active");
     
-    // Opcional: Cargar datos dinámicamente
+    // Cargar datos dinámicamente
     loadTabData(tabName);
+}
+
+// Función para formatear fecha
+function formatDateFromBackend(dateString) {
+    if (!dateString) return 'N/A';
+    
+    // Si ya viene formateada del backend
+    if (dateString.includes('/')) return dateString;
+    
+    // Si viene en formato ISO (YYYY-MM-DD)
+    const dateObj = new Date(dateString);
+    return isNaN(dateObj.getTime()) 
+        ? dateString 
+        : dateObj.toLocaleDateString('es-ES');
 }
 
 // Función para cargar datos de la pestaña
 async function loadTabData(tabType) {
     try {
         const response = await fetch(`/historial/${tabType}`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        
         const data = await response.json();
+        console.log('Estructura de datos recibidos:', data[0]); // ← Muestra el primer registro
         renderTableData(tabType, data);
     } catch (error) {
-        console.error('Error al cargar datos:', error);
+        console.error(`Error al cargar datos de ${tabType}:`, error);
+        const tableId = `${tabType}Table`;
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = `<tr><td colspan="4" class="error-message">Error al cargar datos: ${error.message}</td></tr>`;
     }
 }
 
-// Función para renderizar datos en la tabla
 function renderTableData(tabType, data) {
     const tableId = `${tabType}Table`;
     const table = document.getElementById(tableId);
     const tbody = table.querySelector('tbody');
-    
-    // Limpiar tabla
     tbody.innerHTML = '';
     
-    // Llenar con nuevos datos
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">No hay registros</td></tr>`;
+        return;
+    }
+    
     data.forEach(item => {
         const row = document.createElement('tr');
-        // Construir las celdas según el tipo de tabla
+        const formattedDate = formatDateFromBackend(item.fecha);
+        
         if (tabType === 'recepcion') {
+            // Asignación CORRECTA para recepción
             row.innerHTML = `
-                <td>${item.fecha}</td>
-                <td>${item.descripcion}</td>
-                <td>${item.deposito}</td>
-                <td><span class="badge badge-reception">${item.cantidad} unidades</span></td>
+                <td>${formattedDate}</td>
+                <td>${item.descripcion || 'N/A'}</td> <!-- deposito está en descripcion -->
+                <td><span class="badge badge-reception">${item.deposito || 0} </span></td> <!-- cantidad está en deposito -->
+                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
             `;
-        } else {
+        } else { 
+            // Asignación CORRECTA para despacho
             row.innerHTML = `
-                <td>${item.fecha}</td>
-                <td>${item.descripcion}</td>
-                <td>${item.destino}</td>
-                <td><span class="badge badge-dispatch">${item.cantidad} unidades</span></td>
+                <td>${formattedDate}</td>
+                <td>${item.descripcion || 'N/A'}</td> <!-- destinatario está en descripcion -->
+                <td><span class="badge badge-dispatch">${item.destinatario || 0} </span></td> <!-- cantidad está en destinatario -->
+                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
             `;
         }
+        
         tbody.appendChild(row);
     });
 }
@@ -84,7 +111,25 @@ document.getElementById('back-btn-header')?.addEventListener('click', () => {
     window.location.href = '/inventario';
 });
 
-// Inicialización
+// Manejador del botón Cerrar Sesión
+document.getElementById('close-btn').addEventListener('click', function() {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then((response) => {
+        if (response.ok) {
+            window.location.href = '/';
+        }
+    })
+    .catch((error) => {
+        console.error('Error al cerrar sesión:', error);
+    });
+});
+
+// Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     // Cargar primera pestaña por defecto
     loadTabData('recepcion');
@@ -94,24 +139,3 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => openTab(btn.dataset.tab, e));
     });
 });
-
-document.getElementById('close-btn').addEventListener('click', function () {
-    console.log('Botón de cerrar sesión clickeado');
-  
-    fetch('/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        console.log('Respuesta del servidor:', response);
-        if (response.ok) {
-          // Redirige manualmente a la página principal
-          window.location.href = '/';
-        }
-      })
-      .catch((error) => {
-        console.error('Error al cerrar sesión:', error);
-      });
-  });
