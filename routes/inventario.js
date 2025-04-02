@@ -126,15 +126,6 @@ router.post('/guardar_despacho', (req, res) => {
     });
 });
 
-// 🚚 Ruta para obtener el historial de despachos
-router.get('/historial/despacho', (req, res) => {
-    const query = `SELECT id, fecha_despacho, destinatario, cantidad, descripcion, inventario_id, deposito FROM Despachos ORDER BY fecha_despacho DESC`;
-
-    db.all(query, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
 
 // 📦 Ruta para guardar recepción
 router.post('/guardar_recepcion', (req, res) => {

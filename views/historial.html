@@ -5,26 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestión de Inventario - Depto. Tecnología</title>
     <link rel="stylesheet" href="/css/styles_historial.css">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
 </head>
 <body>
 
-    <!-- Cabecera (agregar al inicio de tu <body> o donde corresponda) -->
+    <!-- Cabecera -->
     <div class="header header-rediseno">
         <h1>Sistema de Inventario - Depto. Tecnología</h1>
         <button id="close-btn" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
         </button>
     </div>
     <br>
-
 
     <div class="container">
         <header>
@@ -46,8 +39,10 @@
 
         <div class="tab-container">
             <div class="tab-buttons">
-                <button class="tab-btn active" data-tab="recepcion">Recepción</button>
-                <button class="tab-btn" data-tab="despacho">Despacho</button>
+               <div class="tab-buttons" id="tabButtons">
+    <button class="tab-btn active" data-tab="recepcion">Recepción</button>
+    <button class="tab-btn" data-tab="despacho">Despacho</button>
+</div>
             </div>
         </div>
 
@@ -66,56 +61,15 @@
                 <div class="table-responsive">
                     <table id="recepcionTable">
                         <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Depósito</th>
-                                <th>Cantidad</th>
-                            </tr>
-                        </thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Descripción</th>
+        <th>Destino</th> <!-- Cambiado de Depósito a Destino -->
+        <th>Cantidad</th>
+    </tr>
+</thead>
                         <tbody class="recepcion">
-                            <tr>
-                                <td>31/03/2025</td>
-                                <td>Monitores Dell P2419H</td>
-                                <td>Almacén Principal</td>
-                                <td><span class="badge badge-reception">15 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>28/03/2025</td>
-                                <td>Teclados Logitech MX Keys</td>
-                                <td>Almacén Principal</td>
-                                <td><span class="badge badge-reception">25 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>25/03/2025</td>
-                                <td>Laptops HP EliteBook 840 G8</td>
-                                <td>Almacén Seguridad</td>
-                                <td><span class="badge badge-reception">10 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>22/03/2025</td>
-                                <td>Discos SSD Samsung 1TB</td>
-                                <td>Almacén Componentes</td>
-                                <td><span class="badge badge-reception">30 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>20/03/2025</td>
-                                <td>Estaciones de Acoplamiento USB-C</td>
-                                <td>Almacén Periféricos</td>
-                                <td><span class="badge badge-reception">12 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>18/03/2025</td>
-                                <td>Cables de Red Cat6 (2m)</td>
-                                <td>Almacén Redes</td>
-                                <td><span class="badge badge-reception">50 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>15/03/2025</td>
-                                <td>Mouse Logitech MX Master 3</td>
-                                <td>Almacén Periféricos</td>
-                                <td><span class="badge badge-reception">20 unidades</span></td>
-                            </tr>
+                            <!-- Las filas se llenarán dinámicamente con JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -140,61 +94,22 @@
                 </div>
                 <div class="table-responsive">
                     <table id="despachoTable">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Destino</th>
-                                <th>Cantidad</th>
-                            </tr>
-                        </thead>
+                        <!-- Para despacho -->
+<thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Descripción</th>
+        <th>Destino</th> <!-- Cambiado de Depósito a Destino -->
+        <th>Cantidad</th>
+    </tr>
+</thead>
                         <tbody class="despacho">
-                            <tr>
-                                <td>30/03/2025</td>
-                                <td>Monitores Dell P2419H</td>
-                                <td>Departamento Desarrollo</td>
-                                <td><span class="badge badge-dispatch">8 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>29/03/2025</td>
-                                <td>Teclados Logitech MX Keys</td>
-                                <td>Departamento Marketing</td>
-                                <td><span class="badge badge-dispatch">10 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>27/03/2025</td>
-                                <td>Laptops HP EliteBook 840 G8</td>
-                                <td>Departamento Finanzas</td>
-                                <td><span class="badge badge-dispatch">5 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>24/03/2025</td>
-                                <td>Discos SSD Samsung 1TB</td>
-                                <td>Departamento Desarrollo</td>
-                                <td><span class="badge badge-dispatch">12 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>21/03/2025</td>
-                                <td>Estaciones de Acoplamiento USB-C</td>
-                                <td>Departamento Ejecutivo</td>
-                                <td><span class="badge badge-dispatch">6 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>19/03/2025</td>
-                                <td>Cables de Red Cat6 (2m)</td>
-                                <td>Departamento IT</td>
-                                <td><span class="badge badge-dispatch">25 unidades</span></td>
-                            </tr>
-                            <tr>
-                                <td>17/03/2025</td>
-                                <td>Mouse Logitech MX Master 3</td>
-                                <td>Departamento Diseño</td>
-                                <td><span class="badge badge-dispatch">8 unidades</span></td>
-                            </tr>
+                            <!-- Las filas se llenarán dinámicamente con JavaScript -->
                         </tbody>
                     </table>
                 </div>
                 <div class="pagination">
+                                  <div class="pagination">
                     <span class="pagination-info">Mostrando 1-7 de 7 elementos</span>
                     <button class="pagination-btn active">1</button>
                 </div>
@@ -205,3 +120,4 @@
     <script src="/js/historial.js"></script>
 </body>
 </html>
+

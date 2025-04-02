@@ -72,19 +72,22 @@ function mostrarProductos() {
     row.setAttribute('data-deposito', deposito);
 
     // Manejo seguro de Estado con valor por defecto
-    const estado = producto.Estado?.toLowerCase() || 'desconocido';
+const estado = producto.Estado?.toLowerCase() || 'desconocido';
 
-    // Configuración de estilos según estado
-    let estadoClass = 'status-new';
-    let estadoIcon = '<i class="fas fa-certificate"></i>';
+// Configuración de estilos según estado
+let estadoClass = 'status-new';
+let estadoIcon = '<i class="fas fa-certificate"></i>';
 
-    if (estado === 'usado') {
-      estadoClass = 'status-used';
-      estadoIcon = '<i class="fas fa-history"></i>';
-    } else if (estado === 'dañado') {
-      estadoClass = 'status-damaged';
-      estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
-    }
+if (estado === 'usado') {
+  estadoClass = 'status-used';
+  estadoIcon = '<i class="fas fa-history"></i>';
+} else if (estado === 'dañado') {
+  estadoClass = 'status-damaged';
+  estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+} else if (estado === 'desconocido') {
+  estadoClass = 'status-unknown';
+  estadoIcon = '<i class="fas fa-question-circle"></i>';
+}
 
     // Template seguro con valores por defecto
     row.innerHTML = `
