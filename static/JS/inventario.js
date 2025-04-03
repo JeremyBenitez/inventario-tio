@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let productos = [];
 
+
 async function obtenerProductos() {
   try {
     const response = await fetch('http://localhost:3000/inventario/consultar');
@@ -604,7 +605,7 @@ async function registrarDespacho(id) {
         const cantidad = document.getElementById('swal-cantidad-despacho').value;
         const destino = document.getElementById('swal-destino').value;
         const fecha = document.getElementById('swal-fecha-despacho').value;
-        const depositoOrigen = producto.Deposito; // ✅ Usar el depósito del producto
+        const depositoOrigen = producto.Deposito;
 
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
@@ -628,7 +629,8 @@ async function registrarDespacho(id) {
           destinatario: destino,
           cantidad: cantidad,
           fecha_despacho: fecha,
-          deposito_origen: depositoOrigen // ✅ Valor obtenido del producto
+          deposito_origen: depositoOrigen,
+          descripcion: `Despacho de ${producto.Nombre}` // Agregamos el nombre del producto como descripción
         };
       }
     });

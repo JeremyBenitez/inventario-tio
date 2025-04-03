@@ -35,6 +35,7 @@
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
+        margin: -20px;
         }
 
         .header-rediseno h1 {
@@ -300,6 +301,29 @@
         tr:hover {
             background-color: rgba(0, 0, 0, 0.02);
         }
+
+        .table-responsive {
+    max-height: 400px; /* Ajusta la altura según sea necesario */
+    overflow-y: auto; /* Permite el desplazamiento vertical */
+    overflow-x: hidden; /* Oculta el desplazamiento horizontal */
+}
+
+table {
+    width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+    border-collapse: collapse; /* Colapsa los bordes de la tabla */
+}
+
+th, td {
+    padding: 8px; /* Espaciado interno */
+    text-align: left; /* Alineación del texto */
+    border: 1px solid #ddd; /* Borde de las celdas */
+}
+
+th {
+    background-color: #f2f2f2; /* Color de fondo para los encabezados */
+}
+
+
 
         .badge {
             display: inline-block;

@@ -96,21 +96,24 @@ router.get('/consultar/:id', (req, res) => {
 
 // 🚚 Ruta para guardar despacho
 router.post('/guardar_despacho', (req, res) => {
-    const { fecha_despacho, destinatario, cantidad, descripcion, inventario_id } = req.body; // Ahora incluye inventario_id
+    const { fecha_despacho, destinatario, cantidad, descripcion, inventario_id, deposito_origen } = req.body;
 
-    if (!fecha_despacho || !destinatario || !cantidad || !inventario_id) {
-        return res.status(400).json({ error: "Fecha, destinatario, cantidad e inventario_id son obligatorios." });
+    if (!fecha_despacho || !destinatario || !cantidad || !inventario_id || !deposito_origen) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios." });
     }
 
-    db.get(`SELECT Stock FROM inventario WHERE ID = ?`, [inventario_id], (err, row) => {
+    db.get(`SELECT Stock, Nombre FROM inventario WHERE ID = ?`, [inventario_id], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: "Producto no encontrado en inventario." });
         if (row.Stock < cantidad) return res.status(400).json({ error: "Stock insuficiente." });
 
+        // Usar la descripción proporcionada o crear una por defecto con el nombre del producto
+        const descripcionFinal = descripcion || `Despacho de ${row.Nombre}`;
+
         db.run(
-            `INSERT INTO Despachos (fecha_despacho, destinatario, cantidad, descripcion, inventario_id)
-             VALUES (?, ?, ?, ?, ?)`,
-            [fecha_despacho, destinatario, cantidad, descripcion || null, inventario_id],
+            `INSERT INTO Despachos (fecha_despacho, destinatario, cantidad, descripcion, inventario_id, deposito_origen)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [fecha_despacho, destinatario, cantidad, descripcionFinal, inventario_id, deposito_origen],
             function (err) {
                 if (err) return res.status(500).json({ error: err.message });
 
@@ -123,6 +126,28 @@ router.post('/guardar_despacho', (req, res) => {
                 );
             }
         );
+    });
+});
+
+// Agrega esta ruta para obtener despachos con nombre de producto
+router.get('/historial/despacho', (req, res) => {
+    const sql = `
+        SELECT 
+            d.fecha_despacho as fecha,
+            i.Nombre as descripcion,  -- Usamos el nombre del producto como descripción
+            d.destinatario,
+            d.cantidad,
+            d.deposito_origen
+        FROM Despachos d
+        JOIN inventario i ON d.inventario_id = i.ID
+        ORDER BY d.fecha_despacho DESC
+    `;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
     });
 });
 
