@@ -154,19 +154,17 @@ router.get('/historial/despacho', (req, res) => {
 
 // 📦 Ruta para guardar recepción
 router.post('/guardar_recepcion', (req, res) => {
-     const { fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id } = req.body;
+    const { fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id } = req.body;
     
     // Validación corregida
     if (!fecha_recepcion || !descripcion || !destino || !cantidad || !deposito_destino || !inventario_id) {
         return res.status(400).json({ error: "Todos los campos son obligatorios." });
     }
 
-
     db.run(
         `INSERT INTO Recepciones (fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id)
-         VALUES (?, ?, ?, ?, ?, ?)`, // 6 parámetros
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id],
-        // ... resto del código
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
 
