@@ -535,6 +535,121 @@ async function registrarRecepcion(id) {
           confirmButtonColor: '#4CAF50',
           confirmButtonText: 'Aceptar'
         });
+
+       // Generar PDF elegante
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Configuración de colores corporativos
+        const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+        const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+        // Encabezado con logo y título
+        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.rect(0, 0, 210, 30, 'F');
+
+        // Título del documento
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
+
+        // Información de la empresa
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.text('TIO AMMI', 105, 35, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+        // Línea separadora
+        doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+
+        // Información del documento
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
+
+        // Área de datos
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+
+        // Construir tabla de información
+        const startY = 65;
+        const lineHeight = 8;
+        const colWidth = 80;
+
+        // Columna izquierda
+        doc.setFont("helvetica", "bold");
+        doc.text('Producto:', 20, startY);
+        doc.text('Cantidad:', 20, startY + lineHeight);
+
+        // Columna derecha (ahora un campo debajo del otro)
+        doc.setFont("helvetica", "bold");
+        doc.text('Fecha de Recepción:', 110, startY);
+        doc.text('Destino:', 110, startY + lineHeight); // Ahora está una línea más abajo
+
+        // Datos columna izquierda
+        doc.setFont("helvetica", "normal");
+        doc.text(producto.Nombre, 60, startY);
+        doc.text(formValues.cantidad.toString(), 60, startY + lineHeight);
+
+        // Datos columna derecha
+        doc.setFont("helvetica", "normal");
+        doc.text(formValues.fecha_recepcion, 150, startY);
+        doc.text(formValues.destino, 150, startY + lineHeight); // Ahora está una línea más abajo
+
+        // Sección de firmas - ahora colocadas justo antes del pie de página
+        const firmasY = 240; // Nueva posición más cercana al pie de página
+
+        // Línea separadora
+        doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+        doc.setLineWidth(0.3);
+        doc.line(20, firmasY, 80, firmasY);
+        doc.line(130, firmasY, 190, firmasY);
+
+        // Textos de firma
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+        doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
+        doc.text('Firma de Recepción', 160, firmasY + 5, { align: 'center' });
+
+        // Pie de página
+        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.rect(0, 275, 210, 22, 'F');
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
+        doc.text(`Registro N°: ${formValues.inventario_id}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
+        doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
+
+        // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
+        // Guardamos el estado actual del documento
+        doc.saveGraphicsState();
+        // Establecemos la opacidad para la marca de agua
+        doc.setGState(new doc.GState({opacity: 0.1}));
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(55); // Tamaño ligeramente más pequeño
+        doc.setTextColor(128, 128, 128); // Gris claro para el fondo
+        // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
+        doc.text('RECEPCIÓN', 130, 200, { 
+          align: 'center',
+          angle: 45
+        });
+        // Restauramos el estado para que el resto del contenido tenga opacidad normal
+        doc.restoreGraphicsState();
+
+        // Guardar el PDF
+        doc.save(`Nota_Recepcion_${producto.Nombre}_${formValues.fecha_recepcion}.pdf`);
+
+        // Llamar a la función para obtener productos actualizados
         obtenerProductos();
       } else {
         throw new Error(data.error || 'Error al registrar la recepción');
@@ -588,12 +703,12 @@ async function registrarDespacho(id) {
           </div>
           
           <div class="form-row">
-        <div class="form-group">
-            <label for="swal-fecha-despacho" class="form-label">Fecha</label>
-            <input type="date" id="swal-fecha-despacho" class="swal2-input"
-                   value="${new Date().toISOString().split('T')[0]}">
-        </div>
-    </div>
+            <div class="form-group">
+              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
+              <input type="date" id="swal-fecha-despacho" class="swal2-input"
+                     value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
         </div>
       `,
       background: '#ffffff',
@@ -648,6 +763,7 @@ async function registrarDespacho(id) {
 
     if (formValues) {
       // Mostrar animación de carga
+      // Mostrar animación de carga
       Swal.fire({
         title: 'Procesando despacho...',
         allowOutsideClick: false,
@@ -680,6 +796,127 @@ async function registrarDespacho(id) {
           confirmButtonColor: '#FF9800',
           confirmButtonText: 'Aceptar'
         });
+
+        /// Generar PDF elegante para Nota de Salida
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Configuración de colores corporativos
+          const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+          const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+          // Encabezado con logo y título
+          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.rect(0, 0, 210, 30, 'F');
+
+          // Título del documento
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(20);
+          doc.text('NOTA DE SALIDA', 105, 15, { align: 'center' });
+
+          // Información de la empresa
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(10);
+          doc.text('TIO AMMI', 105, 35, { align: 'center' });
+          doc.setFontSize(8);
+          doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+          // Línea separadora
+          doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.setLineWidth(0.5);
+          doc.line(20, 45, 190, 45);
+
+          // Información del documento
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.text('INFORMACIÓN DE DESPACHO', 20, 55);
+
+          // Área de datos
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
+
+          // Construir tabla de información
+          const startY = 65;
+          const lineHeight = 8;
+          const colWidth = 80;
+
+          // Columna izquierda
+          doc.setFont("helvetica", "bold");
+          doc.text('Producto:', 20, startY);
+          doc.text('Cantidad:', 20, startY + lineHeight);
+
+          // Columna derecha
+          doc.setFont("helvetica", "bold");
+          doc.text('Fecha de Despacho:', 110, startY);
+          doc.text('Destino:', 110, startY + lineHeight);
+
+          // Datos columna izquierda
+          doc.setFont("helvetica", "normal");
+          // Garantizamos que los valores son strings
+          doc.text(producto.Nombre || "", 60, startY);
+          doc.text(String(formValues.cantidad || ""), 60, startY + lineHeight);
+
+          // Datos columna derecha
+          doc.setFont("helvetica", "normal");
+          doc.text(String(formValues.fecha_despacho || ""), 150, startY);
+
+          // Verificamos el valor del destino y lo mostramos
+          console.log("Valor del destino en el modal:", formValues.destino);
+          // Si el valor no existe, intentamos buscar otros posibles nombres de campo
+          const destinoFinal = formValues.destinatario || formValues.destinoDespacho || formValues.lugarDestino || "";
+          doc.text(String(destinoFinal), 150, startY + lineHeight);
+
+          // Sección de firmas - ahora colocadas justo antes del pie de página
+          const firmasY = 240; // Nueva posición más cercana al pie de página
+
+          // Línea separadora
+          doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+          doc.setLineWidth(0.3);
+          doc.line(20, firmasY, 80, firmasY);
+          doc.line(130, firmasY, 190, firmasY);
+
+          // Textos de firma
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+          doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
+          doc.text('Firma de Entrega', 160, firmasY + 5, { align: 'center' });
+
+          // Pie de página
+          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.rect(0, 275, 210, 22, 'F');
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(255, 255, 255);
+          doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
+          doc.text(`Registro N°: ${String(formValues.inventario_id || "")}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
+          doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
+
+          // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
+          // Guardamos el estado actual del documento
+          doc.saveGraphicsState();
+          // Establecemos la opacidad para la marca de agua
+          doc.setGState(new doc.GState({opacity: 0.1}));
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(55); // Tamaño ligeramente más pequeño
+          doc.setTextColor(128, 128, 128); // Gris claro para el fondo
+          // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
+          doc.text('DESPACHO', 130, 200, { 
+            align: 'center',
+            angle: 45
+          });
+          // Restauramos el estado para que el resto del contenido tenga opacidad normal
+          doc.restoreGraphicsState();
+
+          // Guardar el PDF
+          doc.save(`Nota_Salida_${producto.Nombre}_${formValues.fecha_despacho}.pdf`);
+        
+        // Llamar a la función para obtener productos actualizados
         obtenerProductos();
       } else {
         throw new Error(data.error || 'Error al registrar el despacho');
@@ -701,6 +938,7 @@ async function registrarDespacho(id) {
     });
   }
 }
+
 
 document.getElementById('historialBtn').addEventListener('click', function () {
   // Redireccionar a la ruta de historial
