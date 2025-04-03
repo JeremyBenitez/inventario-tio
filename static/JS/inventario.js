@@ -532,6 +532,27 @@ async function registrarRecepcion(id) {
           confirmButtonColor: '#4CAF50',
           confirmButtonText: 'Aceptar'
         });
+
+        // Generar PDF
+        const { jsPDF } = window.jspdf; // Asegúrate de que jsPDF esté disponible
+        const doc = new jsPDF();
+
+        // Agregar contenido al PDF
+        doc.setFontSize(16);
+        doc.text('Nota de Recepción', 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Producto: ${producto.Nombre}`, 20, 30);
+        doc.text(`Cantidad: ${formValues.cantidad}`, 20, 40);
+        doc.text(`Destino: ${formValues.destino}`, 20, 50);
+        doc.text(`Fecha de Recepción: ${formValues.fecha_recepcion}`, 20, 60);
+        doc.text(`Descripción: ${formValues.descripcion}`, 20, 70);
+        doc.text(`Depósito de Destino: ${formValues.deposito_destino}`, 20, 80);
+        doc.text(`Stock Actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}`, 20, 90);
+
+        // Guardar el PDF
+        doc.save(`Nota_Recepcion_${producto.Nombre}.pdf`);
+
+        // Llamar a la función para obtener productos actualizados
         obtenerProductos();
       } else {
         throw new Error(data.error || 'Error al registrar la recepción');
@@ -585,12 +606,12 @@ async function registrarDespacho(id) {
           </div>
           
           <div class="form-row">
-        <div class="form-group">
-            <label for="swal-fecha-despacho" class="form-label">Fecha</label>
-            <input type="date" id="swal-fecha-despacho" class="swal2-input"
-                   value="${new Date().toISOString().split('T')[0]}">
-        </div>
-    </div>
+            <div class="form-group">
+              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
+              <input type="date" id="swal-fecha-despacho" class="swal2-input"
+                     value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
         </div>
       `,
       background: '#ffffff',
@@ -645,6 +666,7 @@ async function registrarDespacho(id) {
 
     if (formValues) {
       // Mostrar animación de carga
+      // Mostrar animación de carga
       Swal.fire({
         title: 'Procesando despacho...',
         allowOutsideClick: false,
@@ -677,6 +699,27 @@ async function registrarDespacho(id) {
           confirmButtonColor: '#FF9800',
           confirmButtonText: 'Aceptar'
         });
+
+        // Generar PDF
+        const { jsPDF } = window.jspdf; // Asegúrate de que jsPDF esté disponible
+        const doc = new jsPDF();
+
+        // Agregar contenido al PDF
+        doc.setFontSize(16);
+        doc.text('Nota de Despacho', 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Producto: ${producto.Nombre}`, 20, 30);
+        doc.text(`Cantidad: ${formValues.cantidad}`, 20, 40);
+        doc.text(`Destino: ${formValues.destinatario}`, 20, 50);
+        doc.text(`Fecha de Despacho: ${formValues.fecha_despacho}`, 20, 60);
+        doc.text(`Descripción: ${formValues.descripcion}`, 20, 70);
+        doc.text(`Deposito de Origen: ${formValues.deposito_origen}`, 20, 80);
+        doc.text(`Stock Restante: ${parseInt(producto.Stock) - parseInt(formValues.cantidad)}`, 20, 90);
+
+        // Guardar el PDF
+        doc.save(`Nota_Despacho_${producto.Nombre}.pdf`);
+        
+        // Llamar a la función para obtener productos actualizados
         obtenerProductos();
       } else {
         throw new Error(data.error || 'Error al registrar el despacho');
@@ -698,6 +741,7 @@ async function registrarDespacho(id) {
     });
   }
 }
+
 
 document.getElementById('historialBtn').addEventListener('click', function () {
   // Redireccionar a la ruta de historial
