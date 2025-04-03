@@ -58,7 +58,10 @@ function mostrarProductos() {
   const tbody = document.querySelector('#tabla-inventario tbody');
   tbody.innerHTML = '';
 
-  productos.forEach(producto => {
+  // Ordenar los productos por ID descendente (últimos primero)
+  const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
+
+  productosOrdenados.forEach(producto => {
     const row = document.createElement('tr');
 
     // Manejo seguro de Depósito
