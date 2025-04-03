@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 let productos = [];
-let paginaActual = 1;
-let productosPorPagina = 5; // Valor inicial
 
 
 async function obtenerProductos() {
@@ -50,7 +48,6 @@ async function obtenerProductos() {
     }
 
     mostrarProductos();
-    actualizarBotonesPaginacion();
   } catch (error) {
     console.error('Error al obtener los productos:', error);
     alert(`Error al cargar productos: ${error.message}`);
@@ -61,11 +58,7 @@ function mostrarProductos() {
   const tbody = document.querySelector('#tabla-inventario tbody');
   tbody.innerHTML = '';
 
-  const inicio = (paginaActual - 1) * productosPorPagina;
-  const fin = inicio + productosPorPagina;
-  const productosPagina = productos.slice(inicio, fin);
-
-  productosPagina.forEach(producto => {
+  productos.forEach(producto => {
     const row = document.createElement('tr');
 
     // Manejo seguro de Depósito
@@ -73,22 +66,22 @@ function mostrarProductos() {
     row.setAttribute('data-deposito', deposito);
 
     // Manejo seguro de Estado con valor por defecto
-const estado = producto.Estado?.toLowerCase() || 'desconocido';
+    const estado = producto.Estado?.toLowerCase() || 'desconocido';
 
-// Configuración de estilos según estado
-let estadoClass = 'status-new';
-let estadoIcon = '<i class="fas fa-certificate"></i>';
+    // Configuración de estilos según estado
+    let estadoClass = 'status-new';
+    let estadoIcon = '<i class="fas fa-certificate"></i>';
 
-if (estado === 'usado') {
-  estadoClass = 'status-used';
-  estadoIcon = '<i class="fas fa-history"></i>';
-} else if (estado === 'dañado') {
-  estadoClass = 'status-damaged';
-  estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
-} else if (estado === 'desconocido') {
-  estadoClass = 'status-unknown';
-  estadoIcon = '<i class="fas fa-question-circle"></i>';
-}
+    if (estado === 'usado') {
+      estadoClass = 'status-used';
+      estadoIcon = '<i class="fas fa-history"></i>';
+    } else if (estado === 'dañado') {
+      estadoClass = 'status-damaged';
+      estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+    } else if (estado === 'desconocido') {
+      estadoClass = 'status-unknown';
+      estadoIcon = '<i class="fas fa-question-circle"></i>';
+    }
 
     // Template seguro con valores por defecto
     row.innerHTML = `
@@ -128,34 +121,9 @@ if (estado === 'usado') {
   agregarEventosBotones();
 }
 
-function actualizarBotonesPaginacion() {
-  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
-  document.getElementById('paginaActual').innerText = paginaActual;
-
-  document.getElementById('prevBtn').disabled = paginaActual === 1;
-  document.getElementById('nextBtn').disabled = paginaActual === totalPaginas;
-}
-
-document.getElementById('prevBtn').addEventListener('click', () => {
-  if (paginaActual > 1) {
-    paginaActual--;
-    mostrarProductos();
-    actualizarBotonesPaginacion();
-  }
-});
-
-document.getElementById('nextBtn').addEventListener('click', () => {
-  const totalPaginas = Math.ceil(productos.length / productosPorPagina);
-  if (paginaActual < totalPaginas) {
-    paginaActual++;
-
-    mostrarProductos();
-    actualizarBotonesPaginacion();
-  }
-});
-
 // Llama a obtenerProductos al cargar la página
 obtenerProductos();
+
 
 function agregarEventosBotones() {
   document.querySelectorAll('.delete-btn').forEach(button => {
@@ -637,7 +605,7 @@ async function registrarDespacho(id) {
         const cantidad = document.getElementById('swal-cantidad-despacho').value;
         const destino = document.getElementById('swal-destino').value;
         const fecha = document.getElementById('swal-fecha-despacho').value;
-        const depositoOrigen = producto.Deposito; // ✅ Usar el depósito del producto
+        const depositoOrigen = producto.Deposito;
 
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
@@ -661,7 +629,8 @@ async function registrarDespacho(id) {
           destinatario: destino,
           cantidad: cantidad,
           fecha_despacho: fecha,
-          deposito_origen: depositoOrigen // ✅ Valor obtenido del producto
+          deposito_origen: depositoOrigen,
+          descripcion: `Despacho de ${producto.Nombre}` // Agregamos el nombre del producto como descripción
         };
       }
     });

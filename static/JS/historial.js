@@ -21,18 +21,27 @@ function openTab(tabName, event) {
     loadTabData(tabName);
 }
 
-// Función para formatear fecha
 function formatDateFromBackend(dateString) {
     if (!dateString) return 'N/A';
     
-    // Si ya viene formateada del backend
-    if (dateString.includes('/')) return dateString;
+    // Si la fecha ya está en formato local (dd/mm/yyyy)
+    if (dateString.match(/^\d{2}\/\d{2}\/\d{4}$/)) return dateString;
     
-    // Si viene en formato ISO (YYYY-MM-DD)
-    const dateObj = new Date(dateString);
-    return isNaN(dateObj.getTime()) 
-        ? dateString 
-        : dateObj.toLocaleDateString('es-ES');
+    try {
+        // Crear fecha en UTC para evitar desplazamientos
+        const dateObj = new Date(dateString);
+        if (isNaN(dateObj.getTime())) return dateString;
+        
+        // Formatear en UTC
+        return dateObj.toLocaleDateString('es-ES', {
+            timeZone: 'UTC',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch {
+        return dateString;
+    }
 }
 
 // Función para cargar datos de la pestaña
@@ -42,8 +51,14 @@ async function loadTabData(tabType) {
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         
         const data = await response.json();
-        console.log('Estructura de datos recibidos:', data[0]); // ← Muestra el primer registro
+        console.log('Datos recibidos para', tabType, ':', data); // ← Verifica la estructura
+        console.log('Fechas recibidas del backend:', data.map(item => item.fecha));
         renderTableData(tabType, data);
+        // Verificación específica para despachos
+        if (tabType === 'despacho') {
+            console.log('Datos de despacho ordenados:', 
+                data.map(item => item.fecha)); // Verifica fechas en consola
+        }
     } catch (error) {
         console.error(`Error al cargar datos de ${tabType}:`, error);
         const tableId = `${tabType}Table`;
@@ -69,20 +84,19 @@ function renderTableData(tabType, data) {
         const formattedDate = formatDateFromBackend(item.fecha);
         
         if (tabType === 'recepcion') {
-            // Asignación para recepción
             row.innerHTML = `
                 <td>${formattedDate}</td>
                 <td>${item.descripcion || 'N/A'}</td>
-                <td><span class="badge badge-reception">${item.deposito || 0}</span></td>
+                <td><span class="badge badge-reception">${item.deposito || 'N/A'}</span></td>
                 <td>${item.cantidad || 'N/A'}</td>
             `;
         } else { 
-            // Asignación CORREGIDA para despacho
+            // Estructura para despachos
             row.innerHTML = `
                 <td>${formattedDate}</td>      
                 <td>${item.descripcion || 'N/A'}</td> 
-                <td>${item.destinatario || 'N/A'}</td> <!-- Mostrar destinatario como descripción -->
-                <td><span class="badge badge-dispatch">${item.cantidad || 0}</span></td>
+                <td>${item.destinatario || 'N/A'}</td>
+                <td><span class="badge badge-dispatch">${item.cantidad || 'N/A'}</span></td>
             `;
         }
         

@@ -16,7 +16,12 @@ const formatDate = (dateString) => {
         const dateObj = new Date(dateString);
         return isNaN(dateObj.getTime()) 
             ? dateString 
-            : dateObj.toLocaleDateString('es-ES');
+            : dateObj.toLocaleDateString('es-ES', {
+                timeZone: 'UTC', // Asegura que no haya conversión de zona horaria
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
     } catch {
         return dateString;
     }
@@ -32,7 +37,7 @@ router.get('/recepcion', async (req, res) => {
                 destino as deposito,
                 cantidad
             FROM recepciones
-            ORDER BY fecha_recepcion DESC
+            ORDER BY date(fecha_recepcion) DESC, id DESC
         `;
         
         const rows = await db.query(sql);
@@ -57,15 +62,30 @@ router.get('/recepcion', async (req, res) => {
 // Nuevo endpoint para despachos
 router.get('/despacho', async (req, res) => {
     try {
-        const rows = await db.query(`SELECT * FROM despachos`);
-        const correctedData = rows.map(item => ({
-            fecha: item.fecha_despacho,
-            descripcion: item.descripcion,
-            destinatario: item.destinatario,
-            cantidad: item.cantidad,
-            deposito:item.deposito
+        const sql = `
+            SELECT 
+                fecha_despacho,
+                descripcion,
+                destinatario,
+                cantidad,
+                deposito_origen as deposito
+            FROM despachos
+            ORDER BY fecha_despacho DESC, id DESC
+        `;
+        
+        const rows = await db.query(sql);
+         // Log de verificación
+         console.log('Fechas originales desde BD:', rows.map(r => r.fecha_despacho));
+        
+        const formattedRows = rows.map(row => ({
+            fecha: formatDate(handleEmptyField(row.fecha_despacho)),
+            descripcion: handleEmptyField(row.descripcion),
+            destinatario: handleEmptyField(row.destinatario),
+            cantidad: handleEmptyField(row.cantidad, true),
+            deposito: handleEmptyField(row.deposito)
         }));
-        res.json(correctedData);
+        
+        res.json(formattedRows);
     } catch (error) {
         console.error('Error al consultar despachos:', error);
         res.status(500).json({ 
