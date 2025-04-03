@@ -33,6 +33,7 @@ let productos = [];
 let paginaActual = 1;
 let productosPorPagina = 5; // Valor inicial
 
+
 async function obtenerProductos() {
   try {
     const response = await fetch('http://localhost:3000/inventario/consultar');

@@ -69,20 +69,20 @@ function renderTableData(tabType, data) {
         const formattedDate = formatDateFromBackend(item.fecha);
         
         if (tabType === 'recepcion') {
-            // Asignación CORRECTA para recepción
+            // Asignación para recepción
             row.innerHTML = `
                 <td>${formattedDate}</td>
-                <td>${item.descripcion || 'N/A'}</td> <!-- deposito está en descripcion -->
-                <td><span class="badge badge-reception">${item.deposito || 0} </span></td> <!-- cantidad está en deposito -->
-                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
+                <td>${item.descripcion || 'N/A'}</td>
+                <td><span class="badge badge-reception">${item.deposito || 0}</span></td>
+                <td>${item.cantidad || 'N/A'}</td>
             `;
         } else { 
-            // Asignación CORRECTA para despacho
+            // Asignación CORREGIDA para despacho
             row.innerHTML = `
-                <td>${formattedDate}</td>
-                <td>${item.descripcion || 'N/A'}</td> <!-- destinatario está en descripcion -->
-                <td><span class="badge badge-dispatch">${item.destinatario || 0} </span></td> <!-- cantidad está en destinatario -->
-                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
+                <td>${formattedDate}</td>      
+                <td>${item.descripcion || 'N/A'}</td> 
+                <td>${item.destinatario || 'N/A'}</td> <!-- Mostrar destinatario como descripción -->
+                <td><span class="badge badge-dispatch">${item.cantidad || 0}</span></td>
             `;
         }
         
