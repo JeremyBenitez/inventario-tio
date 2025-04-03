@@ -1,6 +1,6 @@
 // Función para abrir pestañas
 function openTab(tabName, event) {
-    console.log('Pestaña clickeada:', tabName);
+    // console.log('Pestaña clickeada:', tabName);
     // Hide all tab content
     const tabContent = document.getElementsByClassName("tab-content");
     for (let i = 0; i < tabContent.length; i++) {

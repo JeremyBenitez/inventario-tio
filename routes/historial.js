@@ -9,11 +9,13 @@ const handleEmptyField = (value, isNumber = false) => {
         : value;
 };
 
-// Función para formatear fecha
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
-        const dateObj = new Date(dateString);
+        // Forzar UTC si la fecha no incluye hora
+        const dateToParse = dateString.includes('T') ? dateString : `${dateString}T00:00:00Z`;
+        const dateObj = new Date(dateToParse);
+        
         return isNaN(dateObj.getTime()) 
             ? dateString 
             : dateObj.toLocaleDateString('es-ES', {
@@ -23,10 +25,9 @@ const formatDate = (dateString) => {
                 year: 'numeric'
             });
     } catch {
-        return dateString;
+        return 'Fecha inválida';
     }
 };
-
 // Endpoint para recepciones (existente)
 router.get('/recepcion', async (req, res) => {
     try {
