@@ -406,14 +406,21 @@ document.getElementById('close-btn').addEventListener('click', function () {
     });
 });
 
-
-// Modificar las funciones registrarRecepcion y registrarDespacho para incluir validaciones:
-
 // Modificar la función registrarRecepcion
 async function registrarRecepcion(id) {
   try {
     const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
     const producto = await response.json();
+
+    // Determinar el texto a mostrar basado en el depósito actual del producto
+    let depositoMostrar;
+    if (producto.Deposito.toLowerCase() === 'principal') {
+      depositoMostrar = 'Depósito Principal';
+    } else if (producto.Deposito.toLowerCase() === 'secundario') {
+      depositoMostrar = 'Depósito Secundario';
+    } else {
+      depositoMostrar = producto.Deposito; // Por si acaso hay otros valores
+    }
 
     const { value: formValues } = await Swal.fire({
       title: `<i class="fas fa-truck-loading"></i> Recepción`,
@@ -434,9 +441,9 @@ async function registrarRecepcion(id) {
                      placeholder="Cantidad" value="1" min="1">
             </div>
             <div class="form-group">
-              <label for="swal-deposito" class="form-label">Depósito</label>
+              <label for="swal-deposito" class="form-label">Depósito Actual</label>
               <input type="text" id="swal-deposito" class="swal2-input"
-                     value="${producto.Deposito}" readonly>
+                     value="${depositoMostrar}" readonly>
             </div>
           </div>
           
@@ -468,6 +475,7 @@ async function registrarRecepcion(id) {
       preConfirm: () => {
         const cantidad = document.getElementById('swal-cantidad').value;
         const fecha = document.getElementById('swal-fecha-recepcion').value;
+        const productoNombre = document.getElementById('swal-producto').value;
 
         if (!cantidad || cantidad <= 0) {
           Swal.showValidationMessage('La cantidad debe ser mayor a 0');
@@ -478,13 +486,12 @@ async function registrarRecepcion(id) {
           return false;
         }
 
-        // Modificar el objeto formValues
         return {
           inventario_id: id,
-          descripcion: 'Recepción de productos', // ✅ Valor fijo o dinámico
-          destino: 'Almacén central',
+          descripcion: productoNombre,
+          destino: depositoMostrar, // Enviamos el formato "Depósito X"
           cantidad: cantidad,
-          deposito_destino: document.getElementById('swal-deposito').value, // ✅ Usar campo existente
+          deposito_destino: producto.Deposito, // Mantenemos el valor original para la BD
           fecha_recepcion: fecha
         };
       }
@@ -519,6 +526,7 @@ async function registrarRecepcion(id) {
               </div>
               <p style="margin-top: 10px; font-weight: bold;">Stock actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}</p>
               <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_recepcion}</p>
+              <p style="margin-top: 5px; color: #666;">Destino: ${formValues.destino}</p>
             </div>
           `,
           confirmButtonColor: '#4CAF50',
