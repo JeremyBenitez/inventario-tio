@@ -152,14 +152,19 @@
 
 /* Tabla rediseñada */
 .table-container-rediseno {
-  overflow-x: auto;
+  max-height: 500px; /* Ajusta la altura según sea necesario */
+  overflow-y: auto; /* Permite el desplazamiento vertical */
   border: 1px solid #e2e8f0;
   border-radius: 8px;
 }
 
+.table-rediseno {
+  width: 100%; /* Asegúrate de que la tabla ocupe todo el ancho del contenedor */
+  border-collapse: collapse; /* Colapsa los bordes de la tabla */
+}
+
 .table-rediseno td.action-buttons {
   padding: 27px 15px; /* Ajusta el padding para que coincida con otras celdas */
-
 }
 
 .table-rediseno thead {
