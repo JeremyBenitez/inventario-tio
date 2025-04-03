@@ -1,72 +1,141 @@
-document.addEventListener('DOMContentLoaded', () => {
-    fetchRecepciones();
-    fetchDespachos();
+// Función para abrir pestañas
+function openTab(tabName, event) {
+    console.log('Pestaña clickeada:', tabName);
+    // Hide all tab content
+    const tabContent = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < tabContent.length; i++) {
+        tabContent[i].classList.remove("active");
+    }
+    
+    // Remove 'active' class from all tab buttons
+    const tabButtons = document.getElementsByClassName("tab-btn");
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
+    
+    // Show the selected tab and add 'active' class to the button
+    document.getElementById(tabName).classList.add("active");
+    event.currentTarget.classList.add("active");
+    
+    // Cargar datos dinámicamente
+    loadTabData(tabName);
+}
 
-    // Manejar el clic en los botones de pestañas
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            showTab(tabId);
-        });
+// Función para formatear fecha
+function formatDateFromBackend(dateString) {
+    if (!dateString) return 'N/A';
+    
+    // Si ya viene formateada del backend
+    if (dateString.includes('/')) return dateString;
+    
+    // Si viene en formato ISO (YYYY-MM-DD)
+    const dateObj = new Date(dateString);
+    return isNaN(dateObj.getTime()) 
+        ? dateString 
+        : dateObj.toLocaleDateString('es-ES');
+}
+
+// Función para cargar datos de la pestaña
+async function loadTabData(tabType) {
+    try {
+        const response = await fetch(`/historial/${tabType}`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        
+        const data = await response.json();
+        console.log('Estructura de datos recibidos:', data[0]); // ← Muestra el primer registro
+        renderTableData(tabType, data);
+    } catch (error) {
+        console.error(`Error al cargar datos de ${tabType}:`, error);
+        const tableId = `${tabType}Table`;
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = `<tr><td colspan="4" class="error-message">Error al cargar datos: ${error.message}</td></tr>`;
+    }
+}
+
+function renderTableData(tabType, data) {
+    const tableId = `${tabType}Table`;
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">No hay registros</td></tr>`;
+        return;
+    }
+    
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        const formattedDate = formatDateFromBackend(item.fecha);
+        
+        if (tabType === 'recepcion') {
+            // Asignación CORRECTA para recepción
+            row.innerHTML = `
+                <td>${formattedDate}</td>
+                <td>${item.descripcion || 'N/A'}</td> <!-- deposito está en descripcion -->
+                <td><span class="badge badge-reception">${item.deposito || 0} </span></td> <!-- cantidad está en deposito -->
+                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
+            `;
+        } else { 
+            // Asignación CORRECTA para despacho
+            row.innerHTML = `
+                <td>${formattedDate}</td>
+                <td>${item.descripcion || 'N/A'}</td> <!-- destinatario está en descripcion -->
+                <td><span class="badge badge-dispatch">${item.destinatario || 0} </span></td> <!-- cantidad está en destinatario -->
+                <td>${item.cantidad || 'N/A'}</td> <!-- descripcion está en cantidad -->
+            `;
+        }
+        
+        tbody.appendChild(row);
+    });
+}
+
+// Función para filtrar tabla
+function filterTable(tableId, inputId, columnIndex) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById(tableId);
+    const tr = table.getElementsByTagName("tr");
+    
+    for (let i = 0; i < tr.length; i++) {
+        const td = tr[i].getElementsByTagName("td")[columnIndex];
+        if (td) {
+            const txtValue = td.textContent || td.innerText;
+            tr[i].style.display = txtValue.toUpperCase().includes(filter) ? "" : "none";
+        }
+    }
+}
+
+// Manejador del botón Volver
+document.getElementById('back-btn-header')?.addEventListener('click', () => {
+    window.location.href = '/inventario';
+});
+
+// Manejador del botón Cerrar Sesión
+document.getElementById('close-btn').addEventListener('click', function() {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then((response) => {
+        if (response.ok) {
+            window.location.href = '/';
+        }
+    })
+    .catch((error) => {
+        console.error('Error al cerrar sesión:', error);
     });
 });
 
-function showTab(tabId) {
-    // Ocultar todas las pestañas
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(tab => {
-        tab.classList.remove('active');
+// Inicialización al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    // Cargar primera pestaña por defecto
+    loadTabData('recepcion');
+    
+    // Configurar evento para botones de pestaña
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => openTab(btn.dataset.tab, e));
     });
-
-    // Mostrar la pestaña seleccionada
-    const activeTab = document.getElementById(tabId);
-    activeTab.classList.add('active');
-
-    // Cambiar la clase activa en los botones
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(button => {
-        button.classList.remove('active');
-        if (button.getAttribute('data-tab') === tabId) {
-            button.classList.add('active');
-        }
-    });
-}
-
-function fetchRecepciones() {
-    fetch('http://10.21.5.26:3000/inventario/Recepciones')
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('.recepcion');
-            tbody.innerHTML = ''; // Limpiar el contenido anterior
-            data.forEach(item => {
-                const row = `<tr>
-                    <td>${item.Fecha}</td>
-                    <td>${item.Descripción}</td>
-                    <td>${item.Destino}</td>
-                    <td>${item.Cantidad}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        })
-        .catch(error => console.error('Error fetching recepciones:', error));
-}
-
-function fetchDespachos() {
-    fetch('http://10.21.5.26:3000/inventario/Despachos')
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('.despacho');
-            tbody.innerHTML = ''; // Limpiar el contenido anterior
-            data.forEach(item => {
-                const row = `<tr>
-                    <td>${item.Fecha}</td>
-                    <td>${item.Descripción}</td>
-                    <td>${item.Destino}</td>
-                    <td>${item.Cantidad}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-        })
-        .catch(error => console.error('Error fetching despachos:', error));
-}
+});

@@ -153,9 +153,6 @@ router.post('/guardar_recepcion', (req, res) => {
     );
 });
 
-// Exportamos el router correctamente
-module.exports = router;
-
 // Middleware para validar JSON
 router.use(express.json());
 
