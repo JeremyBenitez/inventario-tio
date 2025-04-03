@@ -23,7 +23,7 @@ router.post('/agregar', (req, res) => {
 router.get('/consultar', (req, res) => {
     const { deposito } = req.query; // Captura el parámetro opcional
 
-    let sql = `SELECT * FROM inventario`;
+    let sql = `SELECT * FROM inventario ORDER BY ID DESC`;
     let params = [];
 
     if (deposito) {
