@@ -87,8 +87,8 @@ function renderTableData(tabType, data) {
             row.innerHTML = `
                 <td>${formattedDate}</td>
                 <td>${item.descripcion || 'N/A'}</td>
-                <td><span class="badge badge-reception">${item.deposito || 'N/A'}</span></td>
-                <td>${item.cantidad || 'N/A'}</td>
+                <td>${item.deposito || 'N/A'}</span></td>
+                <td><span class="badge badge-reception">${item.cantidad || 'N/A'}</td>
             `;
         } else { 
             // Estructura para despachos
