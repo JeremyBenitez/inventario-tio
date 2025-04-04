@@ -10,6 +10,7 @@ const logoutRoutes = require('./routes/logout');
 const historialRoutes = require('./routes/historial');
 const app = express();
 
+
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
   origin: 'http://localhost:3000', // Puedes cambiarlo por tu IP si necesitas
@@ -25,7 +26,9 @@ app.use(session({
 }));
 
 // Middleware global
-app.use(express.static(path.join(__dirname, 'static')));
+app.use(express.static(path.join(__dirname, 'static'), {
+  maxAge: '1d' // Cachear archivos estáticos por 1 día
+}))
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
