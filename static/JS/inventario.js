@@ -658,58 +658,7 @@ function agregarEventosBotonesAccionesMasivas() {
   }
 }
 
-// Nueva función para mostrar alerta cuando no hay selección
-function mostrarAlertaSinSeleccion(accion) {
-  const titulos = {
-    'despacho': 'Despacho Masivo',
-    'recepcion': 'Recepción Masiva'
-  };
-  
-  const iconos = {
-    'despacho': 'fas fa-shipping-fast',
-    'recepcion': 'fas fa-truck-loading'
-  };
-  
-  const colores = {
-    'despacho': '#e67e22',
-    'recepcion': '#2ecc71'
-  };
-  
-  Swal.fire({
-    title: `<i class="${iconos[accion]}" style="color: ${colores[accion]}; font-size: 2.5rem;"></i>`,
-    html: `
-      <div style="text-align: center; margin-top: 20px;">
-        <h3 style="color: #333; margin-bottom: 15px;">${titulos[accion]}</h3>
-        <p style="color: #666; font-size: 1.1rem;">No has seleccionado ningún elemento</p>
-        <div style="margin-top: 25px; animation: bounce 2s infinite;">
-          <i class="fas fa-mouse-pointer" style="font-size: 3rem; color: ${colores[accion]};"></i>
-        </div>
-        <p style="color: #888; margin-top: 20px; font-size: 0.9rem;">Selecciona uno o más items para continuar</p>
-      </div>
-    `,
-    showConfirmButton: false,
-    showCancelButton: true,
-    cancelButtonText: 'Entendido',
-    cancelButtonColor: colores[accion],
-    background: '#ffffff',
-    width: '450px',
-    customClass: {
-      popup: 'animated fadeIn'
-    },
-    willOpen: () => {
-      // Agregar animación de rebote al icono
-      const style = document.createElement('style');
-      style.innerHTML = `
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-          40% {transform: translateY(-20px);}
-          60% {transform: translateY(-10px);}
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  });
-}
+
 
 // Función para mostrar los elementos seleccionados en el modal de despacho
 function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
