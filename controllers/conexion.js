@@ -11,7 +11,7 @@ const db = new sqlite3.Database('./db/inventario_control.db', (err) => {
 });
 
 // Función para ejecutar consultas con promesas
-db.query = function(sql, params = []) {
+db.query = function (sql, params = []) {
     return new Promise((resolve, reject) => {
         this.all(sql, params, (err, rows) => {
             if (err) reject(err);
