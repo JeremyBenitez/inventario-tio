@@ -1,3 +1,7 @@
+// Variables globales para el modo masivo
+let modoMasivoActivo = false;
+let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
+
 document.addEventListener('DOMContentLoaded', function () {
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
 
@@ -126,6 +130,773 @@ function mostrarProductos() {
 
 // Llama a obtenerProductos al cargar la página
 obtenerProductos();
+
+// Función para inicializar el modo masivo
+function inicializarModoMasivo() {
+  const toggleBtn = document.getElementById('toggleModoMasivo');
+  
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function() {
+      modoMasivoActivo = !modoMasivoActivo;
+      seleccionados.clear(); // Limpiar selecciones anteriores
+      
+      // Actualizar apariencia del botón
+      if (modoMasivoActivo) {
+        toggleBtn.classList.add('active');
+        toggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
+      } else {
+        toggleBtn.classList.remove('active');
+        toggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
+      }
+      
+      // Actualizar la tabla para el modo masivo
+      actualizarTablaModoMasivo();
+    });
+  } else {
+    console.error('El botón con id "toggleModoMasivo" no existe en el documento.');
+  }
+}
+
+// Función para actualizar la tabla según el modo masivo
+function actualizarTablaModoMasivo() {
+  const tbody = document.querySelector('#tabla-inventario tbody');
+  const filas = tbody.querySelectorAll('tr');
+  
+  filas.forEach(fila => {
+    // Eliminar cualquier evento anterior para evitar duplicados
+    fila.removeEventListener('click', handleFilaClick);
+    
+    if (modoMasivoActivo) {
+      // Agregar clase para indicar que el modo masivo está activo
+      fila.classList.add('seleccion-masiva-disponible');
+      
+      // Agregar evento de clic a la fila
+      fila.addEventListener('click', handleFilaClick);
+      
+      // Ocultar botones de acción
+      const actionButtons = fila.querySelectorAll('.action-buttons .action-btn');
+      actionButtons.forEach(btn => {
+        btn.style.display = 'none';
+      });
+      
+      // Mostrar checkbox de selección
+      const actionCell = fila.querySelector('.action-buttons');
+      if (actionCell) {
+        // Verificar si ya existe un checkbox para evitar duplicados
+        if (!actionCell.querySelector('.checkbox-seleccion')) {
+          const checkbox = document.createElement('div');
+          checkbox.classList.add('checkbox-seleccion');
+          checkbox.innerHTML = '<i class="far fa-square"></i>';
+          actionCell.appendChild(checkbox);
+        }
+      }
+    } else {
+      // Quitar clase de modo masivo
+      fila.classList.remove('seleccion-masiva-disponible');
+      fila.classList.remove('seleccionado');
+      
+      // Mostrar botones de acción de nuevo
+      const actionButtons = fila.querySelectorAll('.action-buttons .action-btn');
+      actionButtons.forEach(btn => {
+        btn.style.display = '';
+      });
+      
+      // Eliminar checkbox de selección
+      const checkbox = fila.querySelector('.checkbox-seleccion');
+      if (checkbox) {
+        checkbox.remove();
+      }
+    }
+  });
+  
+  // Si se desactiva el modo masivo, mostrar botones y ocultar batones de acción masiva
+  const accionesMasivas = document.getElementById('accionesMasivas');
+  if (accionesMasivas) {
+    accionesMasivas.style.display = modoMasivoActivo ? 'flex' : 'none';
+  }
+}
+
+// Manejador de eventos para el clic en filas
+function handleFilaClick(event) {
+  if (!modoMasivoActivo) return;
+  
+  const fila = event.currentTarget;
+  const idProducto = fila.querySelector('td:first-child').textContent;
+  
+  // Toggle de la selección
+  if (seleccionados.has(idProducto)) {
+    seleccionados.delete(idProducto);
+    fila.classList.remove('seleccionado');
+    fila.querySelector('.checkbox-seleccion').innerHTML = '<i class="far fa-square"></i>';
+  } else {
+    seleccionados.add(idProducto);
+    fila.classList.add('seleccionado');
+    fila.querySelector('.checkbox-seleccion').innerHTML = '<i class="fas fa-check-square"></i>';
+  }
+  
+  // Actualizar contador de seleccionados
+  actualizarContadorSeleccionados();
+}
+
+// Función para actualizar el contador de elementos seleccionados
+function actualizarContadorSeleccionados() {
+  const contador = document.getElementById('contadorSeleccionados');
+  if (contador) {
+    contador.textContent = seleccionados.size;
+  }
+}
+
+// Función para obtener los IDs seleccionados (para usar en acciones masivas)
+function obtenerSeleccionados() {
+  return Array.from(seleccionados);
+}
+
+// Función para agregar el HTML necesario para las acciones masivas
+function agregarHTMLAccionesMasivas() {
+  const tablaContainer = document.querySelector('#tabla-inventario').parentElement;
+  
+  // Crear el elemento de acciones masivas si no existe
+  if (!document.getElementById('accionesMasivas')) {
+    const accionesMasivas = document.createElement('div');
+    accionesMasivas.id = 'accionesMasivas';
+    accionesMasivas.innerHTML = `
+      <div class="contador-container">
+        <span id="contadorSeleccionados">0</span> elementos seleccionados
+      </div>
+      <div class="botones-accion-masiva">
+        <button id="despachoMasivo" class="btn-accion-masiva">
+          <i class="fas fa-shipping-fast"></i> Despacho Masivo
+        </button>
+        <button id="recepcionMasiva" class="btn-accion-masiva">
+          <i class="fas fa-truck-loading"></i> Recepción Masiva
+        </button>
+      </div>
+    `;
+    accionesMasivas.style.display = 'none';
+    tablaContainer.insertBefore(accionesMasivas, document.querySelector('#tabla-inventario'));
+  }
+  
+  // Crear modales para acciones masivas si no existen
+  if (!document.getElementById('modalDespachoMasivo')) {
+    const modalDespacho = document.createElement('div');
+    modalDespacho.id = 'modalDespachoMasivo';
+    modalDespacho.className = 'modal';
+    modalDespacho.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close-modal">&times;</span>
+          <h2>Despacho Masivo</h2>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="fechaDespacho">Fecha:</label>
+            <input type="date" id="fechaDespacho" class="form-control" value="${obtenerFechaActual()}">
+          </div>
+          <div class="form-group">
+            <label>Elementos seleccionados:</label>
+            <div id="listaElementosDespacho" class="elementos-seleccionados"></div>
+          </div>
+          <div class="form-group">
+            <label for="destinoDespacho">Destino:</label>
+            <input type="text" id="destinoDespacho" class="form-control" placeholder="Ingrese el destino">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="confirmarDespacho" class="btn-confirmar">Confirmar Despacho</button>
+          <button class="btn-cancelar close-modal">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalDespacho);
+  }
+  
+  if (!document.getElementById('modalRecepcionMasiva')) {
+    const modalRecepcion = document.createElement('div');
+    modalRecepcion.id = 'modalRecepcionMasiva';
+    modalRecepcion.className = 'modal';
+    modalRecepcion.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close-modal">&times;</span>
+          <h2>Recepción Masiva</h2>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="fechaRecepcion">Fecha:</label>
+            <input type="date" id="fechaRecepcion" class="form-control" value="${obtenerFechaActual()}">
+          </div>
+          <div class="form-group">
+            <label>Elementos seleccionados:</label>
+            <div id="listaElementosRecepcion" class="elementos-seleccionados"></div>
+          </div>
+          <div class="form-group">
+            <label for="origenRecepcion">Origen:</label>
+            <input type="text" id="origenRecepcion" class="form-control" placeholder="Ingrese el origen">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="confirmarRecepcion" class="btn-confirmar">Confirmar Recepción</button>
+          <button class="btn-cancelar close-modal">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalRecepcion);
+  }
+}
+
+// Función para obtener la fecha actual en formato YYYY-MM-DD
+function obtenerFechaActual() {
+  const hoy = new Date();
+  const año = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+  return `${año}-${mes}-${dia}`;
+}
+
+// Función para agregar los estilos CSS necesarios
+function agregarEstilosModoMasivo() {
+  if (!document.getElementById('estilosModoMasivo')) {
+    const estilos = document.createElement('style');
+    estilos.id = 'estilosModoMasivo';
+    estilos.textContent = `
+      .seleccion-masiva-disponible {
+        cursor: pointer;
+      }
+      
+      .seleccion-masiva-disponible:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+      
+      .seleccionado {
+        background-color: rgba(66, 135, 245, 0.15) !important;
+      }
+      
+      #toggleModoMasivo {
+        padding: 8px 12px;
+        background-color: #f1f1f1;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      #toggleModoMasivo.active {
+        background-color: #4287f5;
+        color: white;
+        border-color: #3273dc;
+      }
+      
+      #accionesMasivas {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      }
+      
+      .contador-container {
+        font-weight: bold;
+      }
+      
+      #contadorSeleccionados {
+        color: #4287f5;
+        font-size: 1.2em;
+      }
+      
+      .btn-accion-masiva {
+        padding: 6px 12px;
+        margin-left: 8px;
+        background-color: #4287f5;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      
+      .btn-accion-masiva:hover {
+        background-color: #3273dc;
+      }
+      
+      .checkbox-seleccion {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2em;
+        color: #4287f5;
+      }
+      
+      /* Estilos para los modales */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      }
+      
+      .modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 8px;
+        width: 60%;
+        max-width: 700px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        animation: modalFadeIn 0.3s;
+      }
+      
+      @keyframes modalFadeIn {
+        from {opacity: 0; transform: translateY(-30px);}
+        to {opacity: 1; transform: translateY(0);}
+      }
+      
+      .modal-header {
+        padding: 15px 20px;
+        background-color: #4287f5;
+        color: white;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+      
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5em;
+      }
+      
+      .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      
+      .modal-footer {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: flex-end;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+      
+      .close-modal {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      
+      .close-modal:hover {
+        color: #f8f9fa;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      .btn-confirmar {
+        padding: 8px 16px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      
+      .btn-confirmar:hover {
+        background-color: #218838;
+      }
+      
+      .btn-cancelar {
+        padding: 8px 16px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      
+      .btn-cancelar:hover {
+        background-color: #c82333;
+      }
+      
+      .elementos-seleccionados {
+        max-height: 150px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 5px;
+      }
+      
+      .item-seleccionado {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .item-seleccionado:last-child {
+        border-bottom: none;
+      }
+      
+      .cantidad-input {
+        width: 60px;
+        padding: 4px 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+      }
+    `;
+    document.head.appendChild(estilos);
+  }
+}
+
+// Función para agregar eventos a los botones de acciones masivas
+function agregarEventosBotonesAccionesMasivas() {
+  const btnDespachoMasivo = document.getElementById('despachoMasivo');
+  const btnRecepcionMasiva = document.getElementById('recepcionMasiva');
+  const btnCambiarEstadoMasivo = document.getElementById('cambiarEstadoMasivo');
+  
+  // Eventos para cerrar los modales
+  document.querySelectorAll('.close-modal').forEach(elem => {
+    elem.addEventListener('click', function() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+      });
+    });
+  });
+  
+  // Cerrar el modal si se hace clic fuera de él
+  window.addEventListener('click', function(event) {
+    document.querySelectorAll('.modal').forEach(modal => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  });
+  
+  if (btnDespachoMasivo) {
+    btnDespachoMasivo.addEventListener('click', function() {
+      const seleccionadosArray = obtenerSeleccionados();
+      
+      if (seleccionadosArray.length === 0) {
+        alert('Seleccione al menos un elemento para realizar un despacho masivo.');
+        return;
+      }
+      
+      // Mostrar los elementos seleccionados en el modal
+      mostrarElementosSeleccionadosDespacho(seleccionadosArray);
+      
+      // Mostrar el modal de despacho
+      document.getElementById('modalDespachoMasivo').style.display = 'block';
+    });
+  }
+  
+  if (btnRecepcionMasiva) {
+    btnRecepcionMasiva.addEventListener('click', function() {
+      const seleccionadosArray = obtenerSeleccionados();
+      
+      if (seleccionadosArray.length === 0) {
+        alert('Seleccione al menos un elemento para realizar una recepción masiva.');
+        return;
+      }
+      
+      // Mostrar los elementos seleccionados en el modal
+      mostrarElementosSeleccionadosRecepcion(seleccionadosArray);
+      
+      // Mostrar el modal de recepción
+      document.getElementById('modalRecepcionMasiva').style.display = 'block';
+    });
+  }
+  
+  if (btnCambiarEstadoMasivo) {
+    btnCambiarEstadoMasivo.addEventListener('click', function() {
+      const seleccionadosArray = obtenerSeleccionados();
+      
+      if (seleccionadosArray.length === 0) {
+        alert('Seleccione al menos un elemento para cambiar su estado.');
+        return;
+      }
+      
+      console.log('Cambiar estado para:', seleccionadosArray);
+      // Aquí puedes implementar la lógica para el cambio de estado masivo
+    });
+  }
+  
+  // Evento para confirmar el despacho
+  const btnConfirmarDespacho = document.getElementById('confirmarDespacho');
+  if (btnConfirmarDespacho) {
+    btnConfirmarDespacho.addEventListener('click', function() {
+      procesarDespachoMasivo();
+    });
+  }
+  
+  // Evento para confirmar la recepción
+  const btnConfirmarRecepcion = document.getElementById('confirmarRecepcion');
+  if (btnConfirmarRecepcion) {
+    btnConfirmarRecepcion.addEventListener('click', function() {
+      procesarRecepcionMasiva();
+    });
+  }
+}
+
+// Función para mostrar los elementos seleccionados en el modal de despacho
+function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
+  const contenedor = document.getElementById('listaElementosDespacho');
+  contenedor.innerHTML = '';
+  
+  seleccionadosArray.forEach(id => {
+    const producto = buscarProductoPorId(id);
+    if (producto) {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item-seleccionado';
+      itemDiv.innerHTML = `
+        <div>
+          <strong>${producto.Nombre}</strong> 
+        </div>
+        <div>
+          <label>Cantidad: </label>
+          <input type="number" class="cantidad-input" data-id="${producto.ID}" value="1" min="1" max="${producto.Stock}">
+        </div>
+      `;
+      contenedor.appendChild(itemDiv);
+    }
+  });
+}
+
+// Función para mostrar los elementos seleccionados en el modal de recepción
+function mostrarElementosSeleccionadosRecepcion(seleccionadosArray) {
+  const contenedor = document.getElementById('listaElementosRecepcion');
+  contenedor.innerHTML = '';
+  
+  seleccionadosArray.forEach(id => {
+    const producto = buscarProductoPorId(id);
+    if (producto) {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item-seleccionado';
+      itemDiv.innerHTML = `
+        <div>
+          <strong>${producto.Nombre}</strong>
+        </div>
+        <div>
+          <label>Cantidad: </label>
+          <input type="number" class="cantidad-input" data-id="${producto.ID}" value="1" min="1">
+        </div>
+      `;
+      contenedor.appendChild(itemDiv);
+    }
+  });
+}
+
+// Función para buscar un producto por su ID
+function buscarProductoPorId(id) {
+  return productos.find(p => p.ID == id);
+}
+
+// Función para procesar el despacho masivo
+function procesarDespachoMasivo() {
+  const fecha = document.getElementById('fechaDespacho').value;
+  const destino = document.getElementById('destinoDespacho').value;
+  const observaciones = document.getElementById('observacionesDespacho').value;
+  
+  if (!destino) {
+    alert('Por favor ingrese un destino para el despacho.');
+    return;
+  }
+  
+  const despachos = [];
+  
+  document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
+    const id = input.getAttribute('data-id');
+    const cantidad = parseInt(input.value);
+    
+    if (cantidad > 0) {
+      const producto = buscarProductoPorId(id);
+      despachos.push({
+        id: id,
+        nombre: producto.Nombre,
+        cantidad: cantidad,
+        fecha: fecha,
+        destino: destino
+      });
+    }
+  });
+  
+  console.log('Procesando despacho masivo:', {
+    fecha: fecha,
+    destino: destino,
+    observaciones: observaciones,
+    despachos: despachos
+  });
+  
+  // Aquí puedes implementar la lógica para registrar el despacho en tu sistema
+  
+  // Cerrar el modal después de procesar
+  document.getElementById('modalDespachoMasivo').style.display = 'none';
+  
+  // Mostrar un mensaje de éxito
+  alert(`Se ha registrado el despacho masivo con ${despachos.length} productos hacia ${destino}`);
+  
+  // Desactivar el modo masivo después de completar la acción
+  const toggleBtn = document.getElementById('toggleModoMasivo');
+  if (toggleBtn && modoMasivoActivo) {
+    toggleBtn.click();
+  }
+}
+
+// Función para procesar la recepción masiva
+function procesarRecepcionMasiva() {
+  const fecha = document.getElementById('fechaRecepcion').value;
+  const origen = document.getElementById('origenRecepcion').value;
+  const observaciones = document.getElementById('observacionesRecepcion').value;
+  
+  if (!origen) {
+    alert('Por favor ingrese un origen para la recepción.');
+    return;
+  }
+  
+  const recepciones = [];
+  
+  document.querySelectorAll('#listaElementosRecepcion .cantidad-input').forEach(input => {
+    const id = input.getAttribute('data-id');
+    const cantidad = parseInt(input.value);
+    
+    if (cantidad > 0) {
+      const producto = buscarProductoPorId(id);
+      recepciones.push({
+        id: id,
+        nombre: producto.Nombre,
+        cantidad: cantidad,
+        fecha: fecha,
+        origen: origen
+      });
+    }
+  });
+  
+  console.log('Procesando recepción masiva:', {
+    fecha: fecha,
+    origen: origen,
+    observaciones: observaciones,
+    recepciones: recepciones
+  });
+  
+  // Aquí puedes implementar la lógica para registrar la recepción en tu sistema
+  
+  // Cerrar el modal después de procesar
+  document.getElementById('modalRecepcionMasiva').style.display = 'none';
+  
+  // Mostrar un mensaje de éxito
+  alert(`Se ha registrado la recepción masiva con ${recepciones.length} productos desde ${origen}`);
+  
+  // Desactivar el modo masivo después de completar la acción
+  const toggleBtn = document.getElementById('toggleModoMasivo');
+  if (toggleBtn && modoMasivoActivo) {
+    toggleBtn.click();
+  }
+}
+
+// Modificar la función mostrarProductos para que aplique el modo masivo
+function mostrarProductos() {
+  const tbody = document.querySelector('#tabla-inventario tbody');
+  tbody.innerHTML = '';
+
+  // Ordenar los productos por ID descendente (últimos primero)
+  const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
+
+  productosOrdenados.forEach(producto => {
+    const row = document.createElement('tr');
+
+    // Manejo seguro de Depósito
+    const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
+    row.setAttribute('data-deposito', deposito);
+
+    // Manejo seguro de Estado con valor por defecto
+    const estado = producto.Estado?.toLowerCase() || 'desconocido';
+
+    // Configuración de estilos según estado
+    let estadoClass = 'status-new';
+    let estadoIcon = '<i class="fas fa-certificate"></i>';
+
+    if (estado === 'usado') {
+      estadoClass = 'status-used';
+      estadoIcon = '<i class="fas fa-history"></i>';
+    } else if (estado === 'dañado') {
+      estadoClass = 'status-damaged';
+      estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+    } else if (estado === 'desconocido') {
+      estadoClass = 'status-unknown';
+      estadoIcon = '<i class="fas fa-question-circle"></i>';
+    }
+
+    // Template seguro con valores por defecto
+    row.innerHTML = `
+      <td>${producto.ID ?? 'N/A'}</td>
+      <td>${producto.Nombre ?? 'Sin nombre'}</td>
+      <td>${producto.Categoria ?? 'Sin categoría'}</td>
+      <td>${producto.Serial ?? 'N/A'}</td>
+      <td>${producto.Modelo ?? 'N/A'}</td>
+      <td>${producto.Marca ?? 'N/A'}</td>
+      <td>${producto.Deposito ?? 'No especificado'}</td>
+      <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
+      <td>${producto.Stock ?? '0'}</td>
+      <td class="action-buttons">
+        <div class="action-group">
+          <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <div class="action-group">
+          <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
+            <i class="fas fa-truck-loading"></i>
+          </button>
+          <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
+            <i class="fas fa-shipping-fast"></i>
+          </button>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+
+  // Llama a agregarEventosBotones después de llenar la tabla
+  agregarEventosBotones();
+  
+  // Si el modo masivo está activo, actualiza la tabla
+  if (modoMasivoActivo) {
+    actualizarTablaModoMasivo();
+  }
+}
+
+// Función para inicializar todo el modo masivo
+function inicializarSeleccionMasiva() {
+  agregarHTMLAccionesMasivas();
+  agregarEstilosModoMasivo();
+  inicializarModoMasivo();
+  agregarEventosBotonesAccionesMasivas();
+}
 
 
 function agregarEventosBotones() {
@@ -939,10 +1710,12 @@ async function registrarDespacho(id) {
   }
 }
 
-
 document.getElementById('historialBtn').addEventListener('click', function () {
   // Redireccionar a la ruta de historial
   window.location.href = '/historial';
 });
 
-
+// Inicializar la selección masiva cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+  inicializarSeleccionMasiva();
+});

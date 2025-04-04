@@ -46,6 +46,13 @@
           </div>
         </div>
 
+        <!-- Dentro de la sección de contenido principal, después del selector de depósito -->
+        <div class="modo-seleccion-wrapper">
+          <button class="btn-modo-masivo" id="toggleModoMasivo">
+            <i class="fas fa-tasks"></i> Modo Operación Masiva
+          </button>
+        </div>
+
         <!-- Búsqueda -->
         <form class="search-form search-form-rediseno" id="formBuscar">
           <input
@@ -73,6 +80,12 @@
         <div class="table-container table-container-rediseno">
           <table class="table-rediseno" id="tabla-inventario">
             <thead>
+              <th id="columnaCheckbox" style="display: none; width: 40px;">
+                <div class="seleccionar-todos">
+                  <input type="checkbox" id="seleccionarTodos" class="checkbox-seleccion">
+                  <label for="seleccionarTodos">Todos</label>
+                </div>
+              </th>
               <tr>
                 <th>ID</th>
                 <th>Nombre del Producto</th>
