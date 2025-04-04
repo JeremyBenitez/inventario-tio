@@ -1,106 +1,198 @@
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-image: url('/Img/Fondo1.jpg'); /* Ruta a la imagen */
-    background-size: cover; /* Cubrir toda la pantalla */
-    background-position: center; /* Centrar la imagen */
-    background-repeat: no-repeat; /* No repetir la imagen */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('/Img/fondo3.png') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #333;
+}
+
+/* Nuevos estilos para el formulario */
+.form-container {
+  background: linear-gradient(#212121, #212121) padding-box,
+              linear-gradient(120deg, transparent 25%, #1cb0ff, #40ff99) border-box;
+  border: 2px solid transparent;
+  padding: 32px 24px;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  width: 350px;
+  max-width: 90%;
+  backdrop-filter: blur(8px);
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 2em;
-    background-color: #171717;
-    border-radius: 25px;
-    transition: 0.4s ease-in-out;
-    width: 300px; /* Ancho fijo para el formulario */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
-.card {
-    background-image: linear-gradient(163deg, #00ff75 0%, #3700ff 100%);
-    border-radius: 22px;
-    transition: all 0.3s;
-    padding: 2px; /* Espacio para el efecto de borde */
+.heading {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #fff;
 }
 
-.card2 {
-    border-radius: 0;
-    transition: all 0.2s;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  position: relative;
 }
 
-.card2:hover {
-    transform: scale(0.98);
-    border-radius: 20px;
+.form-input {
+  color: white;
+  background: transparent;
+  border: 1px solid #414141;
+  border-radius: 5px;
+  padding: 12px;
+  outline: none;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease;
 }
 
-.card:hover {
-    box-shadow: 0px 0px 30px 1px rgba(0, 255, 117, 0.3);
+.form-input:focus {
+  border-color: #1cb0ff;
+  box-shadow: 0 0 0 2px rgba(28, 176, 255, 0.2);
 }
 
-#heading {
-    text-align: center;
-    margin: 1em 0; /* Ajuste del margen */
-    color: rgb(255, 255, 255);
-    font-size: 1.2em;
+.form-group label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 0 5px;
+  pointer-events: none;
+  transition: 0.3s;
+  color: #bdb8b8;
+  font-size: 16px;
+  background: transparent;
 }
 
-.field {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5em;
-    border-radius: 25px;
-    padding: 0.6em;
-    border: none;
-    outline: none;
-    color: white;
-    background-color: #171717;
-    box-shadow: inset 2px 5px 10px rgb(5, 5, 5);
+.form-group input:focus ~ label,
+.form-group input:valid ~ label {
+  top: -10px;
+  left: 10px;
+  font-size: 12px;
+  background: #212121;
+  padding: 0 5px;
+  color: #1cb0ff;
 }
 
-.input-icon {
-    height: 1.3em;
-    width: 1.3em;
-    fill: white;
+.btn-submit {
+  border-radius: 5px;
+  padding: 12px;
+  background: linear-gradient(120deg, #1cb0ff, #40ff99);
+  color: #212121;
+  border: none;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
-.input-field {
-    background: none;
-    border: none;
-    outline: none;
-    width: 100%;
-    color: #d3d3d3;
+.btn-submit:hover {
+  background: linear-gradient(120deg, #1899d6, #36d97f);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(28, 176, 255, 0.3);
 }
 
-.form .btn {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    margin-top: 1.5em; /* Ajuste del margen */
+.error-message {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  display: none;
+  margin-top: 5px;
+  text-align: left;
+  width: 100%;
 }
 
-.button1 {
-    padding: 0.5em;
-    padding-left: 1.1em;
-    padding-right: 1.1em;
-    border-radius: 5px;
-    margin-right: 0.5em;
-    border: none;
-    outline: none;
-    transition: 0.4s ease-in-out;
-    background-color: #252525;
-    color: white;
-    font-size: large;
+/* Estilos para SweetAlert (mantenidos) */
+.swal2-popup {
+  border-radius: 15px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(110, 142, 251, 0.3) !important;
+  box-shadow: 0 0 30px rgba(110, 142, 251, 0.2) !important;
 }
 
-.button1:hover {
-    background-color: rgb(5, 84, 255);
-    color: white;
+.swal2-title {
+  color: #6e8efb !important;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+.swal2-confirm {
+  background-color: #6e8efb !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+  background-color: #5a7de2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(110, 142, 251, 0.3) !important;
+}
+
+.swal2-icon.swal2-success {
+  color: #6e8efb !important;
+  border-color: #6e8efb !important;
+}
+
+.swal2-icon.swal2-error {
+  color: #ff6b6b !important;
+  border-color: #ff6b6b !important;
+}
+
+.swal2-html-container {
+  color: #425981 !important;
+  font-size: 1.1rem !important;
+}
+
+/* Control de scroll con SweetAlert */
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+  overflow: visible !important;
+  padding-right: 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .form-container {
+    padding: 24px 16px;
+  }
+  
+  .heading {
     font-size: 20px;
-    cursor: pointer;
+  }
+  
+  .form-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .btn-submit {
+    padding: 10px;
+    font-size: 14px;
+  }
 }

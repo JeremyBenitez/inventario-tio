@@ -1,12 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 const db = require('../controllers/conexion');
 
 const router = express.Router();
+const JWT_SECRET = 'tu_clave_secreta';
 
-
-// Ruta para registrar un usuario
 router.post('/registro', (req, res) => {
     const { Usuario, Password } = req.body;
 
@@ -24,12 +23,11 @@ router.post('/registro', (req, res) => {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            res.status(201).json({ mensaje: 'Usuario registrado exitosamente' });
+            res.json({ mensaje: 'Registro exitoso' });
         });
     });
 });
 
-/// Ruta para iniciar sesión
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 
@@ -42,35 +40,24 @@ router.post('/login', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!row) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-        // Comparar la contraseña con el hash almacenado
         bcrypt.compare(Password, row.Password, (err, isMatch) => {
             if (err) return res.status(500).json({ error: 'Error al comparar las contraseñas' });
             if (!isMatch) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
-            // ✅ Guardar usuario en sesión correctamente
-            req.session.user = { id: row.id, Usuario: row.Usuario };
+            const token = jwt.sign({ id: row.id }, JWT_SECRET, { expiresIn: '1h' });
 
-            req.session.save(err => {  // ⏳ Asegurar que la sesión se guarda antes de responder
-                if (err) {
-                    console.error('Error al guardar la sesión:', err);
-                    return res.status(500).json({ error: 'Error al guardar la sesión' });
-                }
-
-                console.log('✅ Sesión guardada correctamente:', req.session);
-                res.json({ mensaje: 'Inicio de sesión exitoso' });
+            // Configurar cookie HTTP-only
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 3600000, // 1 hora
+                sameSite: 'strict'
             });
+
+            res.json({ token });
         });
     });
 });
 
-// Ruta para cerrar sesión
-router.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).json({ error: 'Error al cerrar sesión' });
-        }
-        res.clearCookie('connect.sid'); // Elimina la cookie de sesión
-        res.json({ mensaje: 'Sesión cerrada exitosamente' });
-    });
-});
+
 module.exports = router;

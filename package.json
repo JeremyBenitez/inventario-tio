@@ -20,11 +20,18 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
-    "sqlite3": "^5.1.7"
+    "memorystore": "^1.6.7",
+    "multer": "^1.4.5-lts.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "sqlite3": "^5.1.7",
+    "xlsx": "^0.18.5"
   },
   "description": ""
 }
