@@ -2,6 +2,15 @@
 let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
 
+
+
+////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
+
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "#"; // Redirige al login si no hay token
+
+/////////////// FIN DEL ERROR//////////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
 
@@ -38,7 +47,7 @@ let productos = [];
 
 async function obtenerProductos() {
   try {
-    const response = await fetch('http://localhost:3000/inventario/consultar');
+    const response = await fetch('/inventario/consultar');
 
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
@@ -794,7 +803,7 @@ async function procesarDespachoMasivo() {
 
     // Enviar cada despacho individualmente al servidor
     for (const despacho of despachos) {
-      const response = await fetch('http://localhost:3000/inventario/guardar_despacho', {
+      const response = await fetch('/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -884,7 +893,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://localhost:3000/inventario/guardar_recepcion', {
+      const response = await fetch('/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1068,7 +1077,7 @@ async function eliminarProducto(id) {
 
   if (confirmacion.isConfirmed) {
     try {
-      const response = await fetch(`http://localhost:3000/inventario/eliminar/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/inventario/eliminar/${id}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok) {
@@ -1122,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/inventario/agregar', {
+      const response = await fetch('/inventario/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuevoItem)
@@ -1200,7 +1209,7 @@ document.getElementById('inputBuscar').addEventListener('input', function () {
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     document.getElementById('editNombre').value = producto.Nombre;
@@ -1230,7 +1239,7 @@ async function abrirModalEditar(id) {
       };
 
       try {
-        const response = await fetch(`http://localhost:3000/inventario/actualizar/${id}`, {
+        const response = await fetch(`/inventario/actualizar/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productoEditado)
@@ -1301,7 +1310,7 @@ document.getElementById('close-btn').addEventListener('click', function () {
 // Modificar la función registrarRecepcion
 async function registrarRecepcion(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     // Determinar el texto a mostrar basado en el depósito actual del producto
@@ -1399,7 +1408,7 @@ async function registrarRecepcion(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/inventario/guardar_recepcion', {
+      const response = await fetch('/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
@@ -1563,7 +1572,7 @@ async function registrarRecepcion(id) {
 
 async function registrarDespacho(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     const { value: formValues } = await Swal.fire({
@@ -1661,7 +1670,7 @@ async function registrarDespacho(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/inventario/guardar_despacho', {
+      const response = await fetch('/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)

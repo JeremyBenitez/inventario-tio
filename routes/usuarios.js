@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../controllers/conexion');
-
+require('dotenv').config();
 const router = express.Router();
 const JWT_SECRET = 'tu_clave_secreta';
 
@@ -49,6 +49,7 @@ router.post('/login', (req, res) => {
             // Configurar cookie HTTP-only
             res.cookie('token', token, {
                 httpOnly: true,
+                httpsOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 3600000, // 1 hora
                 sameSite: 'strict'
