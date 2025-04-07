@@ -3,6 +3,7 @@ const path = require('path');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+require('dotenv').config(); // npm install dotenv
 const inventarioRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
 const indexRouter = require('./routes/index');
@@ -13,7 +14,7 @@ const app = express();
 
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
-  origin: 'http://localhost:3000', // Puedes cambiarlo por tu IP si necesitas
+  origin: ['http://localhost:5000', 'http://10.21.5.13:5000'], // Puedes cambiarlo por tu IP si necesitas
   credentials: true
 }));
 
@@ -21,8 +22,11 @@ app.use(cors({
 app.use(session({
   secret: '123',
   resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false }
+  saveUninitialized: true,
+  cookie: {
+    secure: false, // Cambia a true si usas HTTPS
+    sameSite: 'lax' // Importante para cross-site
+  }
 }));
 
 // Middleware global
@@ -46,7 +50,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Algo salió mal!');
 });
 
-const PORT = 3000;
+const PORT = 5000;
 const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
 
 app.listen(PORT, HOST, () => {
