@@ -75,9 +75,7 @@ router.get('/despacho', async (req, res) => {
         `;
         
         const rows = await db.query(sql);
-         // Log de verificación
-         console.log('Fechas originales desde BD:', rows.map(r => r.fecha_despacho));
-        
+
         const formattedRows = rows.map(row => ({
             fecha: formatDate(handleEmptyField(row.fecha_despacho)),
             descripcion: handleEmptyField(row.descripcion),
