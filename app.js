@@ -55,5 +55,5 @@ const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
 
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.13:${PORT}`);
+  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.23:${PORT}`);
 });
