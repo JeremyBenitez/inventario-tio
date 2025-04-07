@@ -1,6 +1,628 @@
+import {
+  obtenerProductos as apiObtenerProductos,
+  obtenerProductoPorId,
+  agregarProducto,
+  actualizarProducto,
+  eliminarProducto as apiEliminarProducto,
+  registrarRecepcion as apiRegistrarRecepcion,
+  registrarDespacho as apiRegistrarDespacho,
+  cerrarSesion
+} from './api.js';
+
+// Función original modificada
+async function obtenerProductos() {
+  try {
+    productos = await apiObtenerProductos();
+    mostrarProductos();
+  } catch (error) {
+    console.error('Error al obtener los productos:', error);
+    alert(`Error al cargar productos: ${error.message}`);
+  }
+}
+
+// Función para eliminar un producto
+async function eliminarProducto(id) {
+  const confirmacion = await Swal.fire({
+    title: '<i class="fas fa-trash" style="color: #e74c3c"></i> ¿Eliminar Producto?',
+    html: `
+      <div class="text-center" style="padding: 20px;">
+        <div style="font-size: 5rem; color: #e74c3c; margin-bottom: 20px;">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p style="font-size: 1.2rem; margin-bottom: 10px;">¿Estás seguro que deseas eliminar este producto?</p>
+        <p style="color: #7f8c8d;">Esta acción no se puede deshacer y eliminará permanentemente el registro.</p>
+      </div>
+    `,
+    background: '#f8f9fa',
+    width: '600px',
+    padding: '0',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',
+    cancelButtonColor: '#95a5a6',
+    confirmButtonText: '<i class="fas fa-trash"></i> Sí, eliminar',
+    cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+    customClass: {
+      popup: 'action-modal modal-eliminar',
+      title: 'modal-title',
+      confirmButton: 'btn-submit',
+      cancelButton: 'btn-cancel'
+    }
+  });
+
+  if (confirmacion.isConfirmed) {
+    try {
+      const data = await apiEliminarProducto(id);
+      await Swal.fire({
+        title: '¡Eliminado!',
+        text: data.mensaje,
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
+      obtenerProductos();
+    } catch (error) {
+      await Swal.fire({
+        title: 'Error',
+        text: error.message || 'Hubo un problema al eliminar el producto',
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+    }
+  }
+}
+
+async function registrarRecepcion(id) {
+  try {
+    const producto = await obtenerProductoPorId(id);
+
+    // Determinar el texto a mostrar basado en el depósito actual del producto
+    let depositoMostrar;
+    if (producto.Deposito.toLowerCase() === 'principal') {
+      depositoMostrar = 'Depósito Principal';
+    } else if (producto.Deposito.toLowerCase() === 'secundario') {
+      depositoMostrar = 'Depósito Secundario';
+    } else {
+      depositoMostrar = producto.Deposito; // Por si acaso hay otros valores
+    }
+
+    const { value: formValues } = await Swal.fire({
+      title: `<i class="fas fa-truck-loading"></i> Recepción`,
+      html: `
+        <div class="compact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-producto" class="form-label">Producto</label>
+              <input type="text" id="swal-producto" class="swal2-input" 
+                     value="${producto.Nombre}" readonly>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-cantidad" class="form-label">Cantidad</label>
+              <input type="number" id="swal-cantidad" class="swal2-input quantity-input" 
+                     placeholder="Cantidad" value="1" min="1">
+            </div>
+            <div class="form-group">
+              <label for="swal-deposito" class="form-label">Depósito Actual</label>
+              <input type="text" id="swal-deposito" class="swal2-input"
+                     value="${depositoMostrar}" readonly>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+                <label for="swal-fecha-recepcion" class="form-label">Fecha</label>
+                <input type="date" id="swal-fecha-recepcion" class="swal2-input"
+                      value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
+        </div>
+      `,
+      background: '#ffffff',
+      width: '450px',
+      padding: '0',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#2ecc71',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: '<i class="fas fa-save"></i> Registrar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+      customClass: {
+        popup: 'compact-action-modal recepcion-modal',
+        title: 'modal-title',
+        confirmButton: 'btn-submit',
+        cancelButton: 'btn-cancel',
+        container: 'modal-container'
+      },
+      preConfirm: () => {
+        const cantidad = document.getElementById('swal-cantidad').value;
+        const fecha = document.getElementById('swal-fecha-recepcion').value;
+        const productoNombre = document.getElementById('swal-producto').value;
+
+        if (!cantidad || cantidad <= 0) {
+          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+          return false;
+        }
+        if (!fecha) {
+          Swal.showValidationMessage('Debe seleccionar una fecha');
+          return false;
+        }
+
+        return {
+          inventario_id: id,
+          descripcion: productoNombre,
+          destino: depositoMostrar, // Enviamos el formato "Depósito X"
+          cantidad: cantidad,
+          deposito_destino: producto.Deposito, // Mantenemos el valor original para la BD
+          fecha_recepcion: fecha
+        };
+      }
+    });
+     
+    if (formValues) {
+      Swal.fire({ title: 'Procesando recepción...', /* ... */ });
+      const data = await apiRegistrarRecepcion(formValues);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #4CAF50"></i> Recepción Registrada',
+          html: `
+            <div style="text-align: center;">
+              <p>${data.mensaje || 'La recepción se ha registrado correctamente'}</p>
+              <div style="margin-top: 20px; font-size: 2em; color: #4CAF50;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <p style="margin-top: 10px; font-weight: bold;">Stock actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_recepcion}</p>
+              <p style="margin-top: 5px; color: #666;">Destino: ${formValues.destino}</p>
+            </div>
+          `,
+          confirmButtonColor: '#4CAF50',
+          confirmButtonText: 'Aceptar'
+        });
+
+       // Generar PDF elegante
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Configuración de colores corporativos
+        const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+        const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+        // Encabezado con logo y título
+        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.rect(0, 0, 210, 30, 'F');
+
+        // Título del documento
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
+
+        // Información de la empresa
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.text('TIO AMMI', 105, 35, { align: 'center' });
+        doc.setFontSize(8);
+        doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+        // Línea separadora
+        doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+
+        // Información del documento
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
+
+        // Área de datos
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+
+        // Construir tabla de información
+        const startY = 65;
+        const lineHeight = 8;
+        const colWidth = 80;
+
+        // Columna izquierda
+        doc.setFont("helvetica", "bold");
+        doc.text('Producto:', 20, startY);
+        doc.text('Cantidad:', 20, startY + lineHeight);
+
+        // Columna derecha (ahora un campo debajo del otro)
+        doc.setFont("helvetica", "bold");
+        doc.text('Fecha de Recepción:', 110, startY);
+        doc.text('Destino:', 110, startY + lineHeight); // Ahora está una línea más abajo
+
+        // Datos columna izquierda
+        doc.setFont("helvetica", "normal");
+        doc.text(producto.Nombre, 60, startY);
+        doc.text(formValues.cantidad.toString(), 60, startY + lineHeight);
+
+        // Datos columna derecha
+        doc.setFont("helvetica", "normal");
+        doc.text(formValues.fecha_recepcion, 150, startY);
+        doc.text(formValues.destino, 150, startY + lineHeight); // Ahora está una línea más abajo
+
+        // Sección de firmas - ahora colocadas justo antes del pie de página
+        const firmasY = 240; // Nueva posición más cercana al pie de página
+
+        // Línea separadora
+        doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+        doc.setLineWidth(0.3);
+        doc.line(20, firmasY, 80, firmasY);
+        doc.line(130, firmasY, 190, firmasY);
+
+        // Textos de firma
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+        doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
+        doc.text('Firma de Recepción', 160, firmasY + 5, { align: 'center' });
+
+        // Pie de página
+        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+        doc.rect(0, 275, 210, 22, 'F');
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
+        doc.text(`Registro N°: ${formValues.inventario_id}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
+        doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
+
+        // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
+        // Guardamos el estado actual del documento
+        doc.saveGraphicsState();
+        // Establecemos la opacidad para la marca de agua
+        doc.setGState(new doc.GState({opacity: 0.1}));
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(55); // Tamaño ligeramente más pequeño
+        doc.setTextColor(128, 128, 128); // Gris claro para el fondo
+        // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
+        doc.text('RECEPCIÓN', 130, 200, { 
+          align: 'center',
+          angle: 45
+        });
+        // Restauramos el estado para que el resto del contenido tenga opacidad normal
+        doc.restoreGraphicsState();
+
+        // Guardar el PDF
+        doc.save(`Nota_Recepcion_${producto.Nombre}_${formValues.fecha_recepcion}.pdf`);
+
+        // Llamar a la función para obtener productos actualizados
+        obtenerProductos();
+      } else {
+        throw new Error(data.error || 'Error al registrar la recepción');
+      }
+    }
+  } catch (error) {
+    await Swal.fire({
+      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
+      html: `
+        <div style="text-align: center;">
+          <p>${error.message || 'Hubo un problema al registrar la recepción'}</p>
+          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
+            <i class="fas fa-times-circle"></i>
+          </div>
+        </div>
+      `,
+      confirmButtonColor: '#f44336',
+      confirmButtonText: 'Entendido'
+    });
+  }
+}
+
+async function registrarDespacho(id) {
+  try {
+    const producto = await obtenerProductoPorId(id);
+
+    const { value: formValues } = await Swal.fire({
+      title: `<i class="fas fa-shipping-fast"></i> Despacho`,
+      html: `
+        <div class="compact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-producto-despacho" class="form-label">Producto</label>
+              <input type="text" id="swal-producto-despacho" class="swal2-input" 
+                     value="${producto.Nombre} (Stock: ${producto.Stock})" readonly>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-cantidad-despacho" class="form-label">Cantidad</label>
+              <input type="number" id="swal-cantidad-despacho" class="swal2-input quantity-input" 
+                     placeholder="Cantidad" value="1" min="1" max="${producto.Stock}">
+            </div>
+            <div class="form-group">
+              <label for="swal-destino" class="form-label">Destino</label>
+              <input type="text" id="swal-destino" class="swal2-input" 
+                     placeholder="Departamento o persona">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
+              <input type="date" id="swal-fecha-despacho" class="swal2-input"
+                     value="${new Date().toISOString().split('T')[0]}">
+            </div>
+          </div>
+        </div>
+      `,
+      background: '#ffffff',
+      width: '450px',
+      padding: '0',
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: '#e67e22',
+      cancelButtonColor: '#95a5a6',
+      confirmButtonText: '<i class="fas fa-paper-plane"></i> Despachar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+      customClass: {
+        popup: 'compact-action-modal despacho-modal',
+        title: 'modal-title',
+        confirmButton: 'btn-submit',
+        cancelButton: 'btn-cancel',
+        container: 'modal-container'
+      },
+      preConfirm: () => {
+        const cantidad = document.getElementById('swal-cantidad-despacho').value;
+        const destino = document.getElementById('swal-destino').value;
+        const fecha = document.getElementById('swal-fecha-despacho').value;
+        const depositoOrigen = producto.Deposito;
+
+        if (!cantidad || cantidad <= 0) {
+          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
+          return false;
+        }
+        if (cantidad > producto.Stock) {
+          Swal.showValidationMessage(`No hay suficiente stock (disponible: ${producto.Stock})`);
+          return false;
+        }
+        if (!destino) {
+          Swal.showValidationMessage('Debe especificar un destino');
+          return false;
+        }
+        if (!fecha) {
+          Swal.showValidationMessage('Debe seleccionar una fecha');
+          return false;
+        }
+
+        return {
+          inventario_id: id,
+          destinatario: destino,
+          cantidad: cantidad,
+          fecha_despacho: fecha,
+          deposito_origen: depositoOrigen,
+          descripcion: `Despacho de ${producto.Nombre}` // Agregamos el nombre del producto como descripción
+        };
+      }
+    });
+
+    if (formValues) {
+      Swal.fire({ title: 'Procesando despacho...', /* ... */ });
+      const data = await apiRegistrarDespacho(formValues);
+
+      const response = await fetch('http://localhost:3000/inventario/guardar_despacho', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formValues)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await Swal.fire({
+          title: '<i class="fas fa-check-circle" style="color: #FF9800"></i> Despacho Registrado',
+          html: `
+            <div style="text-align: center;">
+              <p>${data.mensaje || 'El despacho se ha registrado correctamente'}</p>
+              <div style="margin-top: 20px; font-size: 2em; color: #FF9800;">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <p style="margin-top: 10px; font-weight: bold;">Stock restante: ${parseInt(producto.Stock) - parseInt(formValues.cantidad)}</p>
+              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_despacho}</p>
+            </div>
+          `,
+          confirmButtonColor: '#FF9800',
+          confirmButtonText: 'Aceptar'
+        });
+
+        /// Generar PDF elegante para Nota de Salida
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Configuración de colores corporativos
+          const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+          const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+          // Encabezado con logo y título
+          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.rect(0, 0, 210, 30, 'F');
+
+          // Título del documento
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(20);
+          doc.text('NOTA DE SALIDA', 105, 15, { align: 'center' });
+
+          // Información de la empresa
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(10);
+          doc.text('TIO AMMI', 105, 35, { align: 'center' });
+          doc.setFontSize(8);
+          doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+          // Línea separadora
+          doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.setLineWidth(0.5);
+          doc.line(20, 45, 190, 45);
+
+          // Información del documento
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.text('INFORMACIÓN DE DESPACHO', 20, 55);
+
+          // Área de datos
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
+
+          // Construir tabla de información
+          const startY = 65;
+          const lineHeight = 8;
+          const colWidth = 80;
+
+          // Columna izquierda
+          doc.setFont("helvetica", "bold");
+          doc.text('Producto:', 20, startY);
+          doc.text('Cantidad:', 20, startY + lineHeight);
+
+          // Columna derecha
+          doc.setFont("helvetica", "bold");
+          doc.text('Fecha de Despacho:', 110, startY);
+          doc.text('Destino:', 110, startY + lineHeight);
+
+          // Datos columna izquierda
+          doc.setFont("helvetica", "normal");
+          // Garantizamos que los valores son strings
+          doc.text(producto.Nombre || "", 60, startY);
+          doc.text(String(formValues.cantidad || ""), 60, startY + lineHeight);
+
+          // Datos columna derecha
+          doc.setFont("helvetica", "normal");
+          doc.text(String(formValues.fecha_despacho || ""), 150, startY);
+
+          // Verificamos el valor del destino y lo mostramos
+          console.log("Valor del destino en el modal:", formValues.destino);
+          // Si el valor no existe, intentamos buscar otros posibles nombres de campo
+          const destinoFinal = formValues.destinatario || formValues.destinoDespacho || formValues.lugarDestino || "";
+          doc.text(String(destinoFinal), 150, startY + lineHeight);
+
+          // Sección de firmas - ahora colocadas justo antes del pie de página
+          const firmasY = 240; // Nueva posición más cercana al pie de página
+
+          // Línea separadora
+          doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+          doc.setLineWidth(0.3);
+          doc.line(20, firmasY, 80, firmasY);
+          doc.line(130, firmasY, 190, firmasY);
+
+          // Textos de firma
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
+          doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
+          doc.text('Firma de Entrega', 160, firmasY + 5, { align: 'center' });
+
+          // Pie de página
+          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+          doc.rect(0, 275, 210, 22, 'F');
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.setTextColor(255, 255, 255);
+          doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
+          doc.text(`Registro N°: ${String(formValues.inventario_id || "")}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
+          doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
+
+          // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
+          // Guardamos el estado actual del documento
+          doc.saveGraphicsState();
+          // Establecemos la opacidad para la marca de agua
+          doc.setGState(new doc.GState({opacity: 0.1}));
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(55); // Tamaño ligeramente más pequeño
+          doc.setTextColor(128, 128, 128); // Gris claro para el fondo
+          // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
+          doc.text('DESPACHO', 130, 200, { 
+            align: 'center',
+            angle: 45
+          });
+          // Restauramos el estado para que el resto del contenido tenga opacidad normal
+          doc.restoreGraphicsState();
+
+          // Guardar el PDF
+          doc.save(`Nota_Salida_${producto.Nombre}_${formValues.fecha_despacho}.pdf`);
+        
+        // Llamar a la función para obtener productos actualizados
+        obtenerProductos();
+      } else {
+        throw new Error(data.error || 'Error al registrar el despacho');
+      }
+    }
+  } catch (error) {
+    await Swal.fire({
+      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
+      html: `
+        <div style="text-align: center;">
+          <p>${error.message || 'Hubo un problema al registrar el despacho'}</p>
+          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
+            <i class="fas fa-times-circle"></i>
+          </div>
+        </div>
+      `,
+      confirmButtonColor: '#f44336',
+      confirmButtonText: 'Entendido'
+    });
+  }
+}
+
+
+// Modificar el evento de logout
+document.getElementById('close-btn').addEventListener('click', async function() {
+  try {
+    await cerrarSesion();
+    window.location.href = '/';
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Variables globales para el modo masivo
 let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
+let productos = [];
+
+
+
+
+////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
+
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "#"; // Redirige al login si no hay token
+
+/////////////// FIN DEL ERROR//////////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
@@ -33,12 +655,11 @@ document.addEventListener('DOMContentLoaded', function () {
   obtenerProductos();
 });
 
-let productos = [];
 
 
 async function obtenerProductos() {
   try {
-    const response = await fetch('http://localhost:3000/inventario/consultar');
+    const response = await fetch('/inventario/consultar');
 
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
@@ -794,7 +1415,7 @@ async function procesarDespachoMasivo() {
 
     // Enviar cada despacho individualmente al servidor
     for (const despacho of despachos) {
-      const response = await fetch('http://localhost:3000/inventario/guardar_despacho', {
+      const response = await fetch('/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -884,7 +1505,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://localhost:3000/inventario/guardar_recepcion', {
+      const response = await fetch('/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1068,7 +1689,7 @@ async function eliminarProducto(id) {
 
   if (confirmacion.isConfirmed) {
     try {
-      const response = await fetch(`http://localhost:3000/inventario/eliminar/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/inventario/eliminar/${id}`, { method: 'DELETE' });
       const data = await response.json();
 
       if (response.ok) {
@@ -1122,7 +1743,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/inventario/agregar', {
+      const response = await fetch('/inventario/agregar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(nuevoItem)
@@ -1200,7 +1821,7 @@ document.getElementById('inputBuscar').addEventListener('input', function () {
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     document.getElementById('editNombre').value = producto.Nombre;
@@ -1230,7 +1851,7 @@ async function abrirModalEditar(id) {
       };
 
       try {
-        const response = await fetch(`http://localhost:3000/inventario/actualizar/${id}`, {
+        const response = await fetch(`/inventario/actualizar/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productoEditado)
@@ -1301,7 +1922,7 @@ document.getElementById('close-btn').addEventListener('click', function () {
 // Modificar la función registrarRecepcion
 async function registrarRecepcion(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     // Determinar el texto a mostrar basado en el depósito actual del producto
@@ -1399,7 +2020,7 @@ async function registrarRecepcion(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/inventario/guardar_recepcion', {
+      const response = await fetch('/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
@@ -1563,7 +2184,7 @@ async function registrarRecepcion(id) {
 
 async function registrarDespacho(id) {
   try {
-    const response = await fetch(`http://localhost:3000/inventario/consultar/${id}`);
+    const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
     const { value: formValues } = await Swal.fire({
@@ -1661,7 +2282,7 @@ async function registrarDespacho(id) {
         }
       });
 
-      const response = await fetch('http://localhost:3000/inventario/guardar_despacho', {
+      const response = await fetch('/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formValues)
