@@ -108,6 +108,7 @@ function mostrarProductos() {
       <td>${producto.Serial ?? 'N/A'}</td>
       <td>${producto.Modelo ?? 'N/A'}</td>
       <td>${producto.Marca ?? 'N/A'}</td>
+      <td>${producto.Proveedor}</td>
       <td>${producto.Deposito ?? 'No especificado'}</td>
       <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
       <td>${producto.Stock ?? '0'}</td>
@@ -342,6 +343,10 @@ function agregarHTMLAccionesMasivas() {
           <div class="form-group">
             <label for="origenRecepcion">Origen:</label>
             <input type="text" id="origenRecepcion" class="form-control" placeholder="Ingrese el origen">
+          </div>
+           <div class="form-group">
+            <label for="proveedor">Proveedor:</label>
+            <input type="text" id="proveedor" class="form-control" placeholder="Ingrese el proveedor">
           </div>
         </div>
         <div class="modal-footer">
@@ -857,18 +862,18 @@ async function procesarDespachoMasivo() {
 async function procesarRecepcionMasiva() {
   const fecha = document.getElementById('fechaRecepcion').value;
   const origen = document.getElementById('origenRecepcion').value;
-  
+
   if (!origen) {
     alert('Por favor ingrese un origen para la recepción.');
     return;
   }
 
   const recepciones = [];
-  
+
   document.querySelectorAll('#listaElementosRecepcion .cantidad-input').forEach(input => {
     const id = input.getAttribute('data-id');
     const cantidad = parseInt(input.value);
-    
+
     if (cantidad > 0) {
       const producto = buscarProductoPorId(id);
       recepciones.push({
@@ -877,7 +882,8 @@ async function procesarRecepcionMasiva() {
         cantidad: cantidad,
         fecha: fecha,
         origen: origen,
-        deposito_destino: producto.Deposito
+        deposito_destino: producto.Deposito,
+        proveedor: producto.proveedor
       });
     }
   });
@@ -903,7 +909,8 @@ async function procesarRecepcionMasiva() {
           descripcion: `${recepcion.nombre}`,
           destino: recepcion.deposito_destino,
           cantidad: recepcion.cantidad,
-          deposito_destino: recepcion.deposito_destino
+          deposito_destino: recepcion.deposito_destino,
+          proveedor: recepcion.proveedor
         })
       });
 
@@ -914,7 +921,7 @@ async function procesarRecepcionMasiva() {
 
     // Cerrar el modal después de procesar
     document.getElementById('modalRecepcionMasiva').style.display = 'none';
-    
+
     // Mostrar mensaje de éxito
     await Swal.fire({
       title: '¡Éxito!',
@@ -922,6 +929,9 @@ async function procesarRecepcionMasiva() {
       icon: 'success',
       confirmButtonText: 'Aceptar'
     });
+
+    // Generar PDF con el resumen de recepciones
+    generarPDFRecepcion(recepciones, origen, fecha);
 
     // Desactivar el modo masivo después de completar la acción
     const toggleBtn = document.getElementById('toggleModoMasivo');
@@ -942,6 +952,107 @@ async function procesarRecepcionMasiva() {
   }
 }
 
+function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png';
+  
+  let imagenBase64;
+  // Configuración de colores corporativos
+  const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+  const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+  // Encabezado con título
+  doc.setFillColor('#dfe7f2');
+  doc.rect(0, 0, 210, 30, 'F');
+
+  // Título del documento
+  doc.addImage(logo, 'JPEG', 30, 2, 20, 20,);
+
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor('black');
+  doc.setFontSize(20);  
+  doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
+
+  // Información de la empresa
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.text('TIO AMMI', 105, 35, { align: 'center' });
+  doc.setFontSize(8);
+  doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+  // Línea separadora
+  doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.setLineWidth(0.5);
+  doc.line(20, 45, 190, 45);
+
+  // Información del documento
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
+
+  // Área de datos
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+
+  // Construir tabla de información
+  const startY = 65;
+  const lineHeight = 8;
+
+  // Encabezados de la tabla
+  
+  doc.setFont("helvetica", "bold");
+  doc.text('Producto', 20, startY);
+  doc.text('Cantidad', 100, startY);
+  doc.text('Origen', 120, startY);
+  doc.text('Proveedor', 160, startY);
+
+  // Datos de las recepciones
+  let currentY = startY + lineHeight;
+  recepciones.forEach(recepcion => {
+    doc.setFont("helvetica", "normal");
+    doc.text(recepcion.nombre, 20, currentY);
+    doc.text(recepcion.cantidad.toString(), 100, currentY);
+    doc.text(recepcion.origen, 160, currentY);
+    doc.text(recepcion.proveedor, 160, currentY);
+    currentY += lineHeight;
+  });
+
+  // Línea separadora antes del pie de página
+  doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.setLineWidth(0.5);
+  doc.line(20, currentY, 190, currentY);
+
+  // Pie de página
+  const pieY = 297 - 22; // 297 mm (altura total de A4) menos 22 mm (altura del pie de página)
+
+  doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.rect(0, pieY, 210, 22, 'F');
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, pieY + 7, { align: 'center' });
+  doc.text(`Registro N°: ${new Date().getTime().toString().slice(-6)}`, 105, pieY + 12, { align: 'center' });
+  doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, pieY + 17, { align: 'center' });
+
+  // Marca de agua
+  doc.saveGraphicsState();
+  doc.setGState(new doc.GState({ opacity: 0.1 }));
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(55);
+  doc.setTextColor(128, 128, 128);
+  doc.text('RECEPCIÓN', 105, 150, { align: 'center', angle: 45 });
+  doc.restoreGraphicsState();
+
+  // Guardar el PDF
+  doc.save(`Nota_Recepcion_${origen}_${fecha}_${proveedor}.pdf`);
+}
+
+
 // Modificar la función mostrarProductos para que aplique el modo masivo
 function mostrarProductos() {
   const tbody = document.querySelector('#tabla-inventario tbody');
@@ -959,6 +1070,8 @@ function mostrarProductos() {
 
     // Manejo seguro de Estado con valor por defecto
     const estado = producto.Estado?.toLowerCase() || 'desconocido';
+    // Manejo seguro de Estado con valor por defecto
+    const proveedor = producto.proveedor?.toLowerCase() || 'desconocido';
 
     // Configuración de estilos según estado
     let estadoClass = 'status-new';
@@ -986,6 +1099,7 @@ function mostrarProductos() {
       <td>${producto.Deposito ?? 'No especificado'}</td>
       <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
       <td>${producto.Stock ?? '0'}</td>
+       <td>${producto.Proveedor ?? '0'}</td>
       <td class="action-buttons">
         <div class="action-group">
           <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
@@ -1127,6 +1241,7 @@ document.addEventListener('DOMContentLoaded', function () {
       modelo: document.getElementById('modelo').value,
       marca: document.getElementById('marca').value,
       deposito: document.getElementById('deposito').value,
+      proveedor: document.getElementById('proveedor').value,
       stock: document.getElementById('stock').value,
       estado: document.getElementById('estado').value
     };
@@ -1221,7 +1336,7 @@ async function abrirModalEditar(id) {
     document.getElementById('editDeposito').value = producto.Deposito;
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
-
+    document.getElementById('editproveedor').value = producto.proveedor;
     const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarItem'));
     modalEditar.show();
 
@@ -1236,7 +1351,8 @@ async function abrirModalEditar(id) {
         marca: document.getElementById('editMarca').value,
         deposito: document.getElementById('editDeposito').value,
         stock: document.getElementById('editStock').value,
-        estado: document.getElementById('editEstado').value
+        estado: document.getElementById('editEstado').value,
+        proveedor: document.getElementById('editproveedor').value
       };
 
       try {
@@ -1308,535 +1424,200 @@ document.getElementById('close-btn').addEventListener('click', function () {
     });
 });
 
-// Modificar la función registrarRecepcion
-async function registrarRecepcion(id) {
-  try {
-    const response = await fetch(`/inventario/consultar/${id}`);
-    const producto = await response.json();
 
-    // Determinar el texto a mostrar basado en el depósito actual del producto
-    let depositoMostrar;
-    if (producto.Deposito.toLowerCase() === 'principal') {
-      depositoMostrar = 'Depósito Principal';
-    } else if (producto.Deposito.toLowerCase() === 'secundario') {
-      depositoMostrar = 'Depósito Secundario';
-    } else {
-      depositoMostrar = producto.Deposito; // Por si acaso hay otros valores
-    }
 
-    const { value: formValues } = await Swal.fire({
-      title: `<i class="fas fa-truck-loading"></i> Recepción`,
-      html: `
-        <div class="compact-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="swal-producto" class="form-label">Producto</label>
-              <input type="text" id="swal-producto" class="swal2-input" 
-                     value="${producto.Nombre}" readonly>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="swal-cantidad" class="form-label">Cantidad</label>
-              <input type="number" id="swal-cantidad" class="swal2-input quantity-input" 
-                     placeholder="Cantidad" value="1" min="1">
-            </div>
-            <div class="form-group">
-              <label for="swal-deposito" class="form-label">Depósito Actual</label>
-              <input type="text" id="swal-deposito" class="swal2-input"
-                     value="${depositoMostrar}" readonly>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-                <label for="swal-fecha-recepcion" class="form-label">Fecha</label>
-                <input type="date" id="swal-fecha-recepcion" class="swal2-input"
-                      value="${new Date().toISOString().split('T')[0]}">
-            </div>
-          </div>
-        </div>
-      `,
-      background: '#ffffff',
-      width: '450px',
-      padding: '0',
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonColor: '#2ecc71',
-      cancelButtonColor: '#95a5a6',
-      confirmButtonText: '<i class="fas fa-save"></i> Registrar',
-      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
-      customClass: {
-        popup: 'compact-action-modal recepcion-modal',
-        title: 'modal-title',
-        confirmButton: 'btn-submit',
-        cancelButton: 'btn-cancel',
-        container: 'modal-container'
-      },
-      preConfirm: () => {
-        const cantidad = document.getElementById('swal-cantidad').value;
-        const fecha = document.getElementById('swal-fecha-recepcion').value;
-        const productoNombre = document.getElementById('swal-producto').value;
+async function procesarDespachoMasivo() {
+  const fecha = document.getElementById('fechaDespacho').value;
+  const destino = document.getElementById('destinoDespacho').value;
 
-        if (!cantidad || cantidad <= 0) {
-          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
-          return false;
-        }
-        if (!fecha) {
-          Swal.showValidationMessage('Debe seleccionar una fecha');
-          return false;
-        }
-
-        return {
-          inventario_id: id,
-          descripcion: productoNombre,
-          destino: depositoMostrar, // Enviamos el formato "Depósito X"
-          cantidad: cantidad,
-          deposito_destino: producto.Deposito, // Mantenemos el valor original para la BD
-          fecha_recepcion: fecha
-        };
-      }
-    });
-
-    if (formValues) {
-      // Mostrar animación de carga
-      Swal.fire({
-        title: 'Procesando recepción...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      const response = await fetch('/inventario/guardar_recepcion', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formValues)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        await Swal.fire({
-          title: '<i class="fas fa-check-circle" style="color: #4CAF50"></i> Recepción Registrada',
-          html: `
-            <div style="text-align: center;">
-              <p>${data.mensaje || 'La recepción se ha registrado correctamente'}</p>
-              <div style="margin-top: 20px; font-size: 2em; color: #4CAF50;">
-                <i class="fas fa-check-circle"></i>
-              </div>
-              <p style="margin-top: 10px; font-weight: bold;">Stock actualizado: ${parseInt(producto.Stock) + parseInt(formValues.cantidad)}</p>
-              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_recepcion}</p>
-              <p style="margin-top: 5px; color: #666;">Destino: ${formValues.destino}</p>
-            </div>
-          `,
-          confirmButtonColor: '#4CAF50',
-          confirmButtonText: 'Aceptar'
-        });
-
-       // Generar PDF elegante
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Configuración de colores corporativos
-        const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
-        const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
-
-        // Encabezado con logo y título
-        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-        doc.rect(0, 0, 210, 30, 'F');
-
-        // Título del documento
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(20);
-        doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
-
-        // Información de la empresa
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        doc.text('TIO AMMI', 105, 35, { align: 'center' });
-        doc.setFontSize(8);
-        doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
-
-        // Línea separadora
-        doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-        doc.setLineWidth(0.5);
-        doc.line(20, 45, 190, 45);
-
-        // Información del documento
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-        doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
-
-        // Área de datos
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-
-        // Construir tabla de información
-        const startY = 65;
-        const lineHeight = 8;
-        const colWidth = 80;
-
-        // Columna izquierda
-        doc.setFont("helvetica", "bold");
-        doc.text('Producto:', 20, startY);
-        doc.text('Cantidad:', 20, startY + lineHeight);
-
-        // Columna derecha (ahora un campo debajo del otro)
-        doc.setFont("helvetica", "bold");
-        doc.text('Fecha de Recepción:', 110, startY);
-        doc.text('Destino:', 110, startY + lineHeight); // Ahora está una línea más abajo
-
-        // Datos columna izquierda
-        doc.setFont("helvetica", "normal");
-        doc.text(producto.Nombre, 60, startY);
-        doc.text(formValues.cantidad.toString(), 60, startY + lineHeight);
-
-        // Datos columna derecha
-        doc.setFont("helvetica", "normal");
-        doc.text(formValues.fecha_recepcion, 150, startY);
-        doc.text(formValues.destino, 150, startY + lineHeight); // Ahora está una línea más abajo
-
-        // Sección de firmas - ahora colocadas justo antes del pie de página
-        const firmasY = 240; // Nueva posición más cercana al pie de página
-
-        // Línea separadora
-        doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
-        doc.setLineWidth(0.3);
-        doc.line(20, firmasY, 80, firmasY);
-        doc.line(130, firmasY, 190, firmasY);
-
-        // Textos de firma
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
-        doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
-        doc.text('Firma de Recepción', 160, firmasY + 5, { align: 'center' });
-
-        // Pie de página
-        doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-        doc.rect(0, 275, 210, 22, 'F');
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(255, 255, 255);
-        doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
-        doc.text(`Registro N°: ${formValues.inventario_id}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
-        doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
-
-        // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
-        // Guardamos el estado actual del documento
-        doc.saveGraphicsState();
-        // Establecemos la opacidad para la marca de agua
-        doc.setGState(new doc.GState({opacity: 0.1}));
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(55); // Tamaño ligeramente más pequeño
-        doc.setTextColor(128, 128, 128); // Gris claro para el fondo
-        // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
-        doc.text('RECEPCIÓN', 130, 200, { 
-          align: 'center',
-          angle: 45
-        });
-        // Restauramos el estado para que el resto del contenido tenga opacidad normal
-        doc.restoreGraphicsState();
-
-        // Guardar el PDF
-        doc.save(`Nota_Recepcion_${producto.Nombre}_${formValues.fecha_recepcion}.pdf`);
-
-        // Llamar a la función para obtener productos actualizados
-        obtenerProductos();
-      } else {
-        throw new Error(data.error || 'Error al registrar la recepción');
-      }
-    }
-  } catch (error) {
-    await Swal.fire({
-      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
-      html: `
-        <div style="text-align: center;">
-          <p>${error.message || 'Hubo un problema al registrar la recepción'}</p>
-          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
-            <i class="fas fa-times-circle"></i>
-          </div>
-        </div>
-      `,
-      confirmButtonColor: '#f44336',
-      confirmButtonText: 'Entendido'
-    });
+  if (!destino) {
+    alert('Por favor ingrese un destino para el despacho.');
+    return;
   }
-}
 
-async function registrarDespacho(id) {
+  const despachos = [];
+
+  document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
+    const id = input.getAttribute('data-id');
+    const cantidad = parseInt(input.value);
+
+    if (cantidad > 0) {
+      const producto = buscarProductoPorId(id);
+      despachos.push({
+        id: id,
+        nombre: producto.Nombre,
+        cantidad: cantidad,
+        fecha: fecha,
+        destino: destino,
+        deposito_origen: producto.Deposito
+      });
+    }
+  });
+
   try {
-    const response = await fetch(`/inventario/consultar/${id}`);
-    const producto = await response.json();
-
-    const { value: formValues } = await Swal.fire({
-      title: `<i class="fas fa-shipping-fast"></i> Despacho`,
-      html: `
-        <div class="compact-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="swal-producto-despacho" class="form-label">Producto</label>
-              <input type="text" id="swal-producto-despacho" class="swal2-input" 
-                     value="${producto.Nombre} (Stock: ${producto.Stock})" readonly>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="swal-cantidad-despacho" class="form-label">Cantidad</label>
-              <input type="number" id="swal-cantidad-despacho" class="swal2-input quantity-input" 
-                     placeholder="Cantidad" value="1" min="1" max="${producto.Stock}">
-            </div>
-            <div class="form-group">
-              <label for="swal-destino" class="form-label">Destino</label>
-              <input type="text" id="swal-destino" class="swal2-input" 
-                     placeholder="Departamento o persona">
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="swal-fecha-despacho" class="form-label">Fecha</label>
-              <input type="date" id="swal-fecha-despacho" class="swal2-input"
-                     value="${new Date().toISOString().split('T')[0]}">
-            </div>
-          </div>
-        </div>
-      `,
-      background: '#ffffff',
-      width: '450px',
-      padding: '0',
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonColor: '#e67e22',
-      cancelButtonColor: '#95a5a6',
-      confirmButtonText: '<i class="fas fa-paper-plane"></i> Despachar',
-      cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
-      customClass: {
-        popup: 'compact-action-modal despacho-modal',
-        title: 'modal-title',
-        confirmButton: 'btn-submit',
-        cancelButton: 'btn-cancel',
-        container: 'modal-container'
-      },
-      preConfirm: () => {
-        const cantidad = document.getElementById('swal-cantidad-despacho').value;
-        const destino = document.getElementById('swal-destino').value;
-        const fecha = document.getElementById('swal-fecha-despacho').value;
-        const depositoOrigen = producto.Deposito;
-
-        if (!cantidad || cantidad <= 0) {
-          Swal.showValidationMessage('La cantidad debe ser mayor a 0');
-          return false;
-        }
-        if (cantidad > producto.Stock) {
-          Swal.showValidationMessage(`No hay suficiente stock (disponible: ${producto.Stock})`);
-          return false;
-        }
-        if (!destino) {
-          Swal.showValidationMessage('Debe especificar un destino');
-          return false;
-        }
-        if (!fecha) {
-          Swal.showValidationMessage('Debe seleccionar una fecha');
-          return false;
-        }
-
-        return {
-          inventario_id: id,
-          destinatario: destino,
-          cantidad: cantidad,
-          fecha_despacho: fecha,
-          deposito_origen: depositoOrigen,
-          descripcion: `Despacho de ${producto.Nombre}` // Agregamos el nombre del producto como descripción
-        };
+    // Mostrar animación de carga
+    Swal.fire({
+      title: 'Procesando despacho masivo...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       }
     });
 
-    if (formValues) {
-      // Mostrar animación de carga
-      // Mostrar animación de carga
-      Swal.fire({
-        title: 'Procesando despacho...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
+    // Enviar cada despacho individualmente al servidor
+    for (const despacho of despachos) {
       const response = await fetch('/inventario/guardar_despacho', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formValues)
+        body: JSON.stringify({
+          inventario_id: despacho.id,
+          fecha_despacho: despacho.fecha,
+          destinatario: despacho.destino,
+          cantidad: despacho.cantidad,
+          descripcion: `${despacho.nombre}`,
+          deposito_origen: despacho.deposito_origen
+        })
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        await Swal.fire({
-          title: '<i class="fas fa-check-circle" style="color: #FF9800"></i> Despacho Registrado',
-          html: `
-            <div style="text-align: center;">
-              <p>${data.mensaje || 'El despacho se ha registrado correctamente'}</p>
-              <div style="margin-top: 20px; font-size: 2em; color: #FF9800;">
-                <i class="fas fa-check-circle"></i>
-              </div>
-              <p style="margin-top: 10px; font-weight: bold;">Stock restante: ${parseInt(producto.Stock) - parseInt(formValues.cantidad)}</p>
-              <p style="margin-top: 5px; color: #666;">Fecha: ${formValues.fecha_despacho}</p>
-            </div>
-          `,
-          confirmButtonColor: '#FF9800',
-          confirmButtonText: 'Aceptar'
-        });
-
-        /// Generar PDF elegante para Nota de Salida
-          const { jsPDF } = window.jspdf;
-          const doc = new jsPDF();
-
-          // Configuración de colores corporativos
-          const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
-          const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
-
-          // Encabezado con logo y título
-          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-          doc.rect(0, 0, 210, 30, 'F');
-
-          // Título del documento
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(20);
-          doc.text('NOTA DE SALIDA', 105, 15, { align: 'center' });
-
-          // Información de la empresa
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(0, 0, 0);
-          doc.setFontSize(10);
-          doc.text('TIO AMMI', 105, 35, { align: 'center' });
-          doc.setFontSize(8);
-          doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
-
-          // Línea separadora
-          doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-          doc.setLineWidth(0.5);
-          doc.line(20, 45, 190, 45);
-
-          // Información del documento
-          doc.setFontSize(12);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-          doc.text('INFORMACIÓN DE DESPACHO', 20, 55);
-
-          // Área de datos
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          doc.setTextColor(0, 0, 0);
-
-          // Construir tabla de información
-          const startY = 65;
-          const lineHeight = 8;
-          const colWidth = 80;
-
-          // Columna izquierda
-          doc.setFont("helvetica", "bold");
-          doc.text('Producto:', 20, startY);
-          doc.text('Cantidad:', 20, startY + lineHeight);
-
-          // Columna derecha
-          doc.setFont("helvetica", "bold");
-          doc.text('Fecha de Despacho:', 110, startY);
-          doc.text('Destino:', 110, startY + lineHeight);
-
-          // Datos columna izquierda
-          doc.setFont("helvetica", "normal");
-          // Garantizamos que los valores son strings
-          doc.text(producto.Nombre || "", 60, startY);
-          doc.text(String(formValues.cantidad || ""), 60, startY + lineHeight);
-
-          // Datos columna derecha
-          doc.setFont("helvetica", "normal");
-          doc.text(String(formValues.fecha_despacho || ""), 150, startY);
-
-          // Verificamos el valor del destino y lo mostramos
-          console.log("Valor del destino en el modal:", formValues.destino);
-          // Si el valor no existe, intentamos buscar otros posibles nombres de campo
-          const destinoFinal = formValues.destinatario || formValues.destinoDespacho || formValues.lugarDestino || "";
-          doc.text(String(destinoFinal), 150, startY + lineHeight);
-
-          // Sección de firmas - ahora colocadas justo antes del pie de página
-          const firmasY = 240; // Nueva posición más cercana al pie de página
-
-          // Línea separadora
-          doc.setDrawColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
-          doc.setLineWidth(0.3);
-          doc.line(20, firmasY, 80, firmasY);
-          doc.line(130, firmasY, 190, firmasY);
-
-          // Textos de firma
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(8);
-          doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2]);
-          doc.text('Firma del Responsable', 50, firmasY + 5, { align: 'center' });
-          doc.text('Firma de Entrega', 160, firmasY + 5, { align: 'center' });
-
-          // Pie de página
-          doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-          doc.rect(0, 275, 210, 22, 'F');
-
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(8);
-          doc.setTextColor(255, 255, 255);
-          doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, 282, { align: 'center' });
-          doc.text(`Registro N°: ${String(formValues.inventario_id || "")}-${new Date().getTime().toString().slice(-6)}`, 105, 287, { align: 'center' });
-          doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, 292, { align: 'center' });
-
-          // Marca de agua en capa de fondo con letra más pequeña y perfectamente centrada
-          // Guardamos el estado actual del documento
-          doc.saveGraphicsState();
-          // Establecemos la opacidad para la marca de agua
-          doc.setGState(new doc.GState({opacity: 0.1}));
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(55); // Tamaño ligeramente más pequeño
-          doc.setTextColor(128, 128, 128); // Gris claro para el fondo
-          // Posicionamos exactamente en el centro vertical y horizontal de la página (A4 = 210×297 mm)
-          doc.text('DESPACHO', 130, 200, { 
-            align: 'center',
-            angle: 45
-          });
-          // Restauramos el estado para que el resto del contenido tenga opacidad normal
-          doc.restoreGraphicsState();
-
-          // Guardar el PDF
-          doc.save(`Nota_Salida_${producto.Nombre}_${formValues.fecha_despacho}.pdf`);
-        
-        // Llamar a la función para obtener productos actualizados
-        obtenerProductos();
-      } else {
-        throw new Error(data.error || 'Error al registrar el despacho');
+      if (!response.ok) {
+        throw new Error('Error al registrar uno o más despachos');
       }
     }
+
+    // Cerrar el modal después de procesar
+    document.getElementById('modalDespachoMasivo').style.display = 'none';
+
+    // Mostrar mensaje de éxito
+    await Swal.fire({
+      title: '¡Éxito!',
+      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
+
+    // Generar PDF con el resumen de despachos
+    generarPDF(despachos, destino, fecha);
+
+    // Desactivar el modo masivo después de completar la acción
+    const toggleBtn = document.getElementById('toggleModoMasivo');
+    if (toggleBtn && modoMasivoActivo) {
+      toggleBtn.click();
+    }
+
+    // Actualizar la lista de productos
+    obtenerProductos();
+
   } catch (error) {
     await Swal.fire({
-      title: '<i class="fas fa-exclamation-circle" style="color: #f44336"></i> Error',
-      html: `
-        <div style="text-align: center;">
-          <p>${error.message || 'Hubo un problema al registrar el despacho'}</p>
-          <div style="margin-top: 20px; font-size: 2em; color: #f44336;">
-            <i class="fas fa-times-circle"></i>
-          </div>
-        </div>
-      `,
-      confirmButtonColor: '#f44336',
-      confirmButtonText: 'Entendido'
+      title: 'Error',
+      text: error.message || 'Hubo un problema al registrar los despachos',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
     });
   }
 }
+
+function generarPDF(despachos, destino, fecha) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png';
+
+
+
+  // Título del documento
+  doc.addImage(logo, 'JPEG', 30, 2, 20, 20,);
+  // Configuración de colores corporativos
+  const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
+  const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
+
+  // Encabezado con título
+  doc.setFillColor('#dfe7f2');
+  doc.rect(0, 0, 210, 30, 'F');
+
+
+  // Título del documento
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor('black');
+  doc.setFontSize(20);
+  doc.addImage(logo, 'JPEG', 30, 2, 20, 20,);
+  doc.text('NOTA DE DESPACHO', 105, 15, { align: 'center' });
+
+  // Información de la empresa
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.text('TIO AMMI', 105, 35, { align: 'center' });
+  doc.setFontSize(8);
+  doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
+
+  // Línea separadora
+  doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.setLineWidth(0.5);
+  doc.line(20, 45, 190, 45);
+
+  // Información del documento
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.text('INFORMACIÓN DE DESPACHO', 20, 55);
+
+  // Área de datos
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+
+  // Construir tabla de información
+  const startY = 65;
+  const lineHeight = 8;
+
+  // Encabezados de la tabla
+  doc.setFont("helvetica", "bold");
+  doc.text('Producto', 20, startY);
+  doc.text('Cantidad', 100, startY);
+  doc.text('Destino', 160, startY);
+
+  // Datos de los despachos
+  let currentY = startY + lineHeight;
+  despachos.forEach(despacho => {
+    doc.setFont("helvetica", "normal");
+    doc.text(despacho.nombre, 20, currentY);
+    doc.text(despacho.cantidad.toString(), 100, currentY);
+    doc.text(despacho.destino, 160, currentY);
+    currentY += lineHeight;
+  });
+
+  // Línea separadora antes del pie de página
+  doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.setLineWidth(0.5);
+  doc.line(20, currentY, 190, currentY);
+
+  // Pie de página
+  const pieY = 297 - 22; // 297 mm (altura total de A4) menos 22 mm (altura del pie de página)
+
+  doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
+  doc.rect(0, pieY, 210, 22, 'F');
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, pieY + 7, { align: 'center' });
+  doc.text(`Registro N°: ${new Date().getTime().toString().slice(-6)}`, 105, pieY + 12, { align: 'center' });
+  doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, pieY + 17, { align: 'center' });
+
+  // Marca de agua
+  // Marca de agua
+  doc.saveGraphicsState();
+  doc.setGState(new doc.GState({ opacity: 0.1 }));
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(55);
+  doc.setTextColor(128, 128, 128);
+  doc.text('DESPACHO', 105, 150, { align: 'center', angle: 45 });
+  doc.restoreGraphicsState();
+
+  // Guardar el PDF
+  doc.save(`Nota_Despacho_${destino}_${fecha}.pdf`);
+}
+
 
 document.getElementById('historialBtn').addEventListener('click', function () {
   // Redireccionar a la ruta de historial

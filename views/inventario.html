@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Inventario - Departamento de Tecnología</title>
-    <link rel="icon" href="/img/tio_logo.ico" type="image/x-icon">
+    <link rel="icon" href="/img/tio_logo.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/css/styles.css" />
-    <link rel="icon" href="/static/Img/favicon.ico" type="image/x-icon"><link
+    <link rel="icon" href="/static/Img/favicon.ico" type="image/x-icon" />
+    <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
@@ -19,8 +20,6 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
-   
-
   </head>
   <body class="body-rediseno">
     <!-- Cabecera -->
@@ -79,9 +78,13 @@
         <div class="table-container table-container-rediseno">
           <table class="table-rediseno" id="tabla-inventario">
             <thead>
-              <th id="columnaCheckbox" style="display: none; width: 40px;">
+              <th id="columnaCheckbox" style="display: none; width: 40px">
                 <div class="seleccionar-todos">
-                  <input type="checkbox" id="seleccionarTodos" class="checkbox-seleccion">
+                  <input
+                    type="checkbox"
+                    id="seleccionarTodos"
+                    class="checkbox-seleccion"
+                  />
                   <label for="seleccionarTodos">Todos</label>
                 </div>
               </th>
@@ -95,6 +98,7 @@
                 <th>Deposito</th>
                 <th>Estado</th>
                 <th>Cantidad</th>
+                <th>Proveedor</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -102,8 +106,6 @@
               <!-- Los datos se agregarán aquí dinámicamente -->
             </tbody>
           </table>
-         
-
         </div>
       </div>
     </div>
@@ -116,7 +118,8 @@
       aria-labelledby="modalEditarItemLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <!-- Cambiado a modal-xl -->
         <div class="modal-content action-modal modal-editar">
           <!-- Encabezado del modal -->
           <div class="modal-header">
@@ -208,6 +211,21 @@
                   />
                 </div>
               </div>
+
+              <div class="row g-3 mb-3">
+            <div class="col-md-12">
+              <div class="form-group-elevated">
+                <label for="editProveedor" class="form-label">Proveedor</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editproveedor"
+                  name="proveedor"
+                  required
+                  placeholder="Ingrese el proveedor"
+                />
+              </div>
+            </div>
 
               <!-- Cuarta fila - Depósito y Stock -->
               <div class="row g-3 mb-3">
@@ -376,6 +394,19 @@
                 </div>
               </div>
 
+              <div class="mb-3">
+                <div class="form-group-elevated">
+                  <label for="proveedor" class="form-label">Proveedor</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="proveedor"
+                    name="proveedor"
+                    required
+                  />
+                </div>
+              </div>
+
               <!-- Cuarta fila - Depósito y Stock -->
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
@@ -444,13 +475,12 @@
     <script src="/JS/logout.js"></script>
     <!-- <script src="/js/auth.js"></script> -->
     <!-- Agregar Bootstrap JS desde el CDN -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Carga de SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Carga de SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Carga de jsPDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-</body>
+    <!-- Carga de jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </body>
 </html>
