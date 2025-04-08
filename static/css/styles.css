@@ -644,9 +644,29 @@
   }
 }
 
+
+
+/* Asegura que el modal esté por encima del backdrop */
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+.modal {
+  z-index: 1050 !important;
+}
+
+/* Asegura que el modal sea visible */
+.modal.fade.show {
+  opacity: 1;
+}
+
+/* Estilos para el modal de agregar item específicamente */
+.modal-agregar {
+  position: relative;
+}
+
 #modalAgregarItem .modal-content {
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 10px rgba(124, 124, 124, 0.2);
   min-width: 800px;
   max-width: 90vw;
 }
@@ -718,7 +738,7 @@
 .modal-editar .btn-submit:hover {
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  box-shadow: 0 4px 12px rgba(162, 163, 163, 0.3);
   background: linear-gradient(135deg, #2980b9, #3498db);
 }
 

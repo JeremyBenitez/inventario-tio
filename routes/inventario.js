@@ -4,14 +4,14 @@ const db = require('../controllers/conexion'); // Importa la conexión SQLite
 
 // Agregar un producto
 router.post('/agregar', (req, res) => {
-    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado } = req.body;
+    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor } = req.body;
 
-    if (!nombre || !categoria || !serial || !modelo || !marca || !deposito || !stock || !estado) {
+    if (!nombre || !categoria || !serial || !modelo || !marca || !deposito || !stock || !estado || !proveedor) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const sql = `INSERT INTO inventario (Nombre, Categoria, Serial, Modelo, Marca, Deposito, Stock, Estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.run(sql, [nombre, categoria, serial, modelo, marca, deposito, stock, estado], function (err) {
+    const sql = `INSERT INTO inventario (Nombre, Categoria, Serial, Modelo, Marca, Deposito, Stock, Estado, Proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    db.run(sql, [nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor], function (err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -59,14 +59,14 @@ router.delete('/eliminar/:id', (req, res) => {
 router.put('/actualizar/:id', (req, res) => {
     console.log("Datos recibidos en la actualización:", req.body); // Agregar este log
     const { id } = req.params;
-    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado } = req.body;
+    const { nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor } = req.body;
 
-    if (!nombre || !categoria || !serial || !modelo || !marca ||!deposito || !stock || !estado) {
+    if (!nombre || !categoria || !serial || !modelo || !marca ||!deposito || !stock || !estado || !proveedor) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
-    const sql = `UPDATE inventario SET Nombre = ?, Categoria = ?, Serial = ?, Modelo = ?, Marca = ?, Deposito = ?, Stock = ?, Estado = ? WHERE ID = ?`;
-    const params = [nombre, categoria, serial, modelo, marca, deposito, stock, estado, id];
+    const sql = `UPDATE inventario SET Nombre = ?, Categoria = ?, Serial = ?, Modelo = ?, Marca = ?, Deposito = ?, Stock = ?, Estado = ?, Proveedor = ? WHERE ID = ?`;
+    const params = [nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor, id];
 
     db.run(sql, params, function (err) {
         if (err) {
@@ -154,17 +154,17 @@ router.get('/historial/despacho', (req, res) => {
 
 // 📦 Ruta para guardar recepción
 router.post('/guardar_recepcion', (req, res) => {
-    const { fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id } = req.body;
+    const { fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id, proveedor } = req.body;
     
     // Validación corregida
-    if (!fecha_recepcion || !descripcion || !destino || !cantidad || !deposito_destino || !inventario_id) {
+    if (!fecha_recepcion || !descripcion || !destino || !cantidad || !deposito_destino || !inventario_id || !proveedor) {
         return res.status(400).json({ error: "Todos los campos son obligatorios." });
     }
 
     db.run(
-        `INSERT INTO Recepciones (fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id)
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id],
+        `INSERT INTO Recepciones (fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id, proveedor)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [fecha_recepcion, descripcion, destino, cantidad, deposito_destino, inventario_id, proveedor],
         function (err) {
             if (err) return res.status(500).json({ error: err.message });
 
