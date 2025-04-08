@@ -274,6 +274,23 @@
   background-color: #2563eb;
 }
 
+/* Asegurar que el modal sea completamente interactivo */
+.modal.fade.show {
+  display: block !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+.modal-backdrop.fade.show {
+  opacity: 0.5 !important;
+}
+
+/* Asegurar que el contenido del modal esté por encima del backdrop */
+.modal-content {
+  position: relative;
+  z-index: 1060 !important;
+}
+
 /* Modales */
 .modal-content {
   border-radius: 10px;
