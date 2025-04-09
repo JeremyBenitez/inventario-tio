@@ -1109,14 +1109,7 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
-        <div class="action-group">
-          <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
-            <i class="fas fa-truck-loading"></i>
-          </button>
-          <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
-            <i class="fas fa-shipping-fast"></i>
-          </button>
-        </div>
+       
       </td>
     `;
 
