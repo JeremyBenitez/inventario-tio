@@ -346,7 +346,7 @@ function agregarHTMLAccionesMasivas() {
           </div>
            <div class="form-group">
             <label for="proveedor">Proveedor:</label>
-            <input type="text" id="proveedorRecepcion" class="form-control" placeholder="Ingrese el proveedor">
+            <input type="text" id="proveedorRecepcion2" class="form-control" placeholder="Ingrese el proveedor">
           </div>
         </div>
         <div class="modal-footer">
@@ -866,7 +866,7 @@ async function procesarRecepcionMasiva() {
   // Obtener los valores de los inputs con los IDs correctos
   const fecha = document.getElementById('fechaRecepcion').value;
   const origen = document.getElementById('origenRecepcion').value.trim(); // Usamos trim() para eliminar espacios
-  const proveedor = document.getElementById('proveedorRecepcion').value.trim(); // Usamos trim()
+  const proveedor = document.getElementById('proveedorRecepcion2').value.trim(); // Usamos trim()
   console.log('Proveedor:', proveedor);
   // Validaciones
   if (!origen) {
