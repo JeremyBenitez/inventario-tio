@@ -9,6 +9,7 @@ const usuariosRoutes = require('./routes/usuarios');
 const indexRouter = require('./routes/index');
 const logoutRoutes = require('./routes/logout');
 const historialRoutes = require('./routes/historial');
+const agregarRoutes = require ('./routes/inventario')
 const app = express();
 
 
@@ -41,6 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/historial', historialRoutes);
+app.use('/agregar', agregarRoutes);
 app.use('/', indexRouter);
 app.use('/logout', logoutRoutes);
 
@@ -55,5 +57,5 @@ const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
 
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.13:${PORT}`);
+  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.81:${PORT}`);
 });

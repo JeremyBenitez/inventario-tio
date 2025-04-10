@@ -26,4 +26,10 @@ router.get('/verificar-sesion', ensureAuthenticated, (req, res) => {
     res.json({ autenticado: true });
 });
 
+// Rutas protegidas
+router.get('/agregar', ensureAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/agregar-item.html'));
+
+});
+
 module.exports = router;
