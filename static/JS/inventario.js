@@ -3,20 +3,12 @@ let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
 let productos = [];
 
-
-
-
-////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
-
 const token = localStorage.getItem("token");
 if (!token) window.location.href = "#"; // Redirige al login si no hay token
 
-/////////////// FIN DEL ERROR//////////////////////
-
 document.addEventListener('DOMContentLoaded', function () {
+  // 1. Configuración de botones de depósito
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
-
-  // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
     btn.addEventListener('click', function () {
       const deposito = this.id === 'btn-todos' ? 'todos' : this.id === 'btn-principal' ? 'principal' : 'secundario';
@@ -40,7 +32,124 @@ document.addEventListener('DOMContentLoaded', function () {
     activeButton.classList.add('active');
   }
 
-  // Llamada inicial para obtener productos
+  // 2. Configuración del formulario de búsqueda
+  const formBuscar = document.getElementById('formBuscar');
+  if (formBuscar) {
+    formBuscar.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const termino = document.getElementById('inputBuscar').value.toLowerCase();
+      buscarProductos(termino);
+    });
+  }
+
+  document.getElementById('inputBuscar').addEventListener('input', function () {
+    const termino = this.value.toLowerCase();
+    if (termino === '') {
+      const rows = document.querySelectorAll('#tabla-inventario tbody tr');
+      rows.forEach(row => row.style.display = '');
+    }
+  });
+
+  // 3. Configuración del formulario de nuevo ítem
+  const formNuevoItem = document.getElementById('formNuevoItem');
+  if (formNuevoItem) {
+    formNuevoItem.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Validación manual para Bootstrap
+      if (!formNuevoItem.checkValidity()) {
+        formNuevoItem.classList.add('was-validated');
+        return;
+      }
+
+      const nuevoItem = {
+        nombre: document.getElementById('nombre').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        serial: document.getElementById('serial').value.trim(),
+        modelo: document.getElementById('modelo').value.trim(),
+        marca: document.getElementById('marca').value.trim(),
+        deposito: document.getElementById('deposito').value,
+        proveedor: document.getElementById('proveedor').value.trim(),
+        stock: parseInt(document.getElementById('stock').value, 10),
+        estado: document.getElementById('estado').value
+      };
+
+      try {
+        const response = await fetch('/inventario/agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoItem)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Ítem agregado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+
+          formNuevoItem.reset();
+          formNuevoItem.classList.remove('was-validated');
+        } else {
+          await Swal.fire({
+            title: 'Error',
+            text: data.error || 'Hubo un problema al agregar el ítem',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (error) {
+        console.error('Error al agregar el ítem:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al agregar el ítem',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
+  }
+
+  // 4. Configuración del botón de historial
+  const historialBtn = document.getElementById('historialBtn');
+  if (historialBtn) {
+    historialBtn.addEventListener('click', function () {
+      window.location.href = '/historial';
+    });
+  } else {
+    console.warn('El botón de historial no fue encontrado');
+  }
+
+  // 5. Configuración del botón de cerrar sesión
+  const closeBtn = document.getElementById('close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function () {
+      console.log('Botón de cerrar sesión clickeado');
+      fetch('/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => {
+          console.log('Respuesta del servidor:', response);
+          if (response.ok) {
+            window.location.href = '/';
+          }
+        })
+        .catch((error) => {
+          console.error('Error al cerrar sesión:', error);
+        });
+    });
+  }
+
+  // 6. Inicialización de la selección masiva
+  inicializarSeleccionMasiva();
+
+  // 7. Obtener productos iniciales
   obtenerProductos();
 });
 
@@ -121,6 +230,14 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
+        <div class="action-group">
+          <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
+            <i class="fas fa-truck-loading"></i>
+          </button>
+          <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
+            <i class="fas fa-shipping-fast"></i>
+          </button>
+        </div>
       </td>
     `;
 
@@ -129,27 +246,30 @@ function mostrarProductos() {
 
   // Llama a agregarEventosBotones después de llenar la tabla
   agregarEventosBotones();
-}
-
 // Llama a obtenerProductos al cargar la página
 obtenerProductos();
 
+}
+
 // Función para inicializar el modo masivo
-function inicializarModoMasivo() {
+function inicializarModoMasivo () {
   const toggleBtn = document.getElementById('toggleModoMasivo');
   
   if (toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
+    const newToggleBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+    
+    newToggleBtn.addEventListener('click', function() {
       modoMasivoActivo = !modoMasivoActivo;
       seleccionados.clear(); // Limpiar selecciones anteriores
       
       // Actualizar apariencia del botón
       if (modoMasivoActivo) {
-        toggleBtn.classList.add('active');
-        toggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
+        newToggleBtn.classList.add('active');
+        newToggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
       } else {
-        toggleBtn.classList.remove('active');
-        toggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
+        newToggleBtn.classList.remove('active');
+        newToggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
       }
       
       // Actualizar la tabla para el modo masivo
@@ -338,7 +458,7 @@ function agregarHTMLAccionesMasivas() {
           </div>
            <div class="form-group">
             <label for="proveedor">Proveedor:</label>
-            <input type="text" id="proveedor" class="form-control" placeholder="Ingrese el proveedor">
+            <input type="text" id="proveedorRecepcion2" class="form-control" placeholder="Ingrese el proveedor">
           </div>
         </div>
         <div class="modal-footer">
@@ -348,6 +468,11 @@ function agregarHTMLAccionesMasivas() {
       </div>
     `;
     document.body.appendChild(modalRecepcion);
+    // Enlazar evento al botón de Confirmar Recepción
+    const confirmarRecepcionBtn = document.getElementById('confirmarRecepcion');
+    if (!confirmarRecepcionBtn.hasAttribute('data-click-registered')) {
+      confirmarRecepcionBtn.setAttribute('data-click-registered', 'true');
+    }
   }
 }
 
@@ -760,6 +885,7 @@ function buscarProductoPorId(id) {
 }
 
 // Función para procesar el despacho masivo
+// Función para procesar el despacho masivo
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
   const destino = document.getElementById('destinoDespacho').value;
@@ -851,11 +977,21 @@ async function procesarDespachoMasivo() {
 
 // Función para procesar la recepción masiva
 async function procesarRecepcionMasiva() {
-  const fecha = document.getElementById('fechaRecepcion').value;
-  const origen = document.getElementById('origenRecepcion').value;
+  console.log('>> Ejecutando procesarRecepcionMasiva()');
 
+  // Obtener los valores de los inputs con los IDs correctos
+  const fecha = document.getElementById('fechaRecepcion').value;
+  const origen = document.getElementById('origenRecepcion').value.trim();
+  const proveedor = document.getElementById('proveedorRecepcion2').value.trim();
+
+  // Validaciones
   if (!origen) {
     alert('Por favor ingrese un origen para la recepción.');
+    return;
+  }
+
+  if (!proveedor) {
+    alert('Por favor ingrese el proveedor.');
     return;
   }
 
@@ -874,10 +1010,15 @@ async function procesarRecepcionMasiva() {
         fecha: fecha,
         origen: origen,
         deposito_destino: producto.Deposito,
-        proveedor: producto.proveedor
+        proveedor: proveedor
       });
     }
   });
+
+  if (recepciones.length === 0) {
+    alert('No se han seleccionado productos para recepción.');
+    return;
+  }
 
   try {
     // Mostrar animación de carga
@@ -891,21 +1032,22 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('/inventario/guardar_recepcion', {
+      const response = await fetch('http://10.21.5.13:5000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           inventario_id: recepcion.id,
-          fecha_recepcion: recepcion.fecha,
-          descripcion: `${recepcion.nombre}`,
+          fecha_recepcion: fecha,
+          descripcion: recepcion.nombre,
           destino: recepcion.deposito_destino,
-          cantidad: recepcion.cantidad,
           deposito_destino: recepcion.deposito_destino,
-          proveedor: recepcion.proveedor
+          cantidad: recepcion.cantidad,
+          proveedor: proveedor
         })
       });
 
       if (!response.ok) {
+        console.error('Respuesta del servidor:', await response.text());
         throw new Error('Error al registrar una o más recepciones');
       }
     }
@@ -921,17 +1063,11 @@ async function procesarRecepcionMasiva() {
       confirmButtonText: 'Aceptar'
     });
 
-    // Generar PDF con el resumen de recepciones
-    generarPDFRecepcion(recepciones, origen, fecha);
-
-    // Desactivar el modo masivo después de completar la acción
-    const toggleBtn = document.getElementById('toggleModoMasivo');
-    if (toggleBtn && modoMasivoActivo) {
-      toggleBtn.click();
-    }
-
     // Actualizar la lista de productos
     obtenerProductos();
+
+    // Generar PDF solo una vez aquí
+    generarPDFRecepcion(recepciones, origen, fecha, proveedor);
 
   } catch (error) {
     await Swal.fire({
@@ -943,29 +1079,25 @@ async function procesarRecepcionMasiva() {
   }
 }
 
+// Elimina la segunda definición de procesarRecepcionMasiva() que aparece más abajo en tu código
+
 function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png';
-  
-  let imagenBase64;
-  // Configuración de colores corporativos
-  const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
-  const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
 
-  // Encabezado con título
+  const colorPrimario = [0, 51, 102];
+  const colorSecundario = [128, 128, 128];
+
   doc.setFillColor('#dfe7f2');
   doc.rect(0, 0, 210, 30, 'F');
 
-  // Título del documento
-  doc.addImage(logo, 'JPEG', 30, 2, 20, 20,);
-
+  doc.addImage(logo, 'JPEG', 30, 2, 20, 20);
   doc.setFont("helvetica", "bold");
   doc.setTextColor('black');
-  doc.setFontSize(20);  
+  doc.setFontSize(20);
   doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
 
-  // Información de la empresa
   doc.setFont("helvetica", "normal");
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
@@ -973,52 +1105,43 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   doc.setFontSize(8);
   doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
 
-  // Línea separadora
   doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.setLineWidth(0.5);
   doc.line(20, 45, 190, 45);
 
-  // Información del documento
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
 
-  // Área de datos
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
 
-  // Construir tabla de información
   const startY = 65;
   const lineHeight = 8;
 
-  // Encabezados de la tabla
-  
   doc.setFont("helvetica", "bold");
   doc.text('Producto', 20, startY);
   doc.text('Cantidad', 100, startY);
-  doc.text('Origen', 120, startY);
+  doc.text('Origen', 130, startY);
   doc.text('Proveedor', 160, startY);
 
-  // Datos de las recepciones
   let currentY = startY + lineHeight;
   recepciones.forEach(recepcion => {
     doc.setFont("helvetica", "normal");
     doc.text(recepcion.nombre, 20, currentY);
     doc.text(recepcion.cantidad.toString(), 100, currentY);
-    doc.text(recepcion.origen, 160, currentY);
+    doc.text(recepcion.origen, 130, currentY);
     doc.text(recepcion.proveedor, 160, currentY);
     currentY += lineHeight;
   });
 
-  // Línea separadora antes del pie de página
   doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.setLineWidth(0.5);
   doc.line(20, currentY, 190, currentY);
 
-  // Pie de página
-  const pieY = 297 - 22; // 297 mm (altura total de A4) menos 22 mm (altura del pie de página)
+  const pieY = 297 - 22;
 
   doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.rect(0, pieY, 210, 22, 'F');
@@ -1030,16 +1153,12 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   doc.text(`Registro N°: ${new Date().getTime().toString().slice(-6)}`, 105, pieY + 12, { align: 'center' });
   doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, pieY + 17, { align: 'center' });
 
-  // Marca de agua
-  doc.saveGraphicsState();
-  doc.setGState(new doc.GState({ opacity: 0.1 }));
+  // Marca de agua (sin GState para compatibilidad)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(55);
-  doc.setTextColor(128, 128, 128);
-  doc.text('RECEPCIÓN', 105, 150, { align: 'center', angle: 45 });
-  doc.restoreGraphicsState();
+  doc.setTextColor(180, 180, 180);
+  doc.text('RECEPCIÓN', 105, 150, { align: 'center' });
 
-  // Guardar el PDF
   doc.save(`Nota_Recepcion_${origen}_${fecha}_${proveedor}.pdf`);
 }
 
@@ -1100,6 +1219,7 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
+        
       </td>
     `;
 
@@ -1133,6 +1253,14 @@ function agregarEventosBotones() {
     button.addEventListener('click', () => abrirModalEditar(button.getAttribute('data-id')));
   });
 
+  // Agregar eventos para los nuevos botones
+  document.querySelectorAll('.receive-btn').forEach(button => {
+    button.addEventListener('click', () => registrarRecepcion(button.getAttribute('data-id')));
+  });
+
+  document.querySelectorAll('.dispatch-btn').forEach(button => {
+    button.addEventListener('click', () => registrarDespacho(button.getAttribute('data-id')));
+  });
 }
 
 
@@ -1223,17 +1351,12 @@ document.getElementById('formBuscar').addEventListener('submit', function (event
   buscarProductos(termino);
 });
 
-// Evento para limpiar la búsqueda
-document.getElementById('inputBuscar').addEventListener('input', function () {
-  const termino = this.value.toLowerCase();
-  if (termino === '') {
-    const rows = document.querySelectorAll('#tabla-inventario tbody tr');
-    rows.forEach(row => row.style.display = '');
-  }
-});
-
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
+  if (!id) {
+    console.error('Se intentó abrir el modal de edición sin un ID válido');
+    return;
+  }
   try {
     const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
@@ -1247,8 +1370,12 @@ async function abrirModalEditar(id) {
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
     document.getElementById('editproveedor').value = producto.proveedor;
-    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarItem'));
-    modalEditar.show();
+    // Solo muestra el modal cuando se llama explícitamente
+    const modalElement = document.getElementById('modalEditarItem');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show(); // Esta línea debe ejecutarse SOLO cuando el usuario hace click
+    }
 
     document.getElementById('formEditarItem').onsubmit = async function (event) {
       event.preventDefault();
@@ -1527,12 +1654,6 @@ function generarPDF(despachos, destino, fecha) {
   // Guardar el PDF
   doc.save(`Nota_Despacho_${destino}_${fecha}.pdf`);
 }
-
-
-document.getElementById('historialBtn').addEventListener('click', function () {
-  // Redireccionar a la ruta de historial
-  window.location.href = '/historial';
-});
 
 // Inicializar la selección masiva cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {

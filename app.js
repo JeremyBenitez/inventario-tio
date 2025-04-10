@@ -5,11 +5,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config(); // npm install dotenv
 const inventarioRoutes = require('./routes/inventario');
+const agregarRoutes = require('./routes/inventario');
 const usuariosRoutes = require('./routes/usuarios');
 const indexRouter = require('./routes/index');
 const logoutRoutes = require('./routes/logout');
 const historialRoutes = require('./routes/historial');
-const agregarRoutes = require ('./routes/inventario')
 const app = express();
 
 
@@ -41,8 +41,8 @@ app.use(express.urlencoded({ extended: true }));
 // Usar las rutas
 app.use('/inventario', inventarioRoutes);
 app.use('/usuarios', usuariosRoutes);
-app.use('/historial', historialRoutes);
 app.use('/agregar', agregarRoutes);
+app.use('/historial', historialRoutes);
 app.use('/', indexRouter);
 app.use('/logout', logoutRoutes);
 

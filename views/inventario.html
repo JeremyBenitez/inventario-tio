@@ -11,15 +11,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-    />
-    <!-- Otras inclusiones -->
+   <!-- Otras inclusiones -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
   </head>
   <body class="body-rediseno">
     <!-- Cabecera -->
@@ -118,20 +115,13 @@
       aria-labelledby="modalEditarItemLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-dialog modal-lg"> 
         <!-- Cambiado a modal-xl -->
-        <div class="modal-content action-modal modal-editar">
+        <div class="modal-content">
           <!-- Encabezado del modal -->
           <div class="modal-header">
-            <h5 class="modal-title" id="modalEditarItemLabel">
-              <i class="fas fa-edit"></i> Editar Producto
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-              aria-label="Cerrar"
-            ></button>
+            <h5 class="modal-title">Editar Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
           <!-- Cuerpo del modal con scroll interno -->
@@ -295,161 +285,187 @@
       </div>
     </div>
 
-    <!-- Modal para agregar nuevo ítem - Versión mejorada -->
-<div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content action-modal modal-agregar">
-      <!-- Encabezado del modal -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalAgregarItemLabel">
-          <i class="fas fa-plus-circle"></i> Agregar Nuevo Ítem
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
+    <!-- Modal para agregar nuevo ítem - Versión rediseñada -->
+    <div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
 
-      <!-- Cuerpo del modal -->
-      <div class="modal-body">
-        <form id="formNuevoItem" class="needs-validation" novalidate>
-          <!-- Primera fila - Nombre y Categoría -->
-          <div class="row g-3 mb-3">
-            <div class="col-md-8">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="nombre" name="nombre" placeholder=" " required>
-                <label for="nombre">Nombre del producto</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese el nombre del producto
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-floating">
-                <select id="categoria" name="categoria" class="form-select" required>
-                  <option value="" selected disabled>Seleccione...</option>
-                  <option value="Dispositivo">Dispositivo</option>
-                  <option value="Consumible">Consumible</option>
-                  <option value="Camara">Cámara</option>
-                </select>
-                <label for="categoria">Categoría</label>
-                <div class="invalid-feedback">
-                  Por favor seleccione una categoría
-                </div>
-              </div>
-            </div>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content action-modal modal-agregar">
+          <!-- Encabezado del modal -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgregarItemLabel">
+              <i class="fas fa-plus-circle"></i> Agregar Nuevo Ítem
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
           </div>
 
-          <!-- Segunda fila - Serial y Modelo -->
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="serial" name="serial" placeholder=" " required>
-                <label for="serial">Número de serie</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese el número de serie
+          <!-- Cuerpo del modal con scroll interno -->
+          <div class="modal-body">
+            <form id="formNuevoItem">
+              <!-- Primera fila - Nombre y Categoría -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                  <div class="form-group-elevated">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nombre"
+                      name="nombre"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-elevated">
+                    <label for="categoria" class="form-label">Categoría</label>
+                    <select
+                      id="categoria"
+                      name="categoria"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Dispositivo">Dispositivo</option>
+                      <option value="Consumible">Consumible</option>
+                      <option value="Camara">Camara</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="modelo" name="modelo" placeholder=" " required>
-                <label for="modelo">Modelo</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese el modelo
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Tercera fila - Marca y Proveedor -->
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="marca" name="marca" placeholder=" " required>
-                <label for="marca">Marca</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese la marca
+              <!-- Segunda fila - Serial y Modelo -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="serial" class="form-label">Serial</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="serial"
+                      name="serial"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="modelo" class="form-label">Modelo</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="modelo"
+                      name="modelo"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input type="text" class="form-control" id="proveedor" name="proveedor" placeholder=" " required>
-                <label for="proveedor">Proveedor</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese el proveedor
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Cuarta fila - Depósito y Stock -->
-          <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <div class="form-floating">
-                <select id="deposito" name="deposito" class="form-select" required>
-                  <option value="" selected disabled>Seleccione...</option>
-                  <option value="Principal">Depósito Principal</option>
-                  <option value="Secundario">Depósito Secundario</option>
-                </select>
-                <label for="deposito">Depósito</label>
-                <div class="invalid-feedback">
-                  Por favor seleccione un depósito
+              <!-- Tercera fila - Marca -->
+              <div class="mb-3">
+                <div class="form-group-elevated">
+                  <label for="marca" class="form-label">Marca</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="marca"
+                    name="marca"
+                    required
+                  />
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input type="number" class="form-control" id="stock" name="stock" placeholder=" " min="0" required>
-                <label for="stock">Cantidad en stock</label>
-                <div class="invalid-feedback">
-                  Por favor ingrese una cantidad válida
+
+              <div class="mb-3">
+                <div class="form-group-elevated">
+                  <label for="proveedor" class="form-label">Proveedor</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="proveedorRecepcion"
+                    name="proveedor"
+                    required
+                  />
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Quinta fila - Estado -->
-          <div class="mb-4">
-            <div class="form-floating">
-              <select id="estado" name="estado" class="form-select" required>
-                <option value="" selected disabled>Seleccione...</option>
-                <option value="Nuevo">Nuevo</option>
-                <option value="Usado">Usado</option>
-                <option value="Dañado">Dañado</option>
-              </select>
-              <label for="estado">Estado</label>
-              <div class="invalid-feedback">
-                Por favor seleccione el estado
+              <!-- Cuarta fila - Depósito y Stock -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="deposito" class="form-label">Depósito</label>
+                    <select
+                      id="deposito"
+                      name="deposito"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Principal">Principal</option>
+                      <option value="Secundario">Secundario</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="stock" class="form-label">Stock</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="stock"
+                      name="stock"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Botones de acción -->
-          <div class="d-flex justify-content-end gap-3 pt-2 border-top">
-            <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-submit">
-              <i class="fas fa-save me-2"></i>Guardar
-            </button>
+              <!-- Quinta fila - Estado -->
+              <div class="mb-4">
+                <div class="form-group-elevated">
+                  <label for="estado" class="form-label">Estado</label>
+                  <select
+                    id="estado"
+                    name="estado"
+                    class="form-select"
+                    required
+                  >
+                    <option value="Nuevo">Nuevo</option>
+                    <option value="Usado">Usado</option>
+                    <option value="Dañado">Dañado</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="d-flex justify-content-end gap-3 pt-2 border-top">
+                <button
+                  type="button"
+                  class="btn btn-cancel"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-submit">Guardar</button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+ 
+  <!-- Scripts en el orden correcto -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js"></script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Tus scripts -->
+<script src="/js/inventario.js"></script>
+<script src="/JS/logout.js"></script>
 
-    <!-- Font Awesome para los iconos -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    
-    <!-- Carga de SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Carga de jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="/js/inventario.js"></script>
-    <script src="/JS/logout.js"></script>
+<!-- Otros scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </body>
 </html>

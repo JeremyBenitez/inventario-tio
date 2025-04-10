@@ -11,7 +11,6 @@
   color: #1e293b;
 }
 
-
 .container-rediseno {
   max-width: 1400px;
   margin: 0 auto;
@@ -164,13 +163,11 @@
   overflow-y: auto; /* Permite el desplazamiento vertical */
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  
 }
 
 .table-rediseno {
   width: 100%; /* Asegúrate de que la tabla ocupe todo el ancho del contenedor */
   border-collapse: collapse; /* Colapsa los bordes de la tabla */
-  
 }
 
 .table-rediseno td.action-buttons {
@@ -265,17 +262,38 @@
   box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
 }
 
+/* Botón "Nuevo Ítem" rediseñado */
+.nuevo-item-btn-rediseno {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.nuevo-item-btn-rediseno:hover {
+  background-color: #2563eb;
+}
 
 /* Asegurar que el modal sea completamente interactivo */
 .modal.fade.show {
   display: block !important;
   pointer-events: auto !important;
   opacity: 1 !important;
+  
 }
 
 .modal-backdrop.fade.show {
   opacity: 0.5 !important;
+  z-index: 1 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  pointer-events: auto !important;
 }
 
 /* Asegurar que el contenido del modal esté por encima del backdrop */
@@ -441,6 +459,10 @@
     font-size: 18px;
   }
 
+  .nuevo-item-btn-rediseno {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
 }
 
 /* ==================== */
@@ -651,24 +673,93 @@
   }
 }
 
+/* Asegura que el modal esté por encima del backdrop */
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+.modal {
+  z-index: 1050 !important;
+}
+
 /* Asegura que el modal sea visible */
 .modal.fade.show {
   opacity: 1;
 }
 
-.modal-content {
+/* Estilos para el modal de agregar item específicamente */
+.modal-agregar {
+  position: relative;
+    z-index: 1100!important;
+}
+
+.modalAgregarItem{
+  z-index: 1100!important;
+  position: relative!important;
+}
+
+#modalAgregarItem .modal-content {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(124, 124, 124, 0.2);
   min-width: 800px;
   max-width: 90vw;
-  z-index: 1060;
+
 }
 
-.modal-body {
+#modalAgregarItem .modal-body {
   padding: 1.5rem;
   max-height: 70vh;
   overflow-y: auto;
-  z-index: 1060;
+}
+
+/* Encabezado específico para modal de agregar */
+.modal-agregar .modal-header {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.modal-agregar .btn-submit {
+  color: white; /* Texto blanco */
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.modal-agregar .btn-submit:hover {
+  background: linear-gradient(135deg, #8e44ad, #7d3c98);
+  box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+}
+
+/* Agrega esto a tu archivo styles.css */
+.modal-agregar .btn-cancel {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-agregar .btn-cancel:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-agregar .btn-cancel::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(100, 116, 139, 0.2);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.modal-agregar .btn-cancel:hover::after {
+  animation: ripple 0.6s ease-out;
 }
 
 .modal-editar .btn-submit {
@@ -1273,7 +1364,8 @@
 }
 
 /* Opcional: si quieres que los botones tengan el mismo ancho */
-.historial-btn-rediseno {
+.historial-btn-rediseno,
+.nuevo-item-btn-rediseno {
   flex: 1;
   white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 }
@@ -1446,63 +1538,35 @@
   background-color: #66b1ff;
 }
 
-/* Estilo para el botón Nuevo Ítem */
-.nuevo-item-btn-rediseno {
-  background-color: #28a745; /* Verde para indicar acción positiva */
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 10px;
+/* Estilos para el modal de edición */
+#modalEditarItem .modal-dialog {
+  max-height: 90vh;
+  min-height: 70vh;
 }
 
-.nuevo-item-btn-rediseno:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
+#modalEditarItem .modal-content {
+  height: auto;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-.nuevo-item-btn-rediseno i {
-  font-size: 16px;
+/* Estilos para el botón de cierre */
+#modalEditarItem .btn-close {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  font-size: 1.5rem;
+  opacity: 0.8;
+  background-size: 1.5em;
 }
 
-/* Asegurar que los botones en header-buttons se muestren en línea */
-.header-buttons {
-  display: flex;
-  align-items: center;
+#modalEditarItem .btn-close:hover {
+  opacity: 1;
+  filter: invert(0.3);
 }
 
-/* Estilos para el formulario mejorado */
-.form-floating>label {
-  color: #6c757d;
-  transition: all 0.2s ease;
+/* Asegurar que el modal-header tenga posición relativa */
+#modalEditarItem .modal-header {
+  position: relative;
+  padding: 1.5rem;
 }
-
-.form-floating>.form-control:focus~label,
-.form-floating>.form-control:not(:placeholder-shown)~label,
-.form-floating>.form-select~label {
-  color: #495057;
-  background-color: white;
-  padding: 0 0.5rem;
-  transform: scale(0.85) translateY(-0.9rem) translateX(0.15rem);
-}
-
-.invalid-feedback {
-  font-size: 0.85rem;
-}
-
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-}
-
-.modal-content {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
