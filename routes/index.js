@@ -21,6 +21,11 @@ router.get('/historial', ensureAuthenticated, (req, res) => {
 
 });
 
+router.get('/agregar', ensureAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, '../views/agregar.html'));
+
+});
+
 // Ruta para verificar si el usuario está autenticado (para el frontend)
 router.get('/verificar-sesion', ensureAuthenticated, (req, res) => {
     res.json({ autenticado: true });

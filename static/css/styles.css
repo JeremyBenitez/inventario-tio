@@ -11,7 +11,6 @@
   color: #1e293b;
 }
 
-
 .container-rediseno {
   max-width: 1400px;
   margin: 0 auto;
@@ -164,13 +163,11 @@
   overflow-y: auto; /* Permite el desplazamiento vertical */
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  
 }
 
 .table-rediseno {
   width: 100%; /* Asegúrate de que la tabla ocupe todo el ancho del contenedor */
   border-collapse: collapse; /* Colapsa los bordes de la tabla */
-  
 }
 
 .table-rediseno td.action-buttons {
@@ -289,10 +286,14 @@
   display: block !important;
   pointer-events: auto !important;
   opacity: 1 !important;
+  
 }
 
 .modal-backdrop.fade.show {
   opacity: 0.5 !important;
+  z-index: 1 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  pointer-events: auto !important;
 }
 
 /* Asegurar que el contenido del modal esté por encima del backdrop */
@@ -688,6 +689,12 @@
 /* Estilos para el modal de agregar item específicamente */
 .modal-agregar {
   position: relative;
+    z-index: 1100!important;
+}
+
+.modalAgregarItem{
+  z-index: 1100!important;
+  position: relative!important;
 }
 
 #modalAgregarItem .modal-content {
@@ -695,6 +702,7 @@
   box-shadow: 0 4px 10px rgba(124, 124, 124, 0.2);
   min-width: 800px;
   max-width: 90vw;
+
 }
 
 #modalAgregarItem .modal-body {

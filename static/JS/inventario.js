@@ -346,7 +346,7 @@ function agregarHTMLAccionesMasivas() {
           </div>
            <div class="form-group">
             <label for="proveedor">Proveedor:</label>
-            <input type="text" id="proveedor" class="form-control" placeholder="Ingrese el proveedor">
+            <input type="text" id="proveedorRecepcion" class="form-control" placeholder="Ingrese el proveedor">
           </div>
         </div>
         <div class="modal-footer">
@@ -356,6 +356,9 @@ function agregarHTMLAccionesMasivas() {
       </div>
     `;
     document.body.appendChild(modalRecepcion);
+    // Enlazar evento al botón de Confirmar Recepción
+    document.getElementById('confirmarRecepcion').addEventListener('click', procesarRecepcionMasiva);
+
   }
 }
 
@@ -860,11 +863,19 @@ async function procesarDespachoMasivo() {
 
 // Función para procesar la recepción masiva
 async function procesarRecepcionMasiva() {
+  // Obtener los valores de los inputs con los IDs correctos
   const fecha = document.getElementById('fechaRecepcion').value;
-  const origen = document.getElementById('origenRecepcion').value;
-
+  const origen = document.getElementById('origenRecepcion').value.trim(); // Usamos trim() para eliminar espacios
+  const proveedor = document.getElementById('proveedorRecepcion').value.trim(); // Usamos trim()
+  console.log('Proveedor:', proveedor);
+  // Validaciones
   if (!origen) {
     alert('Por favor ingrese un origen para la recepción.');
+    return;
+  }
+
+  if (!proveedor) {
+    alert('Por favor ingrese el proveedor.');
     return;
   }
 
@@ -883,10 +894,15 @@ async function procesarRecepcionMasiva() {
         fecha: fecha,
         origen: origen,
         deposito_destino: producto.Deposito,
-        proveedor: producto.proveedor
+        proveedor: proveedor
       });
     }
   });
+
+  if (recepciones.length === 0) {
+    alert('No se han seleccionado productos para recepción.');
+    return;
+  }
 
   try {
     // Mostrar animación de carga
@@ -900,21 +916,22 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('/inventario/guardar_recepcion', {
+      const response = await fetch('http://10.21.5.13:5000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           inventario_id: recepcion.id,
-          fecha_recepcion: recepcion.fecha,
-          descripcion: `${recepcion.nombre}`,
+          fecha_recepcion: fecha,
+          descripcion: recepcion.nombre,
           destino: recepcion.deposito_destino,
-          cantidad: recepcion.cantidad,
           deposito_destino: recepcion.deposito_destino,
-          proveedor: recepcion.proveedor
+          cantidad: recepcion.cantidad,
+          proveedor: proveedor
         })
       });
 
       if (!response.ok) {
+        console.error('Respuesta del servidor:', await response.text());
         throw new Error('Error al registrar una o más recepciones');
       }
     }
@@ -930,15 +947,6 @@ async function procesarRecepcionMasiva() {
       confirmButtonText: 'Aceptar'
     });
 
-    // Generar PDF con el resumen de recepciones
-    generarPDFRecepcion(recepciones, origen, fecha);
-
-    // Desactivar el modo masivo después de completar la acción
-    const toggleBtn = document.getElementById('toggleModoMasivo');
-    if (toggleBtn && modoMasivoActivo) {
-      toggleBtn.click();
-    }
-
     // Actualizar la lista de productos
     obtenerProductos();
 
@@ -951,6 +959,8 @@ async function procesarRecepcionMasiva() {
     });
   }
 }
+
+
 
 function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   const { jsPDF } = window.jspdf;
@@ -1109,7 +1119,7 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
-       
+        
       </td>
     `;
 
@@ -1217,69 +1227,73 @@ async function eliminarProducto(id) {
 }
 
 // Función para agregar un nuevo producto
+// agregar.js
+
 document.addEventListener('DOMContentLoaded', function () {
-  const modalElement = document.getElementById('modalAgregarItem');
-  const modal = new bootstrap.Modal(modalElement);
-  const btnNuevoItem = document.getElementById('nuevoItemBtn');
+  const formNuevoItem = document.getElementById('formNuevoItem');
 
-  btnNuevoItem.addEventListener('click', () => modal.show());
+  if (formNuevoItem) {
+    formNuevoItem.addEventListener('submit', async function (event) {
+      event.preventDefault();
 
-  document.getElementById('formNuevoItem').onsubmit = async function (event) {
-    event.preventDefault();
+      // Validación manual para Bootstrap
+      if (!formNuevoItem.checkValidity()) {
+        formNuevoItem.classList.add('was-validated');
+        return;
+      }
 
-    const nuevoItem = {
-      nombre: document.getElementById('nombre').value,
-      categoria: document.getElementById('categoria').value,
-      serial: document.getElementById('serial').value,
-      modelo: document.getElementById('modelo').value,
-      marca: document.getElementById('marca').value,
-      deposito: document.getElementById('deposito').value,
-      proveedor: document.getElementById('proveedor').value,
-      stock: document.getElementById('stock').value,
-      estado: document.getElementById('estado').value
-    };
+      const nuevoItem = {
+        nombre: document.getElementById('nombre').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        serial: document.getElementById('serial').value.trim(),
+        modelo: document.getElementById('modelo').value.trim(),
+        marca: document.getElementById('marca').value.trim(),
+        deposito: document.getElementById('deposito').value,
+        proveedor: document.getElementById('proveedor').value.trim(),
+        stock: parseInt(document.getElementById('stock').value, 10),
+        estado: document.getElementById('estado').value
+      };
 
-    try {
-      const response = await fetch('/inventario/agregar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoItem)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        await Swal.fire({
-          title: '¡Éxito!',
-          text: data.mensaje || 'Ítem agregado correctamente',
-          icon: 'success',
-          confirmButtonText: 'Aceptar'
+      try {
+        const response = await fetch('/inventario/agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoItem)
         });
 
-        // Limpiar el formulario
-        this.reset();
+        const data = await response.json();
 
-        modal.hide();
-        obtenerProductos();
-      } else {
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Ítem agregado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+
+          formNuevoItem.reset();
+          formNuevoItem.classList.remove('was-validated');
+        } else {
+          await Swal.fire({
+            title: 'Error',
+            text: data.error || 'Hubo un problema al agregar el ítem',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (error) {
+        console.error('Error al agregar el ítem:', error);
         await Swal.fire({
           title: 'Error',
-          text: data.error || 'Hubo un problema al agregar el ítem',
+          text: 'Hubo un problema al agregar el ítem',
           icon: 'error',
           confirmButtonText: 'Aceptar'
         });
       }
-    } catch (error) {
-      console.error('Error al agregar el ítem:', error);
-      await Swal.fire({
-        title: 'Error',
-        text: 'Hubo un problema al agregar el ítem',
-        icon: 'error',
-        confirmButtonText: 'Aceptar'
-      });
-    }
-  };
+    });
+  }
 });
+
 
 // Función para buscar productos
 function buscarProductos(termino) {
