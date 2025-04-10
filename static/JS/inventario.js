@@ -137,10 +137,10 @@ function mostrarProductos() {
 
   // Llama a agregarEventosBotones después de llenar la tabla
   agregarEventosBotones();
-}
-
 // Llama a obtenerProductos al cargar la página
 obtenerProductos();
+
+}
 
 // Función para inicializar el modo masivo
 function inicializarModoMasivo() {
@@ -357,8 +357,10 @@ function agregarHTMLAccionesMasivas() {
     `;
     document.body.appendChild(modalRecepcion);
     // Enlazar evento al botón de Confirmar Recepción
-    document.getElementById('confirmarRecepcion').addEventListener('click', procesarRecepcionMasiva);
-
+    const confirmarRecepcionBtn = document.getElementById('confirmarRecepcion');
+    if (!confirmarRecepcionBtn.hasAttribute('data-click-registered')) {
+      confirmarRecepcionBtn.setAttribute('data-click-registered', 'true');
+    }
   }
 }
 
@@ -863,11 +865,13 @@ async function procesarDespachoMasivo() {
 
 // Función para procesar la recepción masiva
 async function procesarRecepcionMasiva() {
+  console.log('>> Ejecutando procesarRecepcionMasiva()');
+
   // Obtener los valores de los inputs con los IDs correctos
   const fecha = document.getElementById('fechaRecepcion').value;
-  const origen = document.getElementById('origenRecepcion').value.trim(); // Usamos trim() para eliminar espacios
-  const proveedor = document.getElementById('proveedorRecepcion2').value.trim(); // Usamos trim()
-  console.log('Proveedor:', proveedor);
+  const origen = document.getElementById('origenRecepcion').value.trim();
+  const proveedor = document.getElementById('proveedorRecepcion2').value.trim();
+
   // Validaciones
   if (!origen) {
     alert('Por favor ingrese un origen para la recepción.');
@@ -950,6 +954,9 @@ async function procesarRecepcionMasiva() {
     // Actualizar la lista de productos
     obtenerProductos();
 
+    // Generar PDF solo una vez aquí
+    generarPDFRecepcion(recepciones, origen, fecha, proveedor);
+
   } catch (error) {
     await Swal.fire({
       title: 'Error',
@@ -960,31 +967,25 @@ async function procesarRecepcionMasiva() {
   }
 }
 
-
+// Elimina la segunda definición de procesarRecepcionMasiva() que aparece más abajo en tu código
 
 function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png';
-  
-  let imagenBase64;
-  // Configuración de colores corporativos
-  const colorPrimario = [0, 51, 102]; // Azul corporativo oscuro (RGB)
-  const colorSecundario = [128, 128, 128]; // Gris corporativo (RGB)
 
-  // Encabezado con título
+  const colorPrimario = [0, 51, 102];
+  const colorSecundario = [128, 128, 128];
+
   doc.setFillColor('#dfe7f2');
   doc.rect(0, 0, 210, 30, 'F');
 
-  // Título del documento
-  doc.addImage(logo, 'JPEG', 30, 2, 20, 20,);
-
+  doc.addImage(logo, 'JPEG', 30, 2, 20, 20);
   doc.setFont("helvetica", "bold");
   doc.setTextColor('black');
-  doc.setFontSize(20);  
+  doc.setFontSize(20);
   doc.text('NOTA DE RECEPCIÓN', 105, 15, { align: 'center' });
 
-  // Información de la empresa
   doc.setFont("helvetica", "normal");
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
@@ -992,52 +993,43 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   doc.setFontSize(8);
   doc.text('Sistema de Gestión de Inventario', 105, 40, { align: 'center' });
 
-  // Línea separadora
   doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.setLineWidth(0.5);
   doc.line(20, 45, 190, 45);
 
-  // Información del documento
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.text('INFORMACIÓN DE RECEPCIÓN', 20, 55);
 
-  // Área de datos
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
 
-  // Construir tabla de información
   const startY = 65;
   const lineHeight = 8;
 
-  // Encabezados de la tabla
-  
   doc.setFont("helvetica", "bold");
   doc.text('Producto', 20, startY);
   doc.text('Cantidad', 100, startY);
-  doc.text('Origen', 120, startY);
+  doc.text('Origen', 130, startY);
   doc.text('Proveedor', 160, startY);
 
-  // Datos de las recepciones
   let currentY = startY + lineHeight;
   recepciones.forEach(recepcion => {
     doc.setFont("helvetica", "normal");
     doc.text(recepcion.nombre, 20, currentY);
     doc.text(recepcion.cantidad.toString(), 100, currentY);
-    doc.text(recepcion.origen, 160, currentY);
+    doc.text(recepcion.origen, 130, currentY);
     doc.text(recepcion.proveedor, 160, currentY);
     currentY += lineHeight;
   });
 
-  // Línea separadora antes del pie de página
   doc.setDrawColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.setLineWidth(0.5);
   doc.line(20, currentY, 190, currentY);
 
-  // Pie de página
-  const pieY = 297 - 22; // 297 mm (altura total de A4) menos 22 mm (altura del pie de página)
+  const pieY = 297 - 22;
 
   doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
   doc.rect(0, pieY, 210, 22, 'F');
@@ -1049,16 +1041,12 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   doc.text(`Registro N°: ${new Date().getTime().toString().slice(-6)}`, 105, pieY + 12, { align: 'center' });
   doc.text('DOCUMENTO VÁLIDO COMO COMPROBANTE INTERNO', 105, pieY + 17, { align: 'center' });
 
-  // Marca de agua
-  doc.saveGraphicsState();
-  doc.setGState(new doc.GState({ opacity: 0.1 }));
+  // Marca de agua (sin GState para compatibilidad)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(55);
-  doc.setTextColor(128, 128, 128);
-  doc.text('RECEPCIÓN', 105, 150, { align: 'center', angle: 45 });
-  doc.restoreGraphicsState();
+  doc.setTextColor(180, 180, 180);
+  doc.text('RECEPCIÓN', 105, 150, { align: 'center' });
 
-  // Guardar el PDF
   doc.save(`Nota_Recepcion_${origen}_${fecha}_${proveedor}.pdf`);
 }
 
@@ -1225,9 +1213,6 @@ async function eliminarProducto(id) {
     }
   }
 }
-
-// Función para agregar un nuevo producto
-// agregar.js
 
 document.addEventListener('DOMContentLoaded', function () {
   const formNuevoItem = document.getElementById('formNuevoItem');
@@ -1625,11 +1610,15 @@ function generarPDF(despachos, destino, fecha) {
   doc.save(`Nota_Despacho_${destino}_${fecha}.pdf`);
 }
 
-
-document.getElementById('historialBtn').addEventListener('click', function () {
-  // Redireccionar a la ruta de historial
-  window.location.href = '/historial';
-});
+// Con esto:
+const historialBtn = document.getElementById('historialBtn');
+if (historialBtn) {
+  historialBtn.addEventListener('click', function () {
+    window.location.href = '/historial';
+  });
+} else {
+  console.warn('El botón de historial no fue encontrado');
+}
 
 // Inicializar la selección masiva cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
