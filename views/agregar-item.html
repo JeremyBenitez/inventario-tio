@@ -227,6 +227,81 @@
       transform: translateY(-2px);
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
+
+    /* Modificaciones para los iconos de input */
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    z-index: 5;
+    transition: all 0.2s ease;
+    pointer-events: none; /* Evita que interfiera con los clicks */
+  }
+
+   /* Asegurar que el input tenga padding suficiente */
+   .form-floating>.form-control,
+  .form-floating>.form-select {
+    padding-left: 45px !important;
+  }
+
+  /* Ajustar posición del label para no solapar con el icono */
+  .form-floating>label {
+    left: 40px !important;
+  }
+
+  /* Cuando el input está enfocado */
+  .form-control:focus ~ .input-icon,
+  .form-select:focus ~ .input-icon {
+    color: var(--primary-color);
+  }
+
+  /* Cuando el input tiene contenido (label flotante) */
+  .form-control:not(:placeholder-shown) ~ .input-icon,
+  .form-control:focus ~ .input-icon,
+  .form-select:not([value=""]) ~ .input-icon,
+  .form-select:focus ~ .input-icon {
+    top: 18px;
+    transform: translateY(0);
+    font-size: 0.8rem;
+  }
+
+  /* Ajuste para los selects que no tienen placeholder-shown */
+  .form-select ~ .input-icon {
+    transition: all 0.3s ease;
+  }
+
+  /* Estilos específicos para el campo de cantidad */
+  #stock {
+    padding-right: 15px !important; /* Más espacio para el número */
+  }
+  
+  /* Label más compacto para cantidad */
+  #stock + label {
+    width: auto !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ''; /* Eliminamos los puntos suspensivos */
+    max-width: 100px; /* Ancho suficiente para "Cantidad" */
+    left: 20px !important;;
+  }
+
+  /* Asegurar que el contenido del label sea "Cantidad" */
+  #stock + label::after {
+    content: "Cantidad";
+    display: none; /* Ocultamos el texto original */
+  }
+  
+  /* Versión flotante reducida */
+    .form-floating>.form-control:not(:placeholder-shown)~label,
+    .form-floating>.form-control:focus~label {
+    content: "Cantidad"; /* Fuerza este texto */
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    left: 40px !important;
+    max-width: 80px; /* Ancho para la versión reducida */
+  }
+  
     
     /* Responsive adjustments */
     @media (max-width: 768px) {
@@ -306,8 +381,6 @@
                   <option value="Dispositivo">Dispositivo</option>
                   <option value="Consumible">Consumible</option>
                   <option value="Camara">Cámara</option>
-                  <option value="Red">Equipamiento de Red</option>
-                  <option value="Software">Software</option>
                 </select>
                 <label for="categoria">Categoría</label>
               </div>
@@ -405,8 +478,6 @@
                   <option value="" selected disabled>Seleccione depósito</option>
                   <option value="Principal">Depósito Principal</option>
                   <option value="Secundario">Depósito Secundario</option>
-                  <option value="Datacenter">Datacenter</option>
-                  <option value="Oficina">Oficina Principal</option>
                 </select>
                 <label for="deposito">Ubicación en Depósito</label>
               </div>
@@ -421,8 +492,8 @@
               <i class="fas fa-boxes input-icon"></i>
               <div class="form-floating w-100">
                 <input type="number" class="form-control" id="stock" name="stock" 
-                      placeholder=" " min="0" required>
-                <label for="stock">Cantidad en Stock</label>
+                      placeholder="Cantidad" min="0" required>
+                <label for="stock">Cantidad</label>
               </div>
               <div class="invalid-feedback">
                 Por favor ingrese una cantidad válida
@@ -439,8 +510,6 @@
                   <option value="Nuevo">Nuevo</option>
                   <option value="Usado">Usado</option>
                   <option value="Dañado">Dañado</option>
-                  <option value="Reparación">En Reparación</option>
-                  <option value="Obsoleto">Obsoleto</option>
                 </select>
                 <label for="estado">Condición</label>
               </div>
@@ -471,6 +540,48 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+
+    // Agregar este script después de Bootstrap
+  document.addEventListener('DOMContentLoaded', function() {
+    // Función para actualizar iconos
+    function updateIcons() {
+      document.querySelectorAll('.form-floating').forEach(function(floating) {
+        const input = floating.querySelector('.form-control, .form-select');
+        const icon = floating.previousElementSibling;
+        
+        if (input && icon && icon.classList.contains('input-icon')) {
+          // Verificar si el input tiene valor o está enfocado
+          const hasValue = input.value || 
+                          (input === document.activeElement) || 
+                          (input.tagName === 'SELECT' && input.selectedIndex > 0);
+          
+          if (hasValue) {
+            icon.style.top = '18px';
+            icon.style.transform = 'translateY(0)';
+            icon.style.fontSize = '0.8rem';
+            icon.style.color = 'var(--primary-color)';
+          } else {
+            icon.style.top = '50%';
+            icon.style.transform = 'translateY(-50%)';
+            icon.style.fontSize = '';
+            icon.style.color = 'var(--text-secondary)';
+          }
+        }
+      });
+    }
+
+    // Actualizar al cargar
+    updateIcons();
+
+    // Event listeners para inputs
+    document.querySelectorAll('.form-control, .form-select').forEach(function(input) {
+      input.addEventListener('input', updateIcons);
+      input.addEventListener('focus', updateIcons);
+      input.addEventListener('blur', updateIcons);
+      input.addEventListener('change', updateIcons);
+    });
+  });
+
     // Validación del formulario
     (function () {
       'use strict'
