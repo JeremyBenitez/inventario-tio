@@ -173,7 +173,7 @@ async function obtenerProductos() {
     mostrarProductos();
   } catch (error) {
     console.error('Error al obtener los productos:', error);
-    alert(`Error al cargar productos: ${error.message}`);
+    // alert(`Error al cargar productos: ${error.message}`);
   }
 }
 
@@ -230,14 +230,7 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
-        <div class="action-group">
-          <button class="action-btn receive-btn" data-id="${producto.ID ?? ''}" title="Registrar Recepción">
-            <i class="fas fa-truck-loading"></i>
-          </button>
-          <button class="action-btn dispatch-btn" data-id="${producto.ID ?? ''}" title="Registrar Despacho">
-            <i class="fas fa-shipping-fast"></i>
-          </button>
-        </div>
+        
       </td>
     `;
 
@@ -246,8 +239,8 @@ function mostrarProductos() {
 
   // Llama a agregarEventosBotones después de llenar la tabla
   agregarEventosBotones();
-// Llama a obtenerProductos al cargar la página
-obtenerProductos();
+
+  //obtenerProductos();
 
 }
 
@@ -829,8 +822,6 @@ function mostrarAlertaSinSeleccion(accion) {
   }
 }
 
-
-
 // Función para mostrar los elementos seleccionados en el modal de despacho
 function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
   const contenedor = document.getElementById('listaElementosDespacho');
@@ -1164,76 +1155,77 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
 
 
 // Modificar la función mostrarProductos para que aplique el modo masivo
-function mostrarProductos() {
-  const tbody = document.querySelector('#tabla-inventario tbody');
-  tbody.innerHTML = '';
 
-  // Ordenar los productos por ID descendente (últimos primero)
-  const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
+// function mostrarProductos() {
+//   const tbody = document.querySelector('#tabla-inventario tbody');
+//   tbody.innerHTML = '';
 
-  productosOrdenados.forEach(producto => {
-    const row = document.createElement('tr');
+//   // Ordenar los productos por ID descendente (últimos primero)
+//   const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
 
-    // Manejo seguro de Depósito
-    const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
-    row.setAttribute('data-deposito', deposito);
+//   productosOrdenados.forEach(producto => {
+//     const row = document.createElement('tr');
 
-    // Manejo seguro de Estado con valor por defecto
-    const estado = producto.Estado?.toLowerCase() || 'desconocido';
-    // Manejo seguro de Estado con valor por defecto
-    const proveedor = producto.proveedor?.toLowerCase() || 'desconocido';
+//     // Manejo seguro de Depósito
+//     const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
+//     row.setAttribute('data-deposito', deposito);
 
-    // Configuración de estilos según estado
-    let estadoClass = 'status-new';
-    let estadoIcon = '<i class="fas fa-certificate"></i>';
+//     // Manejo seguro de Estado con valor por defecto
+//     const estado = producto.Estado?.toLowerCase() || 'desconocido';
+//     // Manejo seguro de Estado con valor por defecto
+//     const proveedor = producto.proveedor?.toLowerCase() || 'desconocido';
 
-    if (estado === 'usado') {
-      estadoClass = 'status-used';
-      estadoIcon = '<i class="fas fa-history"></i>';
-    } else if (estado === 'dañado') {
-      estadoClass = 'status-damaged';
-      estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
-    } else if (estado === 'desconocido') {
-      estadoClass = 'status-unknown';
-      estadoIcon = '<i class="fas fa-question-circle"></i>';
-    }
+//     // Configuración de estilos según estado
+//     let estadoClass = 'status-new';
+//     let estadoIcon = '<i class="fas fa-certificate"></i>';
 
-    // Template seguro con valores por defecto
-    row.innerHTML = `
-      <td>${producto.ID ?? 'N/A'}</td>
-      <td>${producto.Nombre ?? 'Sin nombre'}</td>
-      <td>${producto.Categoria ?? 'Sin categoría'}</td>
-      <td>${producto.Serial ?? 'N/A'}</td>
-      <td>${producto.Modelo ?? 'N/A'}</td>
-      <td>${producto.Marca ?? 'N/A'}</td>
-      <td>${producto.Deposito ?? 'No especificado'}</td>
-      <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
-      <td>${producto.Stock ?? '0'}</td>
-       <td>${producto.Proveedor ?? '0'}</td>
-      <td class="action-buttons">
-        <div class="action-group">
-          <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
+//     if (estado === 'usado') {
+//       estadoClass = 'status-used';
+//       estadoIcon = '<i class="fas fa-history"></i>';
+//     } else if (estado === 'dañado') {
+//       estadoClass = 'status-damaged';
+//       estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
+//     } else if (estado === 'desconocido') {
+//       estadoClass = 'status-unknown';
+//       estadoIcon = '<i class="fas fa-question-circle"></i>';
+//     }
+
+//     // Template seguro con valores por defecto
+//     row.innerHTML = `
+//       <td>${producto.ID ?? 'N/A'}</td>
+//       <td>${producto.Nombre ?? 'Sin nombre'}</td>
+//       <td>${producto.Categoria ?? 'Sin categoría'}</td>
+//       <td>${producto.Serial ?? 'N/A'}</td>
+//       <td>${producto.Modelo ?? 'N/A'}</td>
+//       <td>${producto.Marca ?? 'N/A'}</td>
+//       <td>${producto.Deposito ?? 'No especificado'}</td>
+//       <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
+//       <td>${producto.Stock ?? '0'}</td>
+//        <td>${producto.Proveedor ?? '0'}</td>
+//       <td class="action-buttons">
+//         <div class="action-group">
+//           <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
+//             <i class="fas fa-edit"></i>
+//           </button>
+//           <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
+//             <i class="fas fa-trash"></i>
+//           </button>
+//         </div>
         
-      </td>
-    `;
+//       </td>
+//     `;
 
-    tbody.appendChild(row);
-  });
+//     tbody.appendChild(row);
+//   });
 
-  // Llama a agregarEventosBotones después de llenar la tabla
-  agregarEventosBotones();
+//   // Llama a agregarEventosBotones después de llenar la tabla
+//   agregarEventosBotones();
   
-  // Si el modo masivo está activo, actualiza la tabla
-  if (modoMasivoActivo) {
-    actualizarTablaModoMasivo();
-  }
-}
+//   // Si el modo masivo está activo, actualiza la tabla
+//   if (modoMasivoActivo) {
+//     actualizarTablaModoMasivo();
+//   }
+// }
 
 // Función para inicializar todo el modo masivo
 function inicializarSeleccionMasiva() {
@@ -1253,14 +1245,7 @@ function agregarEventosBotones() {
     button.addEventListener('click', () => abrirModalEditar(button.getAttribute('data-id')));
   });
 
-  // Agregar eventos para los nuevos botones
-  document.querySelectorAll('.receive-btn').forEach(button => {
-    button.addEventListener('click', () => registrarRecepcion(button.getAttribute('data-id')));
-  });
-
-  document.querySelectorAll('.dispatch-btn').forEach(button => {
-    button.addEventListener('click', () => registrarDespacho(button.getAttribute('data-id')));
-  });
+ 
 }
 
 
