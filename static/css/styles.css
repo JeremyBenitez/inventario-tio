@@ -844,9 +844,7 @@
   background: linear-gradient(90deg, #9b59b6, #8e44ad);
 }
 
-/* ==================== */
 /* ESTILOS PARA MODALES DE DESPACHO/RECEPCIÓN (SweetAlert2) */
-/* ==================== */
 
 /* Estilos para la barra de scroll */
 .compact-action-modal .swal2-html-container::-webkit-scrollbar {
@@ -936,15 +934,6 @@
   margin-right: 5px;
 }
 
-/* Estilos específicos para recepción */
-.compact-action-modal.recepcion-modal .swal2-title {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-}
-
-/* Estilos específicos para despacho */
-.compact-action-modal.despacho-modal .swal2-title {
-  background: linear-gradient(135deg, #e67e22, #f39c12);
-}
 
 /* Ajustes para pantallas pequeñas */
 @media (max-width: 600px) {
@@ -964,10 +953,7 @@
   }
 }
 
-/* ==================== */
 /* ESTILOS MEJORADOS PARA ESTADOS */
-/* ==================== */
-
 .status {
   padding: 6px 12px;
   border-radius: 6px;
@@ -1050,12 +1036,7 @@
   animation: fadeInStatus 0.4s ease-out forwards;
 }
 
-/* ==================== */
 /* ESTILOS COMPACTOS PARA TABLA (SOLO MODIFICAR ESTA SECCIÓN) */
-/* ==================== */
-/* ==================== */
-/* ESTILOS COMPACTOS PARA TABLA (SOLO MODIFICAR ESTA SECCIÓN) */
-/* ==================== */
 
 .table-container-rediseno {
   overflow-x: auto;
@@ -1179,38 +1160,6 @@
     text-align: center;
   }
 
-  #paginacion {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-  }
-
-  #paginacion button {
-    background-color: #007bff; /* Azul */
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    margin: 0 5px;
-    transition: background-color 0.3s;
-  }
-
-  #paginacion button:disabled {
-    background-color: #ccc; /* Gris para botones deshabilitados */
-    cursor: not-allowed;
-  }
-
-  #paginacion button:hover:not(:disabled) {
-    background-color: #0056b3; /* Azul más oscuro */
-  }
-
-  #paginaActual {
-    margin: 0 10px;
-    font-weight: bold;
-  }
-
   /* Botones de acción más compactos */
   .action-buttons {
     display: flex;
@@ -1236,14 +1185,7 @@
     min-width: 70px;
   }
 
-  /* ==================== */
-  /* FIN DE ESTILOS PARA TABLA */
-  /* ==================== */
-
-  /* ==================== */
   /* ESTILOS PARA BOTONES DE HISTORIAL */
-  /* ==================== */
-
   .action-btn {
     width: 30px;
     height: 30px;
@@ -1260,14 +1202,7 @@
     min-width: 70px;
   }
 
-  /* ==================== */
-  /* FIN DE ESTILOS PARA TABLA */
-  /* ==================== */
-
-  /* ==================== */
   /* ESTILOS PARA BOTONES DE HISTORIAL DE DESPACHO/RECEPCIÓN */
-  /* ==================== */
-
   .history-btn {
     padding: 8px 16px;
     border: none;
@@ -1541,37 +1476,4 @@
 
 .btn-procesar-panel:hover {
   background-color: #66b1ff;
-}
-
-/* Estilos para el modal de edición */
-#modalEditarItem .modal-dialog {
-  max-height: 90vh;
-  min-height: 70vh;
-}
-
-#modalEditarItem .modal-content {
-  height: auto;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Estilos para el botón de cierre */
-#modalEditarItem .btn-close {
-  position: absolute;
-  right: 1.5rem;
-  top: 1.5rem;
-  font-size: 1.5rem;
-  opacity: 0.8;
-  background-size: 1.5em;
-}
-
-#modalEditarItem .btn-close:hover {
-  opacity: 1;
-  filter: invert(0.3);
-}
-
-/* Asegurar que el modal-header tenga posición relativa */
-#modalEditarItem .modal-header {
-  position: relative;
-  padding: 1.5rem;
 }
