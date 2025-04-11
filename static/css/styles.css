@@ -317,6 +317,11 @@
   padding: 1.5rem;
 }
 
+#modal-body {
+  max-height: 75vh;
+}
+
+
 .form-group-elevated {
   background: white;
   border-radius: 8px;
