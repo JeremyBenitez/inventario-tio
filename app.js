@@ -15,7 +15,7 @@ const app = express();
 
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
-  origin: ['http://localhost:5000', 'http://10.21.5.13:5000'], // Puedes cambiarlo por tu IP si necesitas
+  origin: ['http://localhost:5000', 'http://172.21.250.22:5000'], // Puedes cambiarlo por tu IP si necesitas
   credentials: true
 }));
 
@@ -57,5 +57,5 @@ const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
 
 app.listen(PORT, HOST, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://10.21.5.94:${PORT}`);
+  console.log(`📡 También accesible en tu red local usando tu dirección IP: http://172.21.250.22:${PORT}`);
 });

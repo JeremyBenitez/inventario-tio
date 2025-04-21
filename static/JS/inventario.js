@@ -875,7 +875,7 @@ function buscarProductoPorId(id) {
   return productos.find(p => p.ID == id);
 }
 
-// Función para procesar el despacho masivo
+z
 // Función para procesar el despacho masivo
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
@@ -1023,7 +1023,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://10.21.5.13:5000/inventario/guardar_recepcion', {
+      const response = await fetch('http://172.21.250.22:5000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1342,10 +1342,12 @@ async function abrirModalEditar(id) {
     console.error('Se intentó abrir el modal de edición sin un ID válido');
     return;
   }
+  
   try {
     const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
+    // Llenar el formulario
     document.getElementById('editNombre').value = producto.Nombre;
     document.getElementById('editCategoria').value = producto.Categoria;
     document.getElementById('editSerial').value = producto.Serial;
@@ -1355,65 +1357,67 @@ async function abrirModalEditar(id) {
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
     document.getElementById('editproveedor').value = producto.proveedor;
-    // Solo muestra el modal cuando se llama explícitamente
+
+    // Mostrar el modal
     const modalElement = document.getElementById('modalEditarItem');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
-      modal.show(); // Esta línea debe ejecutarse SOLO cuando el usuario hace click
-    }
+      
+      // Limpiar cualquier manejador previo
+      const formEditar = document.getElementById('formEditarItem');
+      formEditar.onsubmit = null;
+      
+      // Asignar nuevo manejador
+      formEditar.onsubmit = async function(event) {
+        event.preventDefault();
 
-    document.getElementById('formEditarItem').onsubmit = async function (event) {
-      event.preventDefault();
+        const productoEditado = {
+          nombre: document.getElementById('editNombre').value,
+          categoria: document.getElementById('editCategoria').value,
+          serial: document.getElementById('editSerial').value,
+          modelo: document.getElementById('editModelo').value,
+          marca: document.getElementById('editMarca').value,
+          deposito: document.getElementById('editDeposito').value,
+          stock: document.getElementById('editStock').value,
+          estado: document.getElementById('editEstado').value,
+          proveedor: document.getElementById('editproveedor').value
+        };
 
-      const productoEditado = {
-        nombre: document.getElementById('editNombre').value,
-        categoria: document.getElementById('editCategoria').value,
-        serial: document.getElementById('editSerial').value,
-        modelo: document.getElementById('editModelo').value,
-        marca: document.getElementById('editMarca').value,
-        deposito: document.getElementById('editDeposito').value,
-        stock: document.getElementById('editStock').value,
-        estado: document.getElementById('editEstado').value,
-        proveedor: document.getElementById('editproveedor').value
-      };
-
-      try {
-        const response = await fetch(`/inventario/actualizar/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productoEditado)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          await Swal.fire({
-            title: '¡Éxito!',
-            text: data.mensaje || 'Producto actualizado correctamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
+        try {
+          const response = await fetch(`/inventario/actualizar/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productoEditado)
           });
 
-          modalEditar.hide();
-          obtenerProductos();
-        } else {
+          const data = await response.json();
+
+          if (response.ok) {
+            await Swal.fire({
+              title: '¡Éxito!',
+              text: data.mensaje || 'Producto actualizado correctamente',
+              icon: 'success',
+              confirmButtonText: 'Aceptar'
+            });
+
+            modal.hide();
+            obtenerProductos();
+          } else {
+            throw new Error(data.error || 'Hubo un problema al actualizar el producto');
+          }
+        } catch (error) {
+          console.error('Error al actualizar el producto:', error);
           await Swal.fire({
             title: 'Error',
-            text: data.error || 'Hubo un problema al actualizar el producto',
+            text: error.message || 'Hubo un problema al actualizar el producto',
             icon: 'error',
             confirmButtonText: 'Aceptar'
           });
         }
-      } catch (error) {
-        console.error('Error al actualizar el producto:', error);
-        await Swal.fire({
-          title: 'Error',
-          text: 'Hubo un problema al actualizar el producto',
-          icon: 'error',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    };
+      };
+      
+      modal.show();
+    }
   } catch (error) {
     console.error('Error al obtener los datos del producto:', error);
     await Swal.fire({
@@ -1446,7 +1450,19 @@ document.getElementById('close-btn').addEventListener('click', function () {
     });
 });
 
+function handleDespachoMasivo() {
+  const seleccionadosArray = obtenerSeleccionados();
+  
+  if (seleccionadosArray.length === 0) {
+    mostrarAlertaSinSeleccion('despacho');
+    return;
+  }
+  
+  mostrarElementosSeleccionadosDespacho(seleccionadosArray);
+  document.getElementById('modalDespachoMasivo').style.display = 'block';
+}
 
+let despachoEnProceso = false;
 
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
