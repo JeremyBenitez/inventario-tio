@@ -1,5 +1,3 @@
-
-// Agregar este script después de Bootstrap
 document.addEventListener('DOMContentLoaded', function () {
     // Función para actualizar iconos
     function updateIcons() {
@@ -38,47 +36,79 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener('blur', updateIcons);
         input.addEventListener('change', updateIcons);
     });
-});
 
-// Validación del formulario
-(function () {
-    'use strict'
+    // Validación y envío del formulario
+    var forms = document.querySelectorAll('.needs-validation');
 
-    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                } else {
-                    // Aquí podemos agregar un toast de confirmación
-                    event.preventDefault()
-                    showSuccessMessage()
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Obtener los datos del formulario
+            const formData = {
+                nombre: form.nombre.value,
+                categoria: form.categoria.value,
+                serial: form.serial.value,
+                modelo: form.modelo.value,
+                marca: form.marca.value,
+                proveedor: form.proveedor.value,
+                deposito: form.deposito.value,
+                stock: form.stock.value,
+                estado: form.estado.value
+            };
+
+            // Enviar los datos al servidor
+            fetch('/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
                 }
+                return response.json();
+            })
+            .then(data => {
+                showSuccessMessage();
+                // Redirigir después de 3 segundos
+                setTimeout(() => {
+                    window.location.href = '/inventario';
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorMessage(error.error || 'Error al agregar el producto');
+            });
 
-                form.classList.add('was-validated')
-            }, false)
-        })
+            form.classList.add('was-validated');
+        }, false);
+    });
 
-    // Añadir toast de confirmación
+    // Mostrar mensaje de éxito
     function showSuccessMessage() {
-        // Crear el elemento toast
-        const toastContainer = document.createElement('div')
-        toastContainer.style.position = 'fixed'
-        toastContainer.style.bottom = '20px'
-        toastContainer.style.right = '20px'
-        toastContainer.style.zIndex = '1050'
+        const toastContainer = document.createElement('div');
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.bottom = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '1050';
 
-        const toast = document.createElement('div')
-        toast.className = 'toast show'
-        toast.style.backgroundColor = '#fff'
-        toast.style.minWidth = '300px'
-        toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)'
-        toast.style.borderRadius = '8px'
-        toast.style.overflow = 'hidden'
-        toast.style.borderTop = '3px solid var(--success-color)'
+        const toast = document.createElement('div');
+        toast.className = 'toast show';
+        toast.style.backgroundColor = '#fff';
+        toast.style.minWidth = '300px';
+        toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+        toast.style.borderRadius = '8px';
+        toast.style.overflow = 'hidden';
+        toast.style.borderTop = '3px solid var(--success-color)';
 
         toast.innerHTML = `
           <div class="toast-header" style="background-color: rgba(13, 144, 79, 0.1); color: var(--success-color); display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;">
@@ -88,15 +118,50 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="toast-body" style="padding: 0.75rem;">
             El ítem ha sido guardado correctamente.
           </div>
-        `
+        `;
 
-        toastContainer.appendChild(toast)
-        document.body.appendChild(toastContainer)
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
 
         // Eliminar después de 5 segundos
         setTimeout(() => {
-            toastContainer.remove()
-            window.location.href = '/inventario'
-        }, 3000)
+            toastContainer.remove();
+        }, 3000);
     }
-})()
+
+    // Mostrar mensaje de error
+    function showErrorMessage(message) {
+        const toastContainer = document.createElement('div');
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.bottom = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '1050';
+
+        const toast = document.createElement('div');
+        toast.className = 'toast show';
+        toast.style.backgroundColor = '#fff';
+        toast.style.minWidth = '300px';
+        toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+        toast.style.borderRadius = '8px';
+        toast.style.overflow = 'hidden';
+        toast.style.borderTop = '3px solid var(--danger-color)';
+
+        toast.innerHTML = `
+          <div class="toast-header" style="background-color: rgba(220, 53, 69, 0.1); color: var(--danger-color); display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;">
+            <strong><i class="fas fa-exclamation-circle me-2"></i>Error</strong>
+            <button type="button" class="btn-close" onclick="this.parentElement.parentElement.parentElement.remove()"></button>
+          </div>
+          <div class="toast-body" style="padding: 0.75rem;">
+            ${message}
+          </div>
+        `;
+
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+
+        // Eliminar después de 5 segundos
+        setTimeout(() => {
+            toastContainer.remove();
+        }, 5000);
+    }
+});
