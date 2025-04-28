@@ -1,0 +1,101 @@
+:root {
+    --primary-blue: #2c5fa8;
+    --hover-blue: #1e4b8f;
+    --accent-red: #e74c3c;
+    --light-gray: #f8f9fa;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--light-gray);
+}
+
+.export-card {
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: none;
+}
+
+.category-option {
+    padding: 1rem 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-option:hover {
+    border-color: var(--primary-blue);
+    background-color: rgba(44, 95, 168, 0.03);
+}
+
+.category-option.selected {
+    border-color: var(--primary-blue);
+    background-color: rgba(44, 95, 168, 0.08);
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-blue);
+    cursor: pointer;
+}
+
+.btn-export {
+    background-color: var(--primary-blue);
+    color: white;
+    padding: 0.7rem 1.8rem;
+    font-weight: 500;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-export:hover {
+    background-color: var(--hover-blue);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 95, 168, 0.3);
+}
+
+.btn-export:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    background-color: rgba(44, 95, 168, 0.1);
+    color: var(--primary-blue);
+}
+
+.btn-back {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: transparent;
+    border: 1px solid var(--primary-blue);
+    color: var(--primary-blue);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    text-decoration: none;
+
+}
+
+.btn-back:hover {
+    transform: translateX(-3px);
+    color: var(--hover-blue);
+    background-color: rgba(0, 81, 255, 0.2);
+}

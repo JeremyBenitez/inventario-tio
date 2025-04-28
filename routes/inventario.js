@@ -243,6 +243,19 @@ router.post('/despachos', (req, res) => {
         });
       });
     });
-  });
+});
+  
+// Obtener todas las categorías
+// Ruta para obtener las categorías (nuevas categorías de productos)
+router.get('/categorias', (req, res) => {
+    const sql = `SELECT DISTINCT Categoria as nombre, rowid as id FROM inventario ORDER BY Categoria`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+});
 
 module.exports = router;

@@ -3,12 +3,20 @@ let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
 let productos = [];
 
+
+
+
+////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
+
 const token = localStorage.getItem("token");
 if (!token) window.location.href = "#"; // Redirige al login si no hay token
 
+/////////////// FIN DEL ERROR//////////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
-  // 1. Configuración de botones de depósito
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
+
+  // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
     btn.addEventListener('click', function () {
       const deposito = this.id === 'btn-todos' ? 'todos' : this.id === 'btn-principal' ? 'principal' : 'secundario';
@@ -32,124 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeButton.classList.add('active');
   }
 
-  // 2. Configuración del formulario de búsqueda
-  const formBuscar = document.getElementById('formBuscar');
-  if (formBuscar) {
-    formBuscar.addEventListener('submit', function (event) {
-      event.preventDefault();
-      const termino = document.getElementById('inputBuscar').value.toLowerCase();
-      buscarProductos(termino);
-    });
-  }
-
-  document.getElementById('inputBuscar').addEventListener('input', function () {
-    const termino = this.value.toLowerCase();
-    if (termino === '') {
-      const rows = document.querySelectorAll('#tabla-inventario tbody tr');
-      rows.forEach(row => row.style.display = '');
-    }
-  });
-
-  // 3. Configuración del formulario de nuevo ítem
-  const formNuevoItem = document.getElementById('formNuevoItem');
-  if (formNuevoItem) {
-    formNuevoItem.addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      // Validación manual para Bootstrap
-      if (!formNuevoItem.checkValidity()) {
-        formNuevoItem.classList.add('was-validated');
-        return;
-      }
-
-      const nuevoItem = {
-        nombre: document.getElementById('nombre').value.trim(),
-        categoria: document.getElementById('categoria').value,
-        serial: document.getElementById('serial').value.trim(),
-        modelo: document.getElementById('modelo').value.trim(),
-        marca: document.getElementById('marca').value.trim(),
-        deposito: document.getElementById('deposito').value,
-        proveedor: document.getElementById('proveedor').value.trim(),
-        stock: parseInt(document.getElementById('stock').value, 10),
-        estado: document.getElementById('estado').value
-      };
-
-      try {
-        const response = await fetch('/inventario/agregar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevoItem)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          await Swal.fire({
-            title: '¡Éxito!',
-            text: data.mensaje || 'Ítem agregado correctamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-          });
-
-          formNuevoItem.reset();
-          formNuevoItem.classList.remove('was-validated');
-        } else {
-          await Swal.fire({
-            title: 'Error',
-            text: data.error || 'Hubo un problema al agregar el ítem',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-          });
-        }
-      } catch (error) {
-        console.error('Error al agregar el ítem:', error);
-        await Swal.fire({
-          title: 'Error',
-          text: 'Hubo un problema al agregar el ítem',
-          icon: 'error',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    });
-  }
-
-  // 4. Configuración del botón de historial
-  const historialBtn = document.getElementById('historialBtn');
-  if (historialBtn) {
-    historialBtn.addEventListener('click', function () {
-      window.location.href = '/historial';
-    });
-  } else {
-    console.warn('El botón de historial no fue encontrado');
-  }
-
-  // 5. Configuración del botón de cerrar sesión
-  const closeBtn = document.getElementById('close-btn');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function () {
-      console.log('Botón de cerrar sesión clickeado');
-      fetch('/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then((response) => {
-          console.log('Respuesta del servidor:', response);
-          if (response.ok) {
-            window.location.href = '/';
-          }
-        })
-        .catch((error) => {
-          console.error('Error al cerrar sesión:', error);
-        });
-    });
-  }
-
-  // 6. Inicialización de la selección masiva
-  inicializarSeleccionMasiva();
-
-  // 7. Obtener productos iniciales
+  // Llamada inicial para obtener productos
   obtenerProductos();
 });
 
@@ -245,24 +136,21 @@ function mostrarProductos() {
 }
 
 // Función para inicializar el modo masivo
-function inicializarModoMasivo () {
+function inicializarModoMasivo() {
   const toggleBtn = document.getElementById('toggleModoMasivo');
   
   if (toggleBtn) {
-    const newToggleBtn = toggleBtn.cloneNode(true);
-    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-    
-    newToggleBtn.addEventListener('click', function() {
+    toggleBtn.addEventListener('click', function() {
       modoMasivoActivo = !modoMasivoActivo;
       seleccionados.clear(); // Limpiar selecciones anteriores
       
       // Actualizar apariencia del botón
       if (modoMasivoActivo) {
-        newToggleBtn.classList.add('active');
-        newToggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
+        toggleBtn.classList.add('active');
+        toggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
       } else {
-        newToggleBtn.classList.remove('active');
-        newToggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
+        toggleBtn.classList.remove('active');
+        toggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
       }
       
       // Actualizar la tabla para el modo masivo
@@ -876,6 +764,7 @@ function buscarProductoPorId(id) {
 }
 
 // Función para procesar el despacho masivo
+// Función para procesar el despacho masivo
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
   const destino = document.getElementById('destinoDespacho').value;
@@ -1020,7 +909,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://10.21.5.13:5000/inventario/guardar_recepcion', {
+      const response = await fetch('http://172.21.250.22:5000:5000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1308,6 +1197,72 @@ async function eliminarProducto(id) {
   }
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  const formNuevoItem = document.getElementById('formNuevoItem');
+
+  if (formNuevoItem) {
+    formNuevoItem.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Validación manual para Bootstrap
+      if (!formNuevoItem.checkValidity()) {
+        formNuevoItem.classList.add('was-validated');
+        return;
+      }
+
+      const nuevoItem = {
+        nombre: document.getElementById('nombre').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        serial: document.getElementById('serial').value.trim(),
+        modelo: document.getElementById('modelo').value.trim(),
+        marca: document.getElementById('marca').value.trim(),
+        deposito: document.getElementById('deposito').value,
+        proveedor: document.getElementById('proveedor').value.trim(),
+        stock: parseInt(document.getElementById('stock').value, 10),
+        estado: document.getElementById('estado').value
+      };
+
+      try {
+        const response = await fetch('/inventario/agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoItem)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Ítem agregado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+
+          formNuevoItem.reset();
+          formNuevoItem.classList.remove('was-validated');
+        } else {
+          await Swal.fire({
+            title: 'Error',
+            text: data.error || 'Hubo un problema al agregar el ítem',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (error) {
+        console.error('Error al agregar el ítem:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al agregar el ítem',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
+  }
+});
+
+
 // Función para buscar productos
 function buscarProductos(termino) {
   const rows = document.querySelectorAll('#tabla-inventario tbody tr');
@@ -1333,12 +1288,17 @@ document.getElementById('formBuscar').addEventListener('submit', function (event
   buscarProductos(termino);
 });
 
+// Evento para limpiar la búsqueda
+document.getElementById('inputBuscar').addEventListener('input', function () {
+  const termino = this.value.toLowerCase();
+  if (termino === '') {
+    const rows = document.querySelectorAll('#tabla-inventario tbody tr');
+    rows.forEach(row => row.style.display = '');
+  }
+});
+
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
-  if (!id) {
-    console.error('Se intentó abrir el modal de edición sin un ID válido');
-    return;
-  }
   try {
     const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
@@ -1352,12 +1312,8 @@ async function abrirModalEditar(id) {
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
     document.getElementById('editproveedor').value = producto.proveedor;
-    // Solo muestra el modal cuando se llama explícitamente
-    const modalElement = document.getElementById('modalEditarItem');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show(); // Esta línea debe ejecutarse SOLO cuando el usuario hace click
-    }
+    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarItem'));
+    modalEditar.show();
 
     document.getElementById('formEditarItem').onsubmit = async function (event) {
       event.preventDefault();
@@ -1544,6 +1500,18 @@ function generarPDF(despachos, destino, fecha) {
   // Guardar el PDF
   doc.save(`Nota_Despacho_${destino}_${fecha}.pdf`);
 }
+
+// Con esto:
+const historialBtn = document.getElementById('historialBtn');
+if (historialBtn) {
+  historialBtn.addEventListener('click', function () {
+    window.location.href = '/historial';
+  });
+} else {
+  console.warn('El botón de historial no fue encontrado');
+}
+
+
 
 // Inicializar la selección masiva cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
