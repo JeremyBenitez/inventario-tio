@@ -23,6 +23,8 @@ const ensureAuthenticated = (req, res, next) => {
         req.userId = decoded.id; // Almacena el ID del usuario en la solicitud
         next(); // Continúa a la siguiente función de middleware o ruta
     });
+
+    
 };
 
 

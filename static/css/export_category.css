@@ -1,0 +1,9 @@
+/* Que el backdrop quede justo detrás (Bootstrap usa 1040) */
+.modal-backdrop.show {
+  z-index: 1040 !important;
+}
+
+/* Y el diálogo del modal por encima */
+.modal.show .modal-dialog {
+  z-index: 1100 !important;
+}

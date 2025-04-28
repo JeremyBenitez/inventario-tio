@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="/css/styles.css" />
+        
+
     <link rel="icon" href="/static/Img/favicon.ico" type="image/x-icon" />
     <link
       rel="stylesheet"
@@ -50,6 +52,9 @@
           </button>
         </div>
 
+          <div class="container mt-5">
+    <button id="openModalButton" class="btn btn-primary">Abrir Modal</button>
+  </div>
         <!-- Búsqueda -->
         <form class="search-form search-form-rediseno" id="formBuscar">
           <input
@@ -117,24 +122,17 @@
       aria-labelledby="modalEditarItemLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-dialog modal-xl"> 
         <!-- Cambiado a modal-xl -->
-        <div class="modal-content action-modal modal-editar">
+        <div class="modal-content">
           <!-- Encabezado del modal -->
           <div class="modal-header">
-            <h5 class="modal-title" id="modalEditarItemLabel">
-              <i class="fas fa-edit"></i> Editar Producto
-            </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-              aria-label="Cerrar"
-            ></button>
+            <h5 class="modal-title">Editar Producto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
           <!-- Cuerpo del modal con scroll interno -->
-          <div class="modal-body">
+          <div class="modal-body modal-body-tall">
             <form id="formEditarItem">
               <!-- Primera fila - Nombre y Categoría -->
               <div class="row g-3 mb-3">
@@ -465,6 +463,27 @@
       </div>
     </div>
  
+     <!-- ======= AÑADE EL MODAL AQUÍ, DIRECTAMENTE BAJO <body> ======= -->
+  <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exportModalLabel">Seleccionar Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <label for="selectCategoria">Elige una categoría:</label>
+          <select id="selectCategoria" class="form-select">
+            <!-- opciones llenadas dinámicamente -->
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button id="exportButton" class="btn btn-success">Exportar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- Scripts en el orden correcto -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js"></script>

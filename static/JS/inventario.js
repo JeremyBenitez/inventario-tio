@@ -1604,6 +1604,100 @@ if (historialBtn) {
 } else {
   console.warn('El botón de historial no fue encontrado');
 }
+// /js/inventario.js
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[inventario.js] DOM cargado');
+
+  const openModalBtn = document.getElementById('openModalButton');
+  const exportBtn    = document.getElementById('exportButton');
+  const selectCat    = document.getElementById('selectCategoria');
+  const modalEl      = document.getElementById('exportModal');
+
+  if (!openModalBtn || !exportBtn || !selectCat || !modalEl) {
+    console.error('[inventario.js] No se encontraron elementos clave (botón, select o modal)');
+    return;
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+  console.log('[inventario.js] Instancia del modal creada:', modal);
+
+  // Abre el modal y carga categorías
+  openModalBtn.addEventListener('click', () => {
+    console.log('[inventario.js] openModalButton clickeado');
+    cargarCategorias();
+    modal.show();
+    console.log('[inventario.js] modal.show() invocado');
+  });
+
+  // Exportar artículos
+  exportBtn.addEventListener('click', () => {
+    console.log('[inventario.js] exportButton clickeado');
+    const categoria = selectCat.value;
+    console.log('[inventario.js] categoría seleccionada:', categoria);
+
+    if (!categoria) {
+      console.warn('[inventario.js] No se seleccionó ninguna categoría');
+      alert('Por favor, selecciona una categoría.');
+      return;
+    }
+
+    const url = `http://localhost:5000/inventario/categoria/${encodeURIComponent(categoria)}`;
+    console.log('[inventario.js] Llamando a:', url);
+
+    fetch(url)
+      .then(res => {
+        console.log('[inventario.js] Response status:', res.status);
+        if (!res.ok) throw new Error('Error al obtener artículos: ' + res.status);
+        return res.json();
+      })
+      .then(articulos => {
+        console.log('[inventario.js] Artículos recibidos:', articulos);
+        if (!Array.isArray(articulos) || articulos.length === 0) {
+          console.warn('[inventario.js] No hay artículos en esta categoría');
+          alert('No hay artículos disponibles para esta categoría.');
+          return;
+        }
+        console.table(articulos);
+        // aquí tu lógica de exportación
+      })
+      .catch(err => {
+        console.error('[inventario.js] Error fetch artículos:', err);
+        alert('Ocurrió un error al obtener los artículos.');
+      });
+  });
+
+  // Función que carga categorías
+  function cargarCategorias() {
+    console.log('[inventario.js] Iniciando carga de categorías');
+    fetch('http://localhost:5000/inventario/categorias')
+      .then(res => {
+        console.log('[inventario.js] Response categorías status:', res.status);
+        if (!res.ok) throw new Error('Error al obtener categorías: ' + res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log('[inventario.js] Categorías recibidas:', data);
+        if (!Array.isArray(data)) {
+          console.error('[inventario.js] Formato inesperado para categorías');
+          return;
+        }
+        // Limpiar el select
+        selectCat.innerHTML = '<option value="">Seleccione una categoría</option>';
+        data.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat.id;      // según tu API podría ser cat.Categoria
+          opt.textContent = cat.nombre;
+          selectCat.appendChild(opt);
+        });
+        console.log('[inventario.js] Select de categorías actualizado');
+      })
+      .catch(err => {
+        console.error('[inventario.js] Error fetch categorías:', err);
+        alert('Ocurrió un error al cargar las categorías.');
+      });
+  }
+});
+
 
 // Inicializar la selección masiva cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
