@@ -15,7 +15,7 @@ const app = express();
 
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
-  origin: ['http://localhost:5000', 'http://10.21.5.13:5000'], // Puedes cambiarlo por tu IP si necesitas
+  origin: ['http://localhost:5000', 'http://10.100.39.42:5000'], // Puedes cambiarlo por tu IP si necesitas
   credentials: true
 }));
 

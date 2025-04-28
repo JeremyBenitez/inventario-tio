@@ -879,18 +879,18 @@ function buscarProductoPorId(id) {
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
   const destino = document.getElementById('destinoDespacho').value;
-  
+
   if (!destino) {
     alert('Por favor ingrese un destino para el despacho.');
     return;
   }
 
   const despachos = [];
-  
+
   document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
     const id = input.getAttribute('data-id');
     const cantidad = parseInt(input.value);
-    
+
     if (cantidad > 0) {
       const producto = buscarProductoPorId(id);
       despachos.push({
@@ -937,13 +937,11 @@ async function procesarDespachoMasivo() {
     // Cerrar el modal después de procesar
     document.getElementById('modalDespachoMasivo').style.display = 'none';
     
-    // Mostrar mensaje de éxito
-    await Swal.fire({
-      title: '¡Éxito!',
-      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
-      icon: 'success',
-      confirmButtonText: 'Aceptar'
-    });
+    // Cerrar el loading de SweetAlert
+    Swal.close();
+
+    // Generar PDF con el resumen de despachos (SOLO UNA VEZ)
+    generarPDF(despachos, destino, fecha);
 
     // Desactivar el modo masivo después de completar la acción
     const toggleBtn = document.getElementById('toggleModoMasivo');
@@ -1022,7 +1020,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://10.100.39.42:5000/inventario/guardar_recepcion', {
+      const response = await fetch('http://10.21.5.13:5000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1341,12 +1339,10 @@ async function abrirModalEditar(id) {
     console.error('Se intentó abrir el modal de edición sin un ID válido');
     return;
   }
-  
   try {
     const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
 
-    // Llenar el formulario
     document.getElementById('editNombre').value = producto.Nombre;
     document.getElementById('editCategoria').value = producto.Categoria;
     document.getElementById('editSerial').value = producto.Serial;
@@ -1356,67 +1352,65 @@ async function abrirModalEditar(id) {
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
     document.getElementById('editproveedor').value = producto.proveedor;
-
-    // Mostrar el modal
+    // Solo muestra el modal cuando se llama explícitamente
     const modalElement = document.getElementById('modalEditarItem');
     if (modalElement) {
       const modal = new bootstrap.Modal(modalElement);
-      
-      // Limpiar cualquier manejador previo
-      const formEditar = document.getElementById('formEditarItem');
-      formEditar.onsubmit = null;
-      
-      // Asignar nuevo manejador
-      formEditar.onsubmit = async function(event) {
-        event.preventDefault();
+      modal.show(); // Esta línea debe ejecutarse SOLO cuando el usuario hace click
+    }
 
-        const productoEditado = {
-          nombre: document.getElementById('editNombre').value,
-          categoria: document.getElementById('editCategoria').value,
-          serial: document.getElementById('editSerial').value,
-          modelo: document.getElementById('editModelo').value,
-          marca: document.getElementById('editMarca').value,
-          deposito: document.getElementById('editDeposito').value,
-          stock: document.getElementById('editStock').value,
-          estado: document.getElementById('editEstado').value,
-          proveedor: document.getElementById('editproveedor').value
-        };
+    document.getElementById('formEditarItem').onsubmit = async function (event) {
+      event.preventDefault();
 
-        try {
-          const response = await fetch(`/inventario/actualizar/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(productoEditado)
+      const productoEditado = {
+        nombre: document.getElementById('editNombre').value,
+        categoria: document.getElementById('editCategoria').value,
+        serial: document.getElementById('editSerial').value,
+        modelo: document.getElementById('editModelo').value,
+        marca: document.getElementById('editMarca').value,
+        deposito: document.getElementById('editDeposito').value,
+        stock: document.getElementById('editStock').value,
+        estado: document.getElementById('editEstado').value,
+        proveedor: document.getElementById('editproveedor').value
+      };
+
+      try {
+        const response = await fetch(`/inventario/actualizar/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productoEditado)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Producto actualizado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
           });
 
-          const data = await response.json();
-
-          if (response.ok) {
-            await Swal.fire({
-              title: '¡Éxito!',
-              text: data.mensaje || 'Producto actualizado correctamente',
-              icon: 'success',
-              confirmButtonText: 'Aceptar'
-            });
-
-            modal.hide();
-            obtenerProductos();
-          } else {
-            throw new Error(data.error || 'Hubo un problema al actualizar el producto');
-          }
-        } catch (error) {
-          console.error('Error al actualizar el producto:', error);
+          modalEditar.hide();
+          obtenerProductos();
+        } else {
           await Swal.fire({
             title: 'Error',
-            text: error.message || 'Hubo un problema al actualizar el producto',
+            text: data.error || 'Hubo un problema al actualizar el producto',
             icon: 'error',
             confirmButtonText: 'Aceptar'
           });
         }
-      };
-      
-      modal.show();
-    }
+      } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al actualizar el producto',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    };
   } catch (error) {
     console.error('Error al obtener los datos del producto:', error);
     await Swal.fire({
@@ -1449,98 +1443,6 @@ document.getElementById('close-btn').addEventListener('click', function () {
     });
 });
 
-
-
-async function procesarDespachoMasivo() {
-  const fecha = document.getElementById('fechaDespacho').value;
-  const destino = document.getElementById('destinoDespacho').value;
-
-  if (!destino) {
-    alert('Por favor ingrese un destino para el despacho.');
-    return;
-  }
-
-  const despachos = [];
-
-  document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
-    const id = input.getAttribute('data-id');
-    const cantidad = parseInt(input.value);
-
-    if (cantidad > 0) {
-      const producto = buscarProductoPorId(id);
-      despachos.push({
-        id: id,
-        nombre: producto.Nombre,
-        cantidad: cantidad,
-        fecha: fecha,
-        destino: destino,
-        deposito_origen: producto.Deposito
-      });
-    }
-  });
-
-  try {
-    // Mostrar animación de carga
-    Swal.fire({
-      title: 'Procesando despacho masivo...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    // Enviar cada despacho individualmente al servidor
-    for (const despacho of despachos) {
-      const response = await fetch('/inventario/guardar_despacho', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inventario_id: despacho.id,
-          fecha_despacho: despacho.fecha,
-          destinatario: despacho.destino,
-          cantidad: despacho.cantidad,
-          descripcion: `${despacho.nombre}`,
-          deposito_origen: despacho.deposito_origen
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al registrar uno o más despachos');
-      }
-    }
-
-    // Cerrar el modal después de procesar
-    document.getElementById('modalDespachoMasivo').style.display = 'none';
-
-    // Mostrar mensaje de éxito
-    await Swal.fire({
-      title: '¡Éxito!',
-      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
-      icon: 'success',
-      confirmButtonText: 'Aceptar'
-    });
-
-    // Generar PDF con el resumen de despachos
-    generarPDF(despachos, destino, fecha);
-
-    // Desactivar el modo masivo después de completar la acción
-    const toggleBtn = document.getElementById('toggleModoMasivo');
-    if (toggleBtn && modoMasivoActivo) {
-      toggleBtn.click();
-    }
-
-    // Actualizar la lista de productos
-    obtenerProductos();
-
-  } catch (error) {
-    await Swal.fire({
-      title: 'Error',
-      text: error.message || 'Hubo un problema al registrar los despachos',
-      icon: 'error',
-      confirmButtonText: 'Aceptar'
-    });
-  }
-}
 
 function generarPDF(despachos, destino, fecha) {
   const { jsPDF } = window.jspdf;
