@@ -243,6 +243,46 @@ router.post('/despachos', (req, res) => {
         });
       });
     });
-  });
+});
+
+
+// router.post('/categorias', (req, res) => {
+//     const sql = `SELECT DISTINCT * FROM inventario WHERE Nombre = 'BOBINA' ORDER BY Nombre;
+// `;
+
+//     db.all(sql, [], (err, rows) => {
+//         if (err) {
+//             return res.status(500).json({ error: err.message });
+//         }
+//         res.json(rows);
+//     });
+// });
+
+// Definición de la ruta para obtener artículos por categorías
+router.post('/articulos', (req, res) => {
+    const { categorias } = req.body;
+
+    if (!categorias || !Array.isArray(categorias)) {
+        return res.status(400).json({ error: 'Se requiere un array de categorías' });
+    }
+
+    const placeholders = categorias.map(() => '?').join(',');
+    const sql = `SELECT * FROM inventario WHERE Categoria IN (${placeholders}) ORDER BY id DESC`;
+
+    console.log("Consulta SQL:", sql); // Agrega esta línea
+    console.log("Parámetros:", categorias); // Agrega esta línea
+
+    db.all(sql, categorias, (err, rows) => {
+        if (err) {
+            console.error("Error en consulta SQL:", err);
+            return res.status(500).json({ error: 'Error en la base de datos' });
+        }
+        res.json({ success: true, data: rows });
+        console.log(rows);
+        
+    });
+});
+
+
 
 module.exports = router;

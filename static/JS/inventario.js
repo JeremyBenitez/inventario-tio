@@ -2,14 +2,21 @@
 let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
 let productos = [];
-// let modalEditar;
+
+
+
+
+////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
 
 const token = localStorage.getItem("token");
 if (!token) window.location.href = "#"; // Redirige al login si no hay token
 
+/////////////// FIN DEL ERROR//////////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
-  // 1. Configuración de botones de depósito
   const btnsDepositos = document.querySelectorAll('.deposito-btn-rediseno');
+
+  // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
     btn.addEventListener('click', function () {
       const deposito = this.id === 'btn-todos' ? 'todos' : this.id === 'btn-principal' ? 'principal' : 'secundario';
@@ -33,124 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeButton.classList.add('active');
   }
 
-  // 2. Configuración del formulario de búsqueda
-  const formBuscar = document.getElementById('formBuscar');
-  if (formBuscar) {
-    formBuscar.addEventListener('submit', function (event) {
-      event.preventDefault();
-      const termino = document.getElementById('inputBuscar').value.toLowerCase();
-      buscarProductos(termino);
-    });
-  }
-
-  document.getElementById('inputBuscar').addEventListener('input', function () {
-    const termino = this.value.toLowerCase();
-    if (termino === '') {
-      const rows = document.querySelectorAll('#tabla-inventario tbody tr');
-      rows.forEach(row => row.style.display = '');
-    }
-  });
-
-  // 3. Configuración del formulario de nuevo ítem
-  const formNuevoItem = document.getElementById('formNuevoItem');
-  if (formNuevoItem) {
-    formNuevoItem.addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      // Validación manual para Bootstrap
-      if (!formNuevoItem.checkValidity()) {
-        formNuevoItem.classList.add('was-validated');
-        return;
-      }
-
-      const nuevoItem = {
-        nombre: document.getElementById('nombre').value.trim(),
-        categoria: document.getElementById('categoria').value,
-        serial: document.getElementById('serial').value.trim(),
-        modelo: document.getElementById('modelo').value.trim(),
-        marca: document.getElementById('marca').value.trim(),
-        deposito: document.getElementById('deposito').value,
-        proveedor: document.getElementById('proveedor').value.trim(),
-        stock: parseInt(document.getElementById('stock').value, 10),
-        estado: document.getElementById('estado').value
-      };
-
-      try {
-        const response = await fetch('/inventario/agregar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevoItem)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          await Swal.fire({
-            title: '¡Éxito!',
-            text: data.mensaje || 'Ítem agregado correctamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-          });
-
-          formNuevoItem.reset();
-          formNuevoItem.classList.remove('was-validated');
-        } else {
-          await Swal.fire({
-            title: 'Error',
-            text: data.error || 'Hubo un problema al agregar el ítem',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-          });
-        }
-      } catch (error) {
-        console.error('Error al agregar el ítem:', error);
-        await Swal.fire({
-          title: 'Error',
-          text: 'Hubo un problema al agregar el ítem',
-          icon: 'error',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    });
-  }
-
-  // 4. Configuración del botón de historial
-  const historialBtn = document.getElementById('historialBtn');
-  if (historialBtn) {
-    historialBtn.addEventListener('click', function () {
-      window.location.href = '/historial';
-    });
-  } else {
-    console.warn('El botón de historial no fue encontrado');
-  }
-
-  // 5. Configuración del botón de cerrar sesión
-  const closeBtn = document.getElementById('close-btn');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function () {
-      console.log('Botón de cerrar sesión clickeado');
-      fetch('/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-        .then((response) => {
-          console.log('Respuesta del servidor:', response);
-          if (response.ok) {
-            window.location.href = '/';
-          }
-        })
-        .catch((error) => {
-          console.error('Error al cerrar sesión:', error);
-        });
-    });
-  }
-
-  // 6. Inicialización de la selección masiva
-  inicializarSeleccionMasiva();
-
-  // 7. Obtener productos iniciales
+  // Llamada inicial para obtener productos
   obtenerProductos();
 });
 
@@ -231,7 +121,7 @@ function mostrarProductos() {
             <i class="fas fa-trash"></i>
           </button>
         </div>
-
+        
       </td>
     `;
 
@@ -246,26 +136,23 @@ function mostrarProductos() {
 }
 
 // Función para inicializar el modo masivo
-function inicializarModoMasivo () {
+function inicializarModoMasivo() {
   const toggleBtn = document.getElementById('toggleModoMasivo');
-
+  
   if (toggleBtn) {
-    const newToggleBtn = toggleBtn.cloneNode(true);
-    toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-
-    newToggleBtn.addEventListener('click', function() {
+    toggleBtn.addEventListener('click', function() {
       modoMasivoActivo = !modoMasivoActivo;
       seleccionados.clear(); // Limpiar selecciones anteriores
-
+      
       // Actualizar apariencia del botón
       if (modoMasivoActivo) {
-        newToggleBtn.classList.add('active');
-        newToggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
+        toggleBtn.classList.add('active');
+        toggleBtn.innerHTML = '<i class="fas fa-check-square"></i> Modo Selección Activo';
       } else {
-        newToggleBtn.classList.remove('active');
-        newToggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
+        toggleBtn.classList.remove('active');
+        toggleBtn.innerHTML = '<i class="fas fa-square"></i> Modo Selección';
       }
-
+      
       // Actualizar la tabla para el modo masivo
       actualizarTablaModoMasivo();
     });
@@ -278,24 +165,24 @@ function inicializarModoMasivo () {
 function actualizarTablaModoMasivo() {
   const tbody = document.querySelector('#tabla-inventario tbody');
   const filas = tbody.querySelectorAll('tr');
-
+  
   filas.forEach(fila => {
     // Eliminar cualquier evento anterior para evitar duplicados
     fila.removeEventListener('click', handleFilaClick);
-
+    
     if (modoMasivoActivo) {
       // Agregar clase para indicar que el modo masivo está activo
       fila.classList.add('seleccion-masiva-disponible');
-
+      
       // Agregar evento de clic a la fila
       fila.addEventListener('click', handleFilaClick);
-
+      
       // Ocultar botones de acción
       const actionButtons = fila.querySelectorAll('.action-buttons .action-btn');
       actionButtons.forEach(btn => {
         btn.style.display = 'none';
       });
-
+      
       // Mostrar checkbox de selección
       const actionCell = fila.querySelector('.action-buttons');
       if (actionCell) {
@@ -311,13 +198,13 @@ function actualizarTablaModoMasivo() {
       // Quitar clase de modo masivo
       fila.classList.remove('seleccion-masiva-disponible');
       fila.classList.remove('seleccionado');
-
+      
       // Mostrar botones de acción de nuevo
       const actionButtons = fila.querySelectorAll('.action-buttons .action-btn');
       actionButtons.forEach(btn => {
         btn.style.display = '';
       });
-
+      
       // Eliminar checkbox de selección
       const checkbox = fila.querySelector('.checkbox-seleccion');
       if (checkbox) {
@@ -325,7 +212,7 @@ function actualizarTablaModoMasivo() {
       }
     }
   });
-
+  
   // Si se desactiva el modo masivo, mostrar botones y ocultar batones de acción masiva
   const accionesMasivas = document.getElementById('accionesMasivas');
   if (accionesMasivas) {
@@ -336,10 +223,10 @@ function actualizarTablaModoMasivo() {
 // Manejador de eventos para el clic en filas
 function handleFilaClick(event) {
   if (!modoMasivoActivo) return;
-
+  
   const fila = event.currentTarget;
   const idProducto = fila.querySelector('td:first-child').textContent;
-
+  
   // Toggle de la selección
   if (seleccionados.has(idProducto)) {
     seleccionados.delete(idProducto);
@@ -350,7 +237,7 @@ function handleFilaClick(event) {
     fila.classList.add('seleccionado');
     fila.querySelector('.checkbox-seleccion').innerHTML = '<i class="fas fa-check-square"></i>';
   }
-
+  
   // Actualizar contador de seleccionados
   actualizarContadorSeleccionados();
 }
@@ -371,7 +258,7 @@ function obtenerSeleccionados() {
 // Función para agregar el HTML necesario para las acciones masivas
 function agregarHTMLAccionesMasivas() {
   const tablaContainer = document.querySelector('#tabla-inventario').parentElement;
-
+  
   // Crear el elemento de acciones masivas si no existe
   if (!document.getElementById('accionesMasivas')) {
     const accionesMasivas = document.createElement('div');
@@ -392,7 +279,7 @@ function agregarHTMLAccionesMasivas() {
     accionesMasivas.style.display = 'none';
     tablaContainer.insertBefore(accionesMasivas, document.querySelector('#tabla-inventario'));
   }
-
+  
   // Crear modales para acciones masivas si no existen
   if (!document.getElementById('modalDespachoMasivo')) {
     const modalDespacho = document.createElement('div');
@@ -426,7 +313,7 @@ function agregarHTMLAccionesMasivas() {
     `;
     document.body.appendChild(modalDespacho);
   }
-
+  
   if (!document.getElementById('modalRecepcionMasiva')) {
     const modalRecepcion = document.createElement('div');
     modalRecepcion.id = 'modalRecepcionMasiva';
@@ -488,15 +375,15 @@ function agregarEstilosModoMasivo() {
       .seleccion-masiva-disponible {
         cursor: pointer;
       }
-
+      
       .seleccion-masiva-disponible:hover {
         background-color: rgba(0, 0, 0, 0.05);
       }
-
+      
       .seleccionado {
         background-color: rgba(66, 135, 245, 0.15) !important;
       }
-
+      
       #toggleModoMasivo {
         padding: 8px 12px;
         background-color: #f1f1f1;
@@ -504,13 +391,13 @@ function agregarEstilosModoMasivo() {
         border-radius: 4px;
         cursor: pointer;
       }
-
+      
       #toggleModoMasivo.active {
         background-color: #4287f5;
         color: white;
         border-color: #3273dc;
       }
-
+      
       #accionesMasivas {
         display: flex;
         justify-content: space-between;
@@ -521,16 +408,16 @@ function agregarEstilosModoMasivo() {
         margin-bottom: 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       }
-
+      
       .contador-container {
         font-weight: bold;
       }
-
+      
       #contadorSeleccionados {
         color: #4287f5;
         font-size: 1.2em;
       }
-
+      
       .btn-accion-masiva {
         padding: 6px 12px;
         margin-left: 8px;
@@ -540,11 +427,11 @@ function agregarEstilosModoMasivo() {
         border-radius: 4px;
         cursor: pointer;
       }
-
+      
       .btn-accion-masiva:hover {
         background-color: #3273dc;
       }
-
+      
       .checkbox-seleccion {
         display: flex;
         justify-content: center;
@@ -552,7 +439,7 @@ function agregarEstilosModoMasivo() {
         font-size: 1.2em;
         color: #4287f5;
       }
-
+      
       /* Estilos para los modales */
       .modal {
         display: none;
@@ -564,7 +451,7 @@ function agregarEstilosModoMasivo() {
         height: 100%;
         background-color: rgba(0,0,0,0.5);
       }
-
+      
       .modal-content {
         position: relative;
         background-color: #fff;
@@ -576,12 +463,12 @@ function agregarEstilosModoMasivo() {
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         animation: modalFadeIn 0.3s;
       }
-
+      
       @keyframes modalFadeIn {
         from {opacity: 0; transform: translateY(-30px);}
         to {opacity: 1; transform: translateY(0);}
       }
-
+      
       .modal-header {
         padding: 15px 20px;
         background-color: #4287f5;
@@ -589,18 +476,18 @@ function agregarEstilosModoMasivo() {
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
       }
-
+      
       .modal-header h2 {
         margin: 0;
         font-size: 1.5em;
       }
-
+      
       .modal-body {
         padding: 20px;
         max-height: 60vh;
         overflow-y: auto;
       }
-
+      
       .modal-footer {
         padding: 15px 20px;
         background-color: #f8f9fa;
@@ -610,7 +497,7 @@ function agregarEstilosModoMasivo() {
         border-bottom-left-radius: 8px;
         border-bottom-right-radius: 8px;
       }
-
+      
       .close-modal {
         color: white;
         float: right;
@@ -618,15 +505,15 @@ function agregarEstilosModoMasivo() {
         font-weight: bold;
         cursor: pointer;
       }
-
+      
       .close-modal:hover {
         color: #f8f9fa;
       }
-
+      
       .form-group {
         margin-bottom: 15px;
       }
-
+      
       .form-control {
         width: 100%;
         padding: 8px 10px;
@@ -634,7 +521,7 @@ function agregarEstilosModoMasivo() {
         border-radius: 4px;
         font-size: 14px;
       }
-
+      
       .btn-confirmar {
         padding: 8px 16px;
         background-color: #28a745;
@@ -644,11 +531,11 @@ function agregarEstilosModoMasivo() {
         cursor: pointer;
         font-weight: bold;
       }
-
+      
       .btn-confirmar:hover {
         background-color: #218838;
       }
-
+      
       .btn-cancelar {
         padding: 8px 16px;
         background-color: #dc3545;
@@ -658,11 +545,11 @@ function agregarEstilosModoMasivo() {
         cursor: pointer;
         margin-left: 10px;
       }
-
+      
       .btn-cancelar:hover {
         background-color: #c82333;
       }
-
+      
       .elementos-seleccionados {
         max-height: 150px;
         overflow-y: auto;
@@ -671,7 +558,7 @@ function agregarEstilosModoMasivo() {
         padding: 10px;
         margin-top: 5px;
       }
-
+      
       .item-seleccionado {
         padding: 8px;
         border-bottom: 1px solid #eee;
@@ -679,11 +566,11 @@ function agregarEstilosModoMasivo() {
         justify-content: space-between;
         align-items: center;
       }
-
+      
       .item-seleccionado:last-child {
         border-bottom: none;
       }
-
+      
       .cantidad-input {
         width: 60px;
         padding: 4px 6px;
@@ -700,7 +587,7 @@ function agregarEstilosModoMasivo() {
 function agregarEventosBotonesAccionesMasivas() {
   const btnDespachoMasivo = document.getElementById('despachoMasivo');
   const btnRecepcionMasiva = document.getElementById('recepcionMasiva');
-
+  
   // Eventos para cerrar los modales
   document.querySelectorAll('.close-modal').forEach(elem => {
     elem.addEventListener('click', function() {
@@ -709,7 +596,7 @@ function agregarEventosBotonesAccionesMasivas() {
       });
     });
   });
-
+  
   // Cerrar el modal si se hace clic fuera de él
   window.addEventListener('click', function(event) {
     document.querySelectorAll('.modal').forEach(modal => {
@@ -718,58 +605,58 @@ function agregarEventosBotonesAccionesMasivas() {
       }
     });
   });
-
+  
   if (btnDespachoMasivo) {
     btnDespachoMasivo.addEventListener('click', function() {
       const seleccionadosArray = obtenerSeleccionados();
-
+      
       if (seleccionadosArray.length === 0) {
         mostrarAlertaSinSeleccion('despacho');
         return;
       }
-
+      
       // Mostrar los elementos seleccionados en el modal
       mostrarElementosSeleccionadosDespacho(seleccionadosArray);
-
+      
       // Mostrar el modal de despacho
       document.getElementById('modalDespachoMasivo').style.display = 'block';
     });
   }
-
+  
   if (btnRecepcionMasiva) {
     btnRecepcionMasiva.addEventListener('click', function() {
       const seleccionadosArray = obtenerSeleccionados();
-
+      
       if (seleccionadosArray.length === 0) {
         mostrarAlertaSinSeleccion('recepcion');
         return;
       }
-
+      
       // Mostrar los elementos seleccionados en el modal
       mostrarElementosSeleccionadosRecepcion(seleccionadosArray);
-
+      
       // Mostrar el modal de recepción
       document.getElementById('modalRecepcionMasiva').style.display = 'block';
     });
   }
-
+  
   // Nueva función para mostrar alerta cuando no hay selección
 function mostrarAlertaSinSeleccion(accion) {
   const titulos = {
     'despacho': 'Despacho Masivo',
     'recepcion': 'Recepción Masiva'
   };
-
+  
   const iconos = {
     'despacho': 'fas fa-shipping-fast',
     'recepcion': 'fas fa-truck-loading'
   };
-
+  
   const colores = {
     'despacho': '#e67e22',
     'recepcion': '#2ecc71'
   };
-
+  
   Swal.fire({
     title: `<i class="${iconos[accion]}" style="color: ${colores[accion]}; font-size: 2.5rem;"></i>`,
     html: `
@@ -805,13 +692,29 @@ function mostrarAlertaSinSeleccion(accion) {
     }
   });
 }
+ 
+  // Evento para confirmar el despacho
+  const btnConfirmarDespacho = document.getElementById('confirmarDespacho');
+  if (btnConfirmarDespacho) {
+    btnConfirmarDespacho.addEventListener('click', function() {
+      procesarDespachoMasivo();
+    });
+  }
+  
+  // Evento para confirmar la recepción
+  const btnConfirmarRecepcion = document.getElementById('confirmarRecepcion');
+  if (btnConfirmarRecepcion) {
+    btnConfirmarRecepcion.addEventListener('click', function() {
+      procesarRecepcionMasiva();
+    });
+  }
 }
 
 // Función para mostrar los elementos seleccionados en el modal de despacho
 function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
   const contenedor = document.getElementById('listaElementosDespacho');
   contenedor.innerHTML = '';
-
+  
   seleccionadosArray.forEach(id => {
     const producto = buscarProductoPorId(id);
     if (producto) {
@@ -819,7 +722,7 @@ function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
       itemDiv.className = 'item-seleccionado';
       itemDiv.innerHTML = `
         <div>
-          <strong>${producto.Nombre}</strong>
+          <strong>${producto.Nombre}</strong> 
         </div>
         <div>
           <label>Cantidad: </label>
@@ -831,30 +734,11 @@ function mostrarElementosSeleccionadosDespacho(seleccionadosArray) {
   });
 }
 
-// Evento para confirmar el despacho
-document.addEventListener('DOMContentLoaded', function () {
-  const btnConfirmarDespacho = document.getElementById('confirmarDespacho');
-    btnConfirmarDespacho.addEventListener('click', function() {
-      procesarDespachoMasivo();
-    });
-})
-
-document.addEventListener('DOMContentLoaded', function () {
-
-const btnConfirmarRecepcion = document.getElementById('confirmarRecepcion');
-    btnConfirmarRecepcion.addEventListener('click', function() {
-      procesarRecepcionMasiva();
-      
-    });
-})
-  
-
-
 // Función para mostrar los elementos seleccionados en el modal de recepción
 function mostrarElementosSeleccionadosRecepcion(seleccionadosArray) {
   const contenedor = document.getElementById('listaElementosRecepcion');
   contenedor.innerHTML = '';
-
+  
   seleccionadosArray.forEach(id => {
     const producto = buscarProductoPorId(id);
     if (producto) {
@@ -880,103 +764,94 @@ function buscarProductoPorId(id) {
 }
 
 // Función para procesar el despacho masivo
+// Función para procesar el despacho masivo
+async function procesarDespachoMasivo() {
+  const fecha = document.getElementById('fechaDespacho').value;
+  const destino = document.getElementById('destinoDespacho').value;
+  
+  if (!destino) {
+    alert('Por favor ingrese un destino para el despacho.');
+    return;
+  }
 
-//1
-// async function procesarDespachoMasivo() {
-//   console.log('>> Ejecutando procesarDespachoMasivo');
+  const despachos = [];
+  
+  document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
+    const id = input.getAttribute('data-id');
+    const cantidad = parseInt(input.value);
+    
+    if (cantidad > 0) {
+      const producto = buscarProductoPorId(id);
+      despachos.push({
+        id: id,
+        nombre: producto.Nombre,
+        cantidad: cantidad,
+        fecha: fecha,
+        destino: destino,
+        deposito_origen: producto.Deposito
+      });
+    }
+  });
 
-//   // Obtener los valores de los inputs con los IDs correctos
-//   const fecha = document.getElementById('fechaDespacho').value;
-//   const destino = document.getElementById('destinoDespacho').value.trim();
+  try {
+    // Mostrar animación de carga
+    Swal.fire({
+      title: 'Procesando despacho masivo...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
 
-//   // Validaciones
-//   if (!destino) {
-//     alert('Por favor ingrese un destino para el despacho.');
-//     return;
-//   }
+    // Enviar cada despacho individualmente al servidor
+    for (const despacho of despachos) {
+      const response = await fetch('/inventario/guardar_despacho', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inventario_id: despacho.id,
+          fecha_despacho: despacho.fecha,
+          destinatario: despacho.destino,
+          cantidad: despacho.cantidad,
+          descripcion: `${despacho.nombre}`,
+          deposito_origen: despacho.deposito_origen
+        })
+      });
 
-//   const despachos = [];
+      if (!response.ok) {
+        throw new Error('Error al registrar uno o más despachos');
+      }
+    }
 
-//   document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
-//     const id = input.getAttribute('data-id');
-//     const cantidad = parseInt(input.value);
+    // Cerrar el modal después de procesar
+    document.getElementById('modalDespachoMasivo').style.display = 'none';
+    
+    // Mostrar mensaje de éxito
+    await Swal.fire({
+      title: '¡Éxito!',
+      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
 
-//     if (cantidad > 0) {
-//       const producto = buscarProductoPorId(id);
-//       despachos.push({
-//         id: id,
-//         nombre: producto.Nombre,
-//         cantidad: cantidad,
-//         fecha: fecha,
-//         destino: destino,
-//         deposito_origen: producto.Deposito
-//       });
-//     }
-//   });
+    // Desactivar el modo masivo después de completar la acción
+    const toggleBtn = document.getElementById('toggleModoMasivo');
+    if (toggleBtn && modoMasivoActivo) {
+      toggleBtn.click();
+    }
 
-//   if (despachos.length === 0) {
-//     alert('No se han seleccionado productos para despacho.');
-//     return;
-//   }
+    // Actualizar la lista de productos
+    obtenerProductos();
 
-//   try {
-//     // Mostrar animación de carga
-//     Swal.fire({
-//       title: 'Procesando despacho masivo...',
-//       allowOutsideClick: false,
-//       didOpen: () => {
-//         Swal.showLoading();
-//       }
-//     });
-
-//     // Enviar cada despacho individualmente al servidor
-//     for (const despacho of despachos) {
-//       const response = await fetch('/inventario/guardar_despacho', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           inventario_id: despacho.id,
-//           fecha_despacho: despacho.fecha,
-//           destinatario: despacho.destino,
-//           cantidad: despacho.cantidad,
-//           descripcion: `${despacho.nombre}`,
-//           deposito_origen: despacho.deposito_origen
-//         })
-//       });
-
-//       if (!response.ok) {
-//         console.error('Respuesta del servidor:', await response.text());
-//         throw new Error('Error al registrar uno o más despachos');
-//       }
-//     }
-
-//     // Cerrar el modal después de procesar
-//     document.getElementById('modalDespachoMasivo').style.display = 'none';
-
-//     // Mostrar mensaje de éxito
-//     await Swal.fire({
-//       title: '¡Éxito!',
-//       text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
-//       icon: 'success',
-//       confirmButtonText: 'Aceptar'
-//     });
-
-//     // Actualizar la lista de productos
-//     obtenerProductos();
-
-//     // Generar PDF solo una vez aquí si es necesario
-//     // generarPDFDespacho(despachos, destino, fecha); // Descomentar si necesitas generar un PDF
-
-//   } catch (error) {
-//     await Swal.fire({
-//       title: 'Error',
-//       text: error.message || 'Hubo un problema al registrar los despachos',
-//       icon: 'error',
-//       confirmButtonText: 'Aceptar'
-//     });
-//   }
-// }
-
+  } catch (error) {
+    await Swal.fire({
+      title: 'Error',
+      text: error.message || 'Hubo un problema al registrar los despachos',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+}
 
 
 // Función para procesar la recepción masiva
@@ -1036,7 +911,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://172.21.250.22:5000/inventario/guardar_recepcion', {
+      const response = await fetch('http://172.21.250.22:8000:8000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1224,7 +1099,7 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
 //             <i class="fas fa-trash"></i>
 //           </button>
 //         </div>
-
+        
 //       </td>
 //     `;
 
@@ -1233,7 +1108,7 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
 
 //   // Llama a agregarEventosBotones después de llenar la tabla
 //   agregarEventosBotones();
-
+  
 //   // Si el modo masivo está activo, actualiza la tabla
 //   if (modoMasivoActivo) {
 //     actualizarTablaModoMasivo();
@@ -1258,7 +1133,7 @@ function agregarEventosBotones() {
     button.addEventListener('click', () => abrirModalEditar(button.getAttribute('data-id')));
   });
 
-
+ 
 }
 
 
@@ -1324,6 +1199,72 @@ async function eliminarProducto(id) {
   }
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  const formNuevoItem = document.getElementById('formNuevoItem');
+
+  if (formNuevoItem) {
+    formNuevoItem.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Validación manual para Bootstrap
+      if (!formNuevoItem.checkValidity()) {
+        formNuevoItem.classList.add('was-validated');
+        return;
+      }
+
+      const nuevoItem = {
+        nombre: document.getElementById('nombre').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        serial: document.getElementById('serial').value.trim(),
+        modelo: document.getElementById('modelo').value.trim(),
+        marca: document.getElementById('marca').value.trim(),
+        deposito: document.getElementById('deposito').value,
+        proveedor: document.getElementById('proveedor').value.trim(),
+        stock: parseInt(document.getElementById('stock').value, 10),
+        estado: document.getElementById('estado').value
+      };
+
+      try {
+        const response = await fetch('/inventario/agregar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoItem)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Ítem agregado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          });
+
+          formNuevoItem.reset();
+          formNuevoItem.classList.remove('was-validated');
+        } else {
+          await Swal.fire({
+            title: 'Error',
+            text: data.error || 'Hubo un problema al agregar el ítem',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (error) {
+        console.error('Error al agregar el ítem:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al agregar el ítem',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
+  }
+});
+
+
 // Función para buscar productos
 function buscarProductos(termino) {
   const rows = document.querySelectorAll('#tabla-inventario tbody tr');
@@ -1331,13 +1272,13 @@ function buscarProductos(termino) {
     let encontrado = false;
     // Buscar en todas las celdas excepto en las acciones (última columna)
     const celdas = row.querySelectorAll('td:not(:last-child)');
-
+    
     celdas.forEach(celda => {
       if (celda.textContent.toLowerCase().includes(termino)) {
         encontrado = true;
       }
     });
-
+    
     row.style.display = encontrado ? '' : 'none';
   });
 }
@@ -1349,12 +1290,17 @@ document.getElementById('formBuscar').addEventListener('submit', function (event
   buscarProductos(termino);
 });
 
+// Evento para limpiar la búsqueda
+document.getElementById('inputBuscar').addEventListener('input', function () {
+  const termino = this.value.toLowerCase();
+  if (termino === '') {
+    const rows = document.querySelectorAll('#tabla-inventario tbody tr');
+    rows.forEach(row => row.style.display = '');
+  }
+});
+
 // Función para abrir el modal de edición
 async function abrirModalEditar(id) {
-  if (!id) {
-    console.error('Se intentó abrir el modal de edición sin un ID válido');
-    return;
-  }
   try {
     const response = await fetch(`/inventario/consultar/${id}`);
     const producto = await response.json();
@@ -1368,65 +1314,61 @@ async function abrirModalEditar(id) {
     document.getElementById('editStock').value = producto.Stock;
     document.getElementById('editEstado').value = producto.Estado;
     document.getElementById('editproveedor').value = producto.proveedor;
+    const modalEditar = new bootstrap.Modal(document.getElementById('modalEditarItem'));
+    modalEditar.show();
 
-    const modalElement = document.getElementById('modalEditarItem');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show(); // Muestra el modal
+    document.getElementById('formEditarItem').onsubmit = async function (event) {
+      event.preventDefault();
 
-      document.getElementById('formEditarItem').onsubmit = async function (event) {
-        event.preventDefault();
+      const productoEditado = {
+        nombre: document.getElementById('editNombre').value,
+        categoria: document.getElementById('editCategoria').value,
+        serial: document.getElementById('editSerial').value,
+        modelo: document.getElementById('editModelo').value,
+        marca: document.getElementById('editMarca').value,
+        deposito: document.getElementById('editDeposito').value,
+        stock: document.getElementById('editStock').value,
+        estado: document.getElementById('editEstado').value,
+        proveedor: document.getElementById('editproveedor').value
+      };
 
-        const productoEditado = {
-          nombre: document.getElementById('editNombre').value,
-          categoria: document.getElementById('editCategoria').value,
-          serial: document.getElementById('editSerial').value,
-          modelo: document.getElementById('editModelo').value,
-          marca: document.getElementById('editMarca').value,
-          deposito: document.getElementById('editDeposito').value,
-          stock: document.getElementById('editStock').value,
-          estado: document.getElementById('editEstado').value,
-          proveedor: document.getElementById('editproveedor').value
-        };
+      try {
+        const response = await fetch(`/inventario/actualizar/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productoEditado)
+        });
 
-        try {
-          const response = await fetch(`/inventario/actualizar/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(productoEditado)
+        const data = await response.json();
+
+        if (response.ok) {
+          await Swal.fire({
+            title: '¡Éxito!',
+            text: data.mensaje || 'Producto actualizado correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
           });
 
-          const data = await response.json();
-
-          if (response.ok) {
-            await Swal.fire({
-              title: '¡Éxito!',
-              text: data.mensaje || 'Producto actualizado correctamente',
-              icon: 'success',
-              confirmButtonText: 'Aceptar'
-            });
-
-            modal.hide(); // Usa la instancia del modal para ocultarlo
-            obtenerProductos();
-          } else {
-            await Swal.fire({
-              title: 'Error',
-              text: data.error || 'Hubo un problema al actualizar el producto',
-              icon: 'error',
-              confirmButtonText: 'Aceptar'
-            });
-          }
-        } catch (error) {
-          console.error('Error al actualizar el producto:', error);
+          modalEditar.hide();
+          obtenerProductos();
+        } else {
           await Swal.fire({
             title: 'Error',
-            text: 'Hubo un problema al actualizar el producto',
+            text: data.error || 'Hubo un problema al actualizar el producto',
             icon: 'error',
             confirmButtonText: 'Aceptar'
           });
         }
-      };
-    }
+      } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+        await Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al actualizar el producto',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    };
   } catch (error) {
     console.error('Error al obtener los datos del producto:', error);
     await Swal.fire({
@@ -1437,7 +1379,6 @@ async function abrirModalEditar(id) {
     });
   }
 }
-
 
 document.getElementById('close-btn').addEventListener('click', function () {
   console.log('Botón de cerrar sesión clickeado');
@@ -1461,7 +1402,7 @@ document.getElementById('close-btn').addEventListener('click', function () {
 });
 
 
-//2
+
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
   const destino = document.getElementById('destinoDespacho').value;
@@ -1652,6 +1593,16 @@ function generarPDF(despachos, destino, fecha) {
 
   // Guardar el PDF
   doc.save(`Nota_Despacho_${destino}_${fecha}.pdf`);
+}
+
+// Con esto:
+const historialBtn = document.getElementById('historialBtn');
+if (historialBtn) {
+  historialBtn.addEventListener('click', function () {
+    window.location.href = '/historial';
+  });
+} else {
+  console.warn('El botón de historial no fue encontrado');
 }
 
 // Inicializar la selección masiva cuando el DOM esté listo

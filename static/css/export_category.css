@@ -1,0 +1,16 @@
+/* Asegura que el backdrop quede atrás */
+.modal-backdrop.show {
+  z-index: 1040 !important;
+}
+
+/* Asegura que el diálogo del modal quede por encima */
+.modal.show .modal-dialog {
+  z-index: 1100 !important;
+}
+
+/* Fuerza el modal a mostrarse como flex cuando tenga .show */
+.modal.fade.show {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
