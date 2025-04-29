@@ -3,14 +3,9 @@ let modoMasivoActivo = false;
 let seleccionados = new Set(); // Conjunto para guardar los IDs seleccionados
 let productos = [];
 
-
-
-
 ////ERROR DE UNA SEMANA MUCHO CUIDADO HDTPM/////////
-
 const token = localStorage.getItem("token");
 if (!token) window.location.href = "#"; // Redirige al login si no hay token
-
 /////////////// FIN DEL ERROR//////////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -43,8 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Llamada inicial para obtener productos
   obtenerProductos();
 });
-
-
 
 async function obtenerProductos() {
   try {
@@ -130,9 +123,6 @@ function mostrarProductos() {
 
   // Llama a agregarEventosBotones después de llenar la tabla
   agregarEventosBotones();
-
-  //obtenerProductos();
-
 }
 
 // Función para inicializar el modo masivo
@@ -768,18 +758,18 @@ function buscarProductoPorId(id) {
 async function procesarDespachoMasivo() {
   const fecha = document.getElementById('fechaDespacho').value;
   const destino = document.getElementById('destinoDespacho').value;
-
+  
   if (!destino) {
     alert('Por favor ingrese un destino para el despacho.');
     return;
   }
 
   const despachos = [];
-
+  
   document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
     const id = input.getAttribute('data-id');
     const cantidad = parseInt(input.value);
-
+    
     if (cantidad > 0) {
       const producto = buscarProductoPorId(id);
       despachos.push({
@@ -826,11 +816,13 @@ async function procesarDespachoMasivo() {
     // Cerrar el modal después de procesar
     document.getElementById('modalDespachoMasivo').style.display = 'none';
     
-    // Cerrar el loading de SweetAlert
-    Swal.close();
-
-    // Generar PDF con el resumen de despachos (SOLO UNA VEZ)
-    generarPDF(despachos, destino, fecha);
+    // Mostrar mensaje de éxito
+    await Swal.fire({
+      title: '¡Éxito!',
+      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
 
     // Desactivar el modo masivo después de completar la acción
     const toggleBtn = document.getElementById('toggleModoMasivo');
@@ -1039,80 +1031,6 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
   doc.save(`Nota_Recepcion_${origen}_${fecha}_${proveedor}.pdf`);
 }
 
-
-// Modificar la función mostrarProductos para que aplique el modo masivo
-
-// function mostrarProductos() {
-//   const tbody = document.querySelector('#tabla-inventario tbody');
-//   tbody.innerHTML = '';
-
-//   // Ordenar los productos por ID descendente (últimos primero)
-//   const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
-
-//   productosOrdenados.forEach(producto => {
-//     const row = document.createElement('tr');
-
-//     // Manejo seguro de Depósito
-//     const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
-//     row.setAttribute('data-deposito', deposito);
-
-//     // Manejo seguro de Estado con valor por defecto
-//     const estado = producto.Estado?.toLowerCase() || 'desconocido';
-//     // Manejo seguro de Estado con valor por defecto
-//     const proveedor = producto.proveedor?.toLowerCase() || 'desconocido';
-
-//     // Configuración de estilos según estado
-//     let estadoClass = 'status-new';
-//     let estadoIcon = '<i class="fas fa-certificate"></i>';
-
-//     if (estado === 'usado') {
-//       estadoClass = 'status-used';
-//       estadoIcon = '<i class="fas fa-history"></i>';
-//     } else if (estado === 'dañado') {
-//       estadoClass = 'status-damaged';
-//       estadoIcon = '<i class="fas fa-exclamation-triangle"></i>';
-//     } else if (estado === 'desconocido') {
-//       estadoClass = 'status-unknown';
-//       estadoIcon = '<i class="fas fa-question-circle"></i>';
-//     }
-
-//     // Template seguro con valores por defecto
-//     row.innerHTML = `
-//       <td>${producto.ID ?? 'N/A'}</td>
-//       <td>${producto.Nombre ?? 'Sin nombre'}</td>
-//       <td>${producto.Categoria ?? 'Sin categoría'}</td>
-//       <td>${producto.Serial ?? 'N/A'}</td>
-//       <td>${producto.Modelo ?? 'N/A'}</td>
-//       <td>${producto.Marca ?? 'N/A'}</td>
-//       <td>${producto.Deposito ?? 'No especificado'}</td>
-//       <td><span class="status ${estadoClass}">${estadoIcon}${producto.Estado ?? 'Desconocido'}</span></td>
-//       <td>${producto.Stock ?? '0'}</td>
-//        <td>${producto.Proveedor ?? '0'}</td>
-//       <td class="action-buttons">
-//         <div class="action-group">
-//           <button class="action-btn edit-btn" data-id="${producto.ID ?? ''}" title="Editar">
-//             <i class="fas fa-edit"></i>
-//           </button>
-//           <button class="action-btn delete-btn" data-id="${producto.ID ?? ''}" title="Eliminar">
-//             <i class="fas fa-trash"></i>
-//           </button>
-//         </div>
-        
-//       </td>
-//     `;
-
-//     tbody.appendChild(row);
-//   });
-
-//   // Llama a agregarEventosBotones después de llenar la tabla
-//   agregarEventosBotones();
-  
-//   // Si el modo masivo está activo, actualiza la tabla
-//   if (modoMasivoActivo) {
-//     actualizarTablaModoMasivo();
-//   }
-// }
-
 // Función para inicializar todo el modo masivo
 function inicializarSeleccionMasiva() {
   agregarHTMLAccionesMasivas();
@@ -1196,72 +1114,6 @@ async function eliminarProducto(id) {
     }
   }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-  const formNuevoItem = document.getElementById('formNuevoItem');
-
-  if (formNuevoItem) {
-    formNuevoItem.addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      // Validación manual para Bootstrap
-      if (!formNuevoItem.checkValidity()) {
-        formNuevoItem.classList.add('was-validated');
-        return;
-      }
-
-      const nuevoItem = {
-        nombre: document.getElementById('nombre').value.trim(),
-        categoria: document.getElementById('categoria').value,
-        serial: document.getElementById('serial').value.trim(),
-        modelo: document.getElementById('modelo').value.trim(),
-        marca: document.getElementById('marca').value.trim(),
-        deposito: document.getElementById('deposito').value,
-        proveedor: document.getElementById('proveedor').value.trim(),
-        stock: parseInt(document.getElementById('stock').value, 10),
-        estado: document.getElementById('estado').value
-      };
-
-      try {
-        const response = await fetch('/inventario/agregar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevoItem)
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          await Swal.fire({
-            title: '¡Éxito!',
-            text: data.mensaje || 'Ítem agregado correctamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-          });
-
-          formNuevoItem.reset();
-          formNuevoItem.classList.remove('was-validated');
-        } else {
-          await Swal.fire({
-            title: 'Error',
-            text: data.error || 'Hubo un problema al agregar el ítem',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-          });
-        }
-      } catch (error) {
-        console.error('Error al agregar el ítem:', error);
-        await Swal.fire({
-          title: 'Error',
-          text: 'Hubo un problema al agregar el ítem',
-          icon: 'error',
-          confirmButtonText: 'Aceptar'
-        });
-      }
-    });
-  }
-});
-
 
 // Función para buscar productos
 function buscarProductos(termino) {
@@ -1400,6 +1252,98 @@ document.getElementById('close-btn').addEventListener('click', function () {
 });
 
 
+
+async function procesarDespachoMasivo() {
+  const fecha = document.getElementById('fechaDespacho').value;
+  const destino = document.getElementById('destinoDespacho').value;
+
+  if (!destino) {
+    alert('Por favor ingrese un destino para el despacho.');
+    return;
+  }
+
+  const despachos = [];
+
+  document.querySelectorAll('#listaElementosDespacho .cantidad-input').forEach(input => {
+    const id = input.getAttribute('data-id');
+    const cantidad = parseInt(input.value);
+
+    if (cantidad > 0) {
+      const producto = buscarProductoPorId(id);
+      despachos.push({
+        id: id,
+        nombre: producto.Nombre,
+        cantidad: cantidad,
+        fecha: fecha,
+        destino: destino,
+        deposito_origen: producto.Deposito
+      });
+    }
+  });
+
+  try {
+    // Mostrar animación de carga
+    Swal.fire({
+      title: 'Procesando despacho masivo...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Enviar cada despacho individualmente al servidor
+    for (const despacho of despachos) {
+      const response = await fetch('/inventario/guardar_despacho', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inventario_id: despacho.id,
+          fecha_despacho: despacho.fecha,
+          destinatario: despacho.destino,
+          cantidad: despacho.cantidad,
+          descripcion: `${despacho.nombre}`,
+          deposito_origen: despacho.deposito_origen
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al registrar uno o más despachos');
+      }
+    }
+
+    // Cerrar el modal después de procesar
+    document.getElementById('modalDespachoMasivo').style.display = 'none';
+
+    // Mostrar mensaje de éxito
+    await Swal.fire({
+      title: '¡Éxito!',
+      text: `Se han registrado ${despachos.length} despachos hacia ${destino}`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
+
+    // Generar PDF con el resumen de despachos
+    generarPDF(despachos, destino, fecha);
+
+    // Desactivar el modo masivo después de completar la acción
+    const toggleBtn = document.getElementById('toggleModoMasivo');
+    if (toggleBtn && modoMasivoActivo) {
+      toggleBtn.click();
+    }
+
+    // Actualizar la lista de productos
+    obtenerProductos();
+
+  } catch (error) {
+    await Swal.fire({
+      title: 'Error',
+      text: error.message || 'Hubo un problema al registrar los despachos',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+}
+
 function generarPDF(despachos, destino, fecha) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -1510,8 +1454,6 @@ if (historialBtn) {
 } else {
   console.warn('El botón de historial no fue encontrado');
 }
-
-
 
 // Inicializar la selección masiva cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {

@@ -6,20 +6,31 @@
     <title>Exportar Inventario | Departamento de Tecnología</title>
     <link rel="icon" href="/img/tio_logo.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/css/pdf_categoria.css" />
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable"></script>
+
     
+   
+    <style>
+        /* Estilos adicionales para la tabla de artículos */
+        #articulos-container {
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="export-card bg-white">
-            <!-- Botón de regreso -->
             <a href="/inventario" class="btn-back" id="backButton" title="Volver al inicio">
                 <i class="fas fa-arrow-left"></i> Volver a Inicio
             </a>
-            
             <div class="header-content text-center mb-4">
                 <h4 class="fw-bold">
                     <i class="fas fa-file-export me-2" style="color: var(--primary-blue);"></i>
@@ -27,8 +38,7 @@
                 </h4>
                 <p class="text-muted">Seleccione las categorías a incluir en el reporte</p>
             </div>
-            
-            <div id="categoriesContainer">
+                        <div id="categoriesContainer">
                 <!-- Dispositivos -->
                 <div class="category-option d-flex align-items-center">
                     <div class="icon-circle">
@@ -37,7 +47,7 @@
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center">
                             <input class="form-check-input checkbox-custom me-2" type="checkbox" id="dispositivos">
-                            <label class="form-check-label fw-medium" for="dispositivos">Dispositivos</label>
+                            <label class="form-check-label fw-medium" for="dispositivos">Dispositivo</label>
                         </div>
                         <small class="text-muted">Equipos tecnológicos y hardware</small>
                     </div>
@@ -65,12 +75,15 @@
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center">
                             <input class="form-check-input checkbox-custom me-2" type="checkbox" id="camaras">
-                            <label class="form-check-label fw-medium" for="camaras">Cámaras</label>
+                            <label class="form-check-label fw-medium" for="camaras">Camaras</label>
                         </div>
                         <small class="text-muted">Sistemas de vigilancia y fotografía</small>
                     </div>
                 </div>
             </div>
+            
+            <!-- Contenedor donde se mostrarán los artículos -->
+            <div id="articulos-container" class="mt-4 d-none"></div>
             
             <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                 <div class="form-check">
@@ -85,8 +98,10 @@
         </div>
     </div>
 
+
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="/js/pdf_categoria.js"></script>
 </body>
 </html>
+

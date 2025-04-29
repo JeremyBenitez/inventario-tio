@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="/css/styles.css" />
-        
-
     <link rel="icon" href="/static/Img/favicon.ico" type="image/x-icon" />
     <link
       rel="stylesheet"
@@ -21,7 +19,7 @@
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
     />
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
   </head>
   <body class="body-rediseno">
     <!-- Cabecera -->
@@ -43,7 +41,15 @@
             <a href="/agregar" class="nuevo-item-btn-rediseno" id="nuevoItemBtn">
               <i class="fas fa-plus-circle"></i> Nuevo Ítem
             </a>
+            
           </div>
+        </div>
+         <div class="container mt-5">
+          <a href="/pdf_categoria" class="btn btn-primary mb-3" id="exportarPdfBtn">
+            <i class="fas fa-file-pdf"></i>
+            Reporte por categoria
+          </a>
+
         </div>
 
         <!-- Dentro de la sección de contenido principal, después del selector de depósito -->
@@ -51,13 +57,10 @@
           <button class="btn-modo-masivo" id="toggleModoMasivo">
             <i class="fas fa-tasks"></i> Modo Operación Masiva
           </button>
+          
         </div>
 
-          <div class="container mt-5">
-            <a href="/pdf_categoria" class="btn btn-primary mb-3" id="exportarPdfBtn">
-              <i class="fas fa-file-pdf"></i> Reporte por categoría
-            </a>
-          </div>
+       
         <!-- Búsqueda -->
         <form class="search-form search-form-rediseno" id="formBuscar">
           <input
@@ -295,9 +298,182 @@
       </div>
     </div>
 
+    <!-- Modal para agregar nuevo ítem - Versión rediseñada -->
+    <div id="modalAgregarItem" class="modal fade" tabindex="-1" aria-labelledby="modalAgregarItemLabel" aria-hidden="true">
+
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content action-modal modal-agregar">
+          <!-- Encabezado del modal -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAgregarItemLabel">
+              <i class="fas fa-plus-circle"></i> Agregar Nuevo Ítem
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Cerrar"
+            ></button>
+          </div>
+
+          <!-- Cuerpo del modal con scroll interno -->
+          <div class="modal-body">
+            <form id="formNuevoItem">
+              <!-- Primera fila - Nombre y Categoría -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                  <div class="form-group-elevated">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nombre"
+                      name="nombre"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-elevated">
+                    <label for="categoria" class="form-label">Categoría</label>
+                    <select
+                      id="categoria"
+                      name="categoria"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Dispositivo">Dispositivo</option>
+                      <option value="Consumible">Consumible</option>
+                      <option value="Camara">Camara</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Segunda fila - Serial y Modelo -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="serial" class="form-label">Serial</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="serial"
+                      name="serial"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="modelo" class="form-label">Modelo</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="modelo"
+                      name="modelo"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tercera fila - Marca -->
+              <div class="mb-3">
+                <div class="form-group-elevated">
+                  <label for="marca" class="form-label">Marca</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="marca"
+                    name="marca"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-group-elevated">
+                  <label for="proveedor" class="form-label">Proveedor</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="proveedorRecepcion"
+                    name="proveedor"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Cuarta fila - Depósito y Stock -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="deposito" class="form-label">Depósito</label>
+                    <select
+                      id="deposito"
+                      name="deposito"
+                      class="form-select"
+                      required
+                    >
+                      <option value="Principal">Principal</option>
+                      <option value="Secundario">Secundario</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group-elevated">
+                    <label for="stock" class="form-label">Stock</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="stock"
+                      name="stock"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quinta fila - Estado -->
+              <div class="mb-4">
+                <div class="form-group-elevated">
+                  <label for="estado" class="form-label">Estado</label>
+                  <select
+                    id="estado"
+                    name="estado"
+                    class="form-select"
+                    required
+                  >
+                    <option value="Nuevo">Nuevo</option>
+                    <option value="Usado">Usado</option>
+                    <option value="Dañado">Dañado</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="d-flex justify-content-end gap-3 pt-2 border-top">
+                <button
+                  type="button"
+                  class="btn btn-cancel"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-submit">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
   <!-- Scripts en el orden correcto -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
 
 <!-- scripts -->
 <script src="/js/inventario.js"></script>
@@ -305,7 +481,6 @@
 
 <!-- Otros scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   </body>
 </html>

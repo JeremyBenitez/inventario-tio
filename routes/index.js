@@ -26,14 +26,15 @@ router.get('/agregar', ensureAuthenticated, (req, res) => {
 
 });
 
+
 router.get('/pdf_categoria', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/pdf_categoria.html'));
 
 });
-
 // Ruta para verificar si el usuario está autenticado (para el frontend)
 router.get('/verificar-sesion', ensureAuthenticated, (req, res) => {
     res.json({ autenticado: true });
 });
+
 
 module.exports = router;

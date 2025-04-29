@@ -4,6 +4,7 @@ const db = require('../controllers/conexion'); // Importa la conexión SQLite
 
 // Agregar un producto
 router.post('/agregar', (req, res) => {
+    console.log('Recibida petición para agregar producto');
     const { nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor } = req.body;
 
     if (!nombre || !categoria || !serial || !modelo || !marca || !deposito || !stock || !estado || !proveedor) {
@@ -244,18 +245,32 @@ router.post('/despachos', (req, res) => {
       });
     });
 });
-  
-// Obtener todas las categorías
-// Ruta para obtener las categorías (nuevas categorías de productos)
-router.get('/categorias', (req, res) => {
-    const sql = `SELECT DISTINCT Categoria as nombre, rowid as id FROM inventario ORDER BY Categoria`;
 
-    db.all(sql, [], (err, rows) => {
+// Definición de la ruta para obtener artículos por categorías
+router.post('/articulos', (req, res) => {
+    const { categorias } = req.body;
+
+    if (!categorias || !Array.isArray(categorias)) {
+        return res.status(400).json({ error: 'Se requiere un array de categorías' });
+    }
+
+    const placeholders = categorias.map(() => '?').join(',');
+    const sql = `SELECT * FROM inventario WHERE Categoria IN (${placeholders}) ORDER BY id DESC`;
+
+    console.log("Consulta SQL:", sql); // Agrega esta línea
+    console.log("Parámetros:", categorias); // Agrega esta línea
+
+    db.all(sql, categorias, (err, rows) => {
         if (err) {
-            return res.status(500).json({ error: err.message });
+            console.error("Error en consulta SQL:", err);
+            return res.status(500).json({ error: 'Error en la base de datos' });
         }
-        res.json(rows);
+        res.json({ success: true, data: rows });
+        console.log(rows);
+        
     });
 });
+
+
 
 module.exports = router;
