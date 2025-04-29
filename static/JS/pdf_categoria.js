@@ -1,65 +1,26 @@
-// Función para mostrar artículos en la tabla
+// Función modificada para NO mostrar la tabla, solo preparar los datos
 function mostrarArticulos(articulos) {
-    const contenedor = document.getElementById('articulos-container');
-
+    // Verificar si hay artículos
     if (articulos.length === 0) {
-        contenedor.innerHTML = `
-            <div class="alert alert-warning">
-                No se encontraron artículos para las categorías seleccionadas
-            </div>
-        `;
-        contenedor.classList.remove('d-none');
+        alert('No se encontraron artículos para las categorías seleccionadas');
         return;
     }
 
-    contenedor.innerHTML = `
-        <h5 class="fw-bold mb-3">
-            <i class="fas fa-list-check me-2"></i>
-            Artículos encontrados: ${articulos.length}
-        </h5>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Categoría</th>
-                        <th>Cantidad</th>
-                        <th>Ubicación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${articulos.map(articulo => `
-                        <tr>
-                            <td>${articulo.Nombre || 'N/A'}</td>
-                            <td>${articulo.Categoria || 'N/A'}</td>
-                            <td>${articulo.Cantidad || 'N/A'}</td>
-                            <td>${articulo.Ubicacion || 'N/A'}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-    `;
-    contenedor.classList.remove('d-none');
-
-    // Llama a la función para generar el PDF
-    document.getElementById('exportBtn').addEventListener('click', function () {
-        generarPDF(articulos);
-    });
+    // Generar el PDF directamente sin mostrar la tabla
+    generarPDF(articulos);
 }
 
-// Función para generar el PDF
-// Función para generar el PDF
+// La función generarPDF se mantiene EXACTAMENTE igual
 function generarPDF(articulos) {
-    const { jsPDF } = window.jspdf; // Asegúrate de que jsPDF esté disponible
+    const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png'; // Cambia esto por la URL de tu logo
+    const logo = 'https://i.postimg.cc/9MmZJx7v/logo.png';
 
     // Establecer colores
     const colorPrimario = [0, 51, 102];
 
     // Agregar encabezado
-    doc.addImage(logo, 'JPEG', 10, 10, 30, 30); // Logo
+    doc.addImage(logo, 'JPEG', 10, 10, 30, 30);
     doc.setFontSize(18);
     doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
     doc.text("Reporte de Artículos", 105, 20, { align: 'center' });
@@ -73,7 +34,6 @@ function generarPDF(articulos) {
     const headers = [["Nombre", "Categoría", "Cantidad", "Ubicación"]];
     const data = articulos.map(articulo => [articulo.Nombre || 'N/A', articulo.Categoria || 'N/A', articulo.Cantidad || 'N/A', articulo.Ubicacion || 'N/A']);
 
-    // Verifica si autoTable está disponible
     if (!doc.autoTable) {
         console.log("El plugin autoTable no está instalado correctamente.");
         return;
@@ -90,9 +50,9 @@ function generarPDF(articulos) {
     });
 
     // Agregar pie de página
-    const pieY = doc.lastAutoTable.finalY + 10; // Posición del pie de página
+    const pieY = doc.lastAutoTable.finalY + 10;
     doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2]);
-    doc.rect(0, pieY, 210, 20, 'F'); // Fondo del pie de página
+    doc.rect(0, pieY, 210, 20, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(8);
     doc.text(`Documento generado el ${new Date().toLocaleDateString()}`, 105, pieY + 5, { align: 'center' });
@@ -102,7 +62,7 @@ function generarPDF(articulos) {
     doc.save("articulos.pdf");
 }
 
-// Manejar selección/deselección de "Seleccionar todo"
+// El resto del código se mantiene IGUAL
 document.getElementById('selectAll').addEventListener('change', function () {
     const checkboxes = document.querySelectorAll('#categoriesContainer .checkbox-custom');
     checkboxes.forEach(checkbox => {
@@ -110,7 +70,6 @@ document.getElementById('selectAll').addEventListener('change', function () {
     });
 });
 
-// Manejar exportación 
 document.getElementById('exportBtn').addEventListener('click', function () {
     const selectedCategories = [];
     document.querySelectorAll('#categoriesContainer .checkbox-custom:checked').forEach(checkbox => {
@@ -135,33 +94,27 @@ document.getElementById('exportBtn').addEventListener('click', function () {
         },
         body: JSON.stringify({ categorias: selectedCategories })
     })
-    .then(async response => {
-        const data = await response.json();
+        .then(async response => {
+            const data = await response.json();
 
-        console.log('Respuesta del servidor:', data);
+            if (!response.ok) {
+                throw new Error(data.error || 'Error desconocido');
+            }
 
-        if (!response.ok) {
-            throw new Error(data.error || 'Error desconocido');
-        }
+            if (!data.success) {
+                throw new Error(data.error || 'Error en la respuesta del servidor');
+            }
 
-        if (!data.success) {
-            throw new Error(data.error || 'Error en la respuesta del servidor');
-        }
-
-        return data.data; // Extrae el array de artículos
-    })
-    .then(articulos => {
-        console.log("Artículos recibidos:", articulos);
-        mostrarArticulos(articulos);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert(`Error: ${error.message}`);
-    })
-    .finally(() => {
-        // Restaurar el botón después de la solicitud
-        this.innerHTML = btnOriginalHTML;
-        this.disabled = false;
-    });
+            return data.data;
+        })
+        .then(articulos => {
+            mostrarArticulos(articulos);
+        })
+        .catch(error => {
+            alert(`Error: ${error.message}`);
+        })
+        .finally(() => {
+            this.innerHTML = btnOriginalHTML;
+            this.disabled = false;
+        });
 });
-
