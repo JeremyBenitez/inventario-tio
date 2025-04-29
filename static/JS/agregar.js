@@ -1,7 +1,71 @@
-document.addEventListener('DOMContentLoaded', function () {
+// Función para mostrar notificaciones (la movemos al inicio para que esté disponible)
+function showToast(type, title, message) {
+    const toastContainer = document.createElement('div');
+    toastContainer.style.position = 'fixed';
+    toastContainer.style.bottom = '20px';
+    toastContainer.style.right = '20px';
+    toastContainer.style.zIndex = '1050';
+
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    const color = type === 'success' ? 'var(--success-color)' : 'var(--danger-color)';
+    const bgColor = type === 'success' ? 'rgba(13, 144, 79, 0.1)' : 'rgba(220, 53, 69, 0.1)';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
+    toast.style.backgroundColor = '#fff';
+    toast.style.minWidth = '300px';
+    toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+    toast.style.borderRadius = '8px';
+    toast.style.overflow = 'hidden';
+    toast.style.borderTop = `3px solid ${color}`;
+
+    toast.innerHTML = `
+        <div class="toast-header" style="background-color: ${bgColor}; color: ${color}; display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;">
+            <strong><i class="fas ${icon} me-2"></i>${title}</strong>
+            <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+        <div class="toast-body" style="padding: 0.75rem;">
+            ${message}
+        </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    document.body.appendChild(toastContainer);
+
+    // Eliminar después de 5 segundos
+    setTimeout(() => {
+        toastContainer.remove();
+    }, 5000);
+}
+
+// Función para actualizar iconos
+function updateIcons() {
+    document.querySelectorAll('.form-floating').forEach(function (floating) {
+        const input = floating.querySelector('.form-control, .form-select');
+        const icon = floating.previousElementSibling;
+
+        if (input && icon && icon.classList.contains('input-icon')) {
+            const hasValue = input.value ||
+                (input === document.activeElement) ||
+                (input.tagName === 'SELECT' && input.selectedIndex > 0);
+
+            icon.style.top = hasValue ? '18px' : '50%';
+            icon.style.transform = hasValue ? 'translateY(0)' : 'translateY(-50%)';
+            icon.style.fontSize = hasValue ? '0.8rem' : '';
+            icon.style.color = hasValue ? 'var(--primary-color)' : 'var(--text-secondary)';
+        }
+    });
+}
+
+// Función principal que se ejecuta al cargar el DOM
+function initAgregarItem() {
     const formNuevoItem = document.getElementById('formNuevoItem');
-    
-    if (formNuevoItem) {
+
+    // Solo agregamos el event listener si el formulario existe y no tiene ya un listener
+    if (formNuevoItem && !formNuevoItem.dataset.listenerAdded) {
+        // Marcamos el formulario como que ya tiene listener
+        formNuevoItem.dataset.listenerAdded = 'true';
+
         formNuevoItem.addEventListener('submit', async function (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -70,65 +134,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Función para mostrar notificaciones
-    function showToast(type, title, message) {
-        const toastContainer = document.createElement('div');
-        toastContainer.style.position = 'fixed';
-        toastContainer.style.bottom = '20px';
-        toastContainer.style.right = '20px';
-        toastContainer.style.zIndex = '1050';
-
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-        const color = type === 'success' ? 'var(--success-color)' : 'var(--danger-color)';
-        const bgColor = type === 'success' ? 'rgba(13, 144, 79, 0.1)' : 'rgba(220, 53, 69, 0.1)';
-
-        const toast = document.createElement('div');
-        toast.className = 'toast show';
-        toast.style.backgroundColor = '#fff';
-        toast.style.minWidth = '300px';
-        toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
-        toast.style.borderRadius = '8px';
-        toast.style.overflow = 'hidden';
-        toast.style.borderTop = `3px solid ${color}`;
-
-        toast.innerHTML = `
-            <div class="toast-header" style="background-color: ${bgColor}; color: ${color}; display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;">
-                <strong><i class="fas ${icon} me-2"></i>${title}</strong>
-                <button type="button" class="btn-close" onclick="this.parentElement.parentElement.remove()"></button>
-            </div>
-            <div class="toast-body" style="padding: 0.75rem;">
-                ${message}
-            </div>
-        `;
-
-        toastContainer.appendChild(toast);
-        document.body.appendChild(toastContainer);
-
-        // Eliminar después de 5 segundos
-        setTimeout(() => {
-            toastContainer.remove();
-        }, 5000);
-    }
-
-    // Resto de tu código para manejar los iconos...
-    function updateIcons() {
-        document.querySelectorAll('.form-floating').forEach(function (floating) {
-            const input = floating.querySelector('.form-control, .form-select');
-            const icon = floating.previousElementSibling;
-
-            if (input && icon && icon.classList.contains('input-icon')) {
-                const hasValue = input.value || 
-                               (input === document.activeElement) ||
-                               (input.tagName === 'SELECT' && input.selectedIndex > 0);
-
-                icon.style.top = hasValue ? '18px' : '50%';
-                icon.style.transform = hasValue ? 'translateY(0)' : 'translateY(-50%)';
-                icon.style.fontSize = hasValue ? '0.8rem' : '';
-                icon.style.color = hasValue ? 'var(--primary-color)' : 'var(--text-secondary)';
-            }
-        });
-    }
-
     // Inicializar y configurar event listeners para los iconos
     updateIcons();
     document.querySelectorAll('.form-control, .form-select').forEach(function (input) {
@@ -137,4 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener('blur', updateIcons);
         input.addEventListener('change', updateIcons);
     });
-});
+}
+
+// Evento DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initAgregarItem);
