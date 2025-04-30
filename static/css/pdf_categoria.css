@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', system-ui, sans-serif;
-    background-color: var(--light-gray);
+    background-color: whitesmoke;
 }
 
 .export-card {

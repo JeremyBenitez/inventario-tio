@@ -4,6 +4,7 @@ const db = require('../controllers/conexion'); // Importa la conexión SQLite
 
 // Agregar un producto
 router.post('/agregar', (req, res) => {
+    console.log('Recibida petición para agregar producto');
     const { nombre, categoria, serial, modelo, marca, deposito, stock, estado, proveedor } = req.body;
 
     if (!nombre || !categoria || !serial || !modelo || !marca || !deposito || !stock || !estado || !proveedor) {
@@ -244,19 +245,6 @@ router.post('/despachos', (req, res) => {
       });
     });
 });
-
-
-// router.post('/categorias', (req, res) => {
-//     const sql = `SELECT DISTINCT * FROM inventario WHERE Nombre = 'BOBINA' ORDER BY Nombre;
-// `;
-
-//     db.all(sql, [], (err, rows) => {
-//         if (err) {
-//             return res.status(500).json({ error: err.message });
-//         }
-//         res.json(rows);
-//     });
-// });
 
 // Definición de la ruta para obtener artículos por categorías
 router.post('/articulos', (req, res) => {
