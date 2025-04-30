@@ -18,7 +18,7 @@ function showToast(type, title, message) {
     toast.style.borderRadius = '8px';
     toast.style.overflow = 'hidden';
     toast.style.borderTop = `3px solid ${color}`;
-
+    
     toast.innerHTML = `
         <div class="toast-header" style="background-color: ${bgColor}; color: ${color}; display: flex; justify-content: space-between; padding: 0.5rem 0.75rem;">
             <strong><i class="fas ${icon} me-2"></i>${title}</strong>

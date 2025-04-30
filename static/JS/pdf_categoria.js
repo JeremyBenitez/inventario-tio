@@ -31,8 +31,8 @@ function generarPDF(articulos) {
     doc.text(`Total de artículos: ${articulos.length}`, 105, 30, { align: 'center' });
 
     // Agregar encabezados de la tabla
-    const headers = [["Nombre", "Categoría", "Cantidad", "Ubicación"]];
-    const data = articulos.map(articulo => [articulo.Nombre || 'N/A', articulo.Categoria || 'N/A', articulo.Cantidad || 'N/A', articulo.Ubicacion || 'N/A']);
+    const headers = [["Nombre", "Categoría", "Stock", "Deposito"]];
+    const data = articulos.map(articulo => [articulo.Nombre || 'N/A', articulo.Categoria || 'N/A', articulo.Stock || 'N/A', articulo.Deposito || 'N/A']);
 
     if (!doc.autoTable) {
         console.log("El plugin autoTable no está instalado correctamente.");
