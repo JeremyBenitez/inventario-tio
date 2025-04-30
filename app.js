@@ -15,7 +15,7 @@ const app = express();
 
 // Configuración de CORS - Actualiza esto con tu IP si es necesario
 app.use(cors({
-  origin: ['http://localhost:8000', 'http://172.21.250.22:8000'], // Puedes cambiarlo por tu IP si necesitas
+  origin: ['http://localhost:5000', 'http://172.21.250.22:5000'], // Puedes cambiarlo por tu IP si necesitas
   credentials: true
 }));
 
@@ -52,7 +52,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Algo salió mal!');
 });
 
-const PORT = 8000;
+const PORT = 5000;
 const HOST = '0.0.0.0'; // Escucha en todas las interfaces de red
 
 app.listen(PORT, HOST, () => {
