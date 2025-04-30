@@ -12,7 +12,7 @@
 }
 
 .container .mt-5{
-margin-left: -12px;
+margin-left: -11px;
 }
 .container-rediseno {
   max-width: 1400px;
@@ -35,6 +35,19 @@ margin-left: -12px;
 .header-rediseno h1 {
   font-size: 24px;
   margin-bottom: 10px;
+}
+
+#panel_admin {
+  background-color: #24a82f;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-left: 1000px;
+  border: none ;
+  text-decoration: none;
 }
 
 /* Botón de cierre de sesión */
