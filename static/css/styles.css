@@ -11,6 +11,9 @@
   color: #1e293b;
 }
 
+.container .mt-5{
+margin-left: -12px;
+}
 .container-rediseno {
   max-width: 1400px;
   margin: 0 auto;
