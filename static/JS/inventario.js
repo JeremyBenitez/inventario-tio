@@ -1198,7 +1198,6 @@ async function eliminarProducto(id) {
     }
   }
 }
-
 document.addEventListener('DOMContentLoaded', function () {
   const formNuevoItem = document.getElementById('formNuevoItem');
 
