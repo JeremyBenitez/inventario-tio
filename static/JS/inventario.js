@@ -901,7 +901,7 @@ async function procesarRecepcionMasiva() {
 
     // Enviar cada recepción individualmente al servidor
     for (const recepcion of recepciones) {
-      const response = await fetch('http://172.21.250.22:8000:8000/inventario/guardar_recepcion', {
+      const response = await fetch('http://172.21.250.22:8000/inventario/guardar_recepcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
