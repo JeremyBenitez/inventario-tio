@@ -28,6 +28,16 @@ router.post('/registro', (req, res) => {
     });
 });
 
+router.get('/allUser', (req, res) => {
+    db.all("SELECT ID, Usuario, roles FROM inicio_usuario", [], (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Error al obtener usuarios' });
+        }
+        res.json(rows);
+    });
+});
+
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 

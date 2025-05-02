@@ -40,4 +40,5 @@ router.get('/panel', ensureAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/panel_admin.html'));
 });
 
+
 module.exports = router;

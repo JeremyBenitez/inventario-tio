@@ -102,4 +102,103 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+});   
+
+
+// Función para abrir el modal de creación
+function openCreateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+    document.getElementById('createUserForm').reset();
+    modal.show();
+}
+
+// Función para crear un nuevo usuario
+async function createNewUser() {
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const role = document.getElementById('userRole').value;
+
+    // Validaciones del cliente
+    if (!username || !password || !confirmPassword) {
+        alert('Todos los campos son obligatorios');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+
+    if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
+
+    try {
+        // Mostrar indicador de carga
+        document.getElementById('saveNewUserBtn').disabled = true;
+        document.getElementById('saveNewUserBtn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...';
+
+        const response = await fetch('http://localhost:5000/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                Usuario: username,
+                Password: password,
+                roles: role // Agregamos el rol al objeto que enviamos
+            })
+        });
+
+        // Verificar si la respuesta es JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(text || 'Respuesta no válida del servidor');
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Error al crear usuario');
+        }
+
+        // Cerrar modal y mostrar mensaje
+        bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
+        alert('Usuario creado exitosamente');
+
+        // Recargar la lista de usuarios
+        loadUsers();
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        alert(`Error: ${error.message}`);
+    } finally {
+        // Restaurar el botón
+        document.getElementById('saveNewUserBtn').disabled = false;
+        document.getElementById('saveNewUserBtn').innerHTML = 'Crear Usuario';
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function () {
+    // Botón para abrir el modal de creación
+    document.getElementById('addUserBtn').addEventListener('click', openCreateModal);
+
+    // Botón para guardar el nuevo usuario
+    document.getElementById('saveNewUserBtn').addEventListener('click', createNewUser);
+
+    // Validación en tiempo real de contraseñas
+    document.getElementById('confirmPassword').addEventListener('input', function () {
+        const password = document.getElementById('newPassword').value;
+        const confirm = this.value;
+
+        if (password && confirm && password !== confirm) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
 });
