@@ -6,13 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Configuración global de SweetAlert2 para evitar desplazamientos
+    // Configuración global de SweetAlert2
     const swalConfig = {
-        // Evitar que SweetAlert modifique el padding del body
         heightAuto: false,
-        // Prevenir scroll
         scrollbarPadding: false,
-        // Clase personalizada para controlar el scroll
         customClass: {
             container: 'swal-no-scroll'
         }
@@ -58,7 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Animación de éxito personalizada con configuración para evitar desplazamiento
+            // GUARDADO CORRECTO DE LOS DATOS (Versión mejorada)
+            localStorage.setItem('userData', JSON.stringify({
+                username: Usuario,
+                token: data.token // Opcional: guardar el token si lo necesitas
+            }));
+
             await Swal.fire({
                 ...swalConfig,
                 title: `<span style="color: #6e8efb;">¡Bienvenido, ${Usuario}!</span>`,

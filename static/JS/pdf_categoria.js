@@ -87,7 +87,7 @@ document.getElementById('exportBtn').addEventListener('click', function () {
     this.disabled = true;
 
     // Enviar solicitud al backend
-    fetch('http://localhost:5000/inventario/articulos', {
+    fetch('http://172.21.250.22:5000/inventario/articulos', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

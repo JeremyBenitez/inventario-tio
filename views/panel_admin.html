@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel | Gestión de Usuarios</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/css/panel_admin.css" />
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Sidebar Minimalista -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>Inventario</h2>
+          <p>Panel de Control</p>
+        </div>
+        <ul class="sidebar-menu">
+          <li>
+            <a href="/inventario">
+              <i class="fas fa-boxes"></i>
+              <span>Inventario</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Salir</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="header">
+      <h1><i class="fas fa-user-cog"></i>Gestión de Usuarios</h1>
+      <div class="user-info">
+          <img src="https://randomuser.me/api/portraits/men/42.jpg" alt="Usuario">
+          <span ></span>
+      </div>
+      </div>
+
+        <!-- Users Table -->
+        <div class="users-table-container">
+          <div class="table-header">
+            <h2><i class="fas fa-list"></i>Lista de Usuarios</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Departamento</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="user-avatar">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/32.jpg"
+                      alt="Usuario"
+                    />
+                    <span>Juan Pérez</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="department">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Almacén</span>
+                  </div>
+                </td>
+                <td><span class="role-badge supervisor">Supervisor</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn edit-btn" onclick="openModal()">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="action-btn delete-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-avatar">
+                    <img
+                      src="https://randomuser.me/api/portraits/women/44.jpg"
+                      alt="Usuario"
+                    />
+                    <span>María González</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="department">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>TI</span>
+                  </div>
+                </td>
+                <td><span class="role-badge admin">Administrador</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn edit-btn" onclick="openModal()">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="action-btn delete-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-avatar">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/22.jpg"
+                      alt="Usuario"
+                    />
+                    <span>Carlos Rojas</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="department">
+                    <i class="fas fa-truck"></i>
+                    <span>Logística</span>
+                  </div>
+                </td>
+                <td><span class="role-badge">Usuario</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn edit-btn" onclick="openModal()">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="action-btn delete-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-avatar">
+                    <img
+                      src="https://randomuser.me/api/portraits/women/63.jpg"
+                      alt="Usuario"
+                    />
+                    <span>Ana Mendoza</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="department">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Compras</span>
+                  </div>
+                </td>
+                <td><span class="role-badge manager">Gerente</span></td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="action-btn edit-btn" onclick="openModal()">
+                      <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="action-btn delete-btn">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal" id="editModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fas fa-user-edit"></i>Editar Usuario</h3>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name"><i class="fas fa-user"></i>Usuario</label>
+            <input type="text" id="name" value="Juan Pérez" />
+          </div>
+          <div class="form-group">
+            <label for="password"><i class="fas fa-lock"></i>Contraseña</label>
+            <input type="password" id="password" value="" />
+            <i
+              class="fas fa-eye password-toggle"
+              onclick="togglePassword()"
+            ></i>
+          </div>
+          <div class="form-group">
+            <label for="department"
+              ><i class="fas fa-building"></i>Departamento</label
+            >
+            <select id="department">
+              <option>Logística</option>
+              <option selected>Almacén</option>
+              <option>Compras</option>
+              <option>Ventas</option>
+              <option>TI</option>
+              <option>RH</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="role"><i class="fas fa-user-tag"></i>Rol</label>
+            <select id="role">
+              <option>Usuario</option>
+              <option selected>Supervisor</option>
+              <option>Administrador</option>
+              <option>Gerente</option>
+              <option>Super Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" onclick="closeModal()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button class="save-btn"><i class="fas fa-save"></i> Guardar</button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/panel_admin.js"></script>
+  </body>
+</html>
