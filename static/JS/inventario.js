@@ -15,19 +15,43 @@ document.addEventListener('DOMContentLoaded', function () {
   // Configurar eventos para los botones de depósito
   btnsDepositos.forEach(btn => {
     btn.addEventListener('click', function () {
-      const deposito = this.id === 'btn-todos' ? 'todos' : this.id === 'btn-principal' ? 'principal' : 'secundario';
+      let deposito;
+      if (this.id === 'btn-todos') {
+        deposito = 'todos';
+      } else if (this.id === 'btn-principal') {
+        deposito = 'principal';
+      } else if (this.id === 'btn-secundario') {
+        deposito = 'secundario';
+      } else if (this.id === 'btn-printom') {
+        deposito = 'printom';
+      }
+      
       filterRows(deposito);
       setActiveButton(this);
     });
   });
+
 
   // Función para filtrar las filas según el depósito
   function filterRows(deposito) {
     const rows = document.querySelectorAll('#tabla-inventario tbody tr');
     rows.forEach(row => {
       const rowDeposito = row.getAttribute('data-deposito');
+      // Mostrar solo las filas que coincidan con el depósito seleccionado
       row.style.display = (deposito === 'todos' || rowDeposito === deposito) ? '' : 'none';
+      
+      // Si es Printom, mostrar solo las filas con el depósito printom
+      if (deposito === 'printom') {
+        row.style.display = rowDeposito === 'printom' ? '' : 'none';
+      }
     });
+    
+    // Si es Printom, cambiar el estilo de la tabla
+    if (deposito === 'printom') {
+      mostrarTablaPrintom();
+    } else {
+      mostrarTablaNormal();
+    }
   }
 
   // Función para resaltar el botón activo
@@ -55,10 +79,17 @@ async function obtenerProductos() {
       throw new Error('La respuesta no es un array de productos');
     }
 
+    // Asegurarse de que todos los productos tengan los campos necesarios
+    productos = productos.map(producto => ({
+      ...producto,
+      Subcategoria: producto.Subcategoria || 'N/A',
+      Observaciones: producto.Observaciones || 'Ninguna',
+      Foto: producto.Foto || null
+    }));
+
     mostrarProductos();
   } catch (error) {
     console.error('Error al obtener los productos:', error);
-    // alert(`Error al cargar productos: ${error.message}`);
   }
 }
 
@@ -66,14 +97,13 @@ function mostrarProductos() {
   const tbody = document.querySelector('#tabla-inventario tbody');
   tbody.innerHTML = '';
 
-  // Ordenar los productos por ID descendente (últimos primero)
   const productosOrdenados = [...productos].sort((a, b) => b.ID - a.ID);
 
   productosOrdenados.forEach(producto => {
     const row = document.createElement('tr');
-
-    // Manejo seguro de Depósito
-    const deposito = producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito';
+    
+    // Asegúrate de que el depósito esté en minúsculas y sin espacios
+    const deposito = (producto.Deposito?.toLowerCase()?.replace(/\s+/g, '-') || 'sin-deposito');
     row.setAttribute('data-deposito', deposito);
 
     // Manejo seguro de Estado con valor por defecto
@@ -124,6 +154,89 @@ function mostrarProductos() {
 
   // Llama a agregarEventosBotones después de llenar la tabla
   agregarEventosBotones();
+}
+
+function mostrarTablaPrintom() {
+  const table = document.getElementById('tabla-inventario');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+  
+  // Cambiar los encabezados de la tabla
+  thead.innerHTML = `
+    <tr>
+      <th>N Serial</th>
+      <th>Nombre</th>
+      <th>Modelo</th>
+      <th>Proveedor</th>
+      <th>Cantidad</th>
+      <th>Categoría</th>
+      <th>Sub Categoría</th>
+      <th>Observaciones</th>
+      <th>Foto</th>
+      <th>Acciones</th>
+    </tr>
+  `;
+  
+  // Reconstruir el cuerpo de la tabla con los nuevos campos
+  const rows = tbody.querySelectorAll('tr[data-deposito="printom"]');
+  rows.forEach(row => {
+    const id = row.querySelector('td:first-child').textContent;
+    const producto = buscarProductoPorId(id);
+    
+    if (producto) {
+      row.innerHTML = `
+        <td>${producto.Serial || 'N/A'}</td>
+        <td>${producto.Nombre || 'Sin nombre'}</td>
+        <td>${producto.Modelo || 'N/A'}</td>
+        <td>${producto.Proveedor || 'N/A'}</td>
+        <td>${producto.Stock || '0'}</td>
+        <td>${producto.Categoria || 'Sin categoría'}</td>
+        <td>${producto.Subcategoria || 'N/A'}</td>
+        <td>
+          ${producto.Foto ? `<img src="${producto.Foto}" alt="${producto.Nombre}" style="max-width: 50px; max-height: 50px;">` : 'Sin imagen'}
+        </td>
+        <td>${producto.Observaciones || 'Ninguna'}</td>
+        <td class="action-buttons">
+          <div class="action-group">
+            <button class="action-btn edit-btn" data-id="${producto.ID || ''}" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" data-id="${producto.ID || ''}" title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      `;
+    }
+  });
+  
+  // Reagregar eventos a los botones
+  agregarEventosBotones();
+}
+
+function mostrarTablaNormal() {
+  const table = document.getElementById('tabla-inventario');
+  const thead = table.querySelector('thead');
+  
+  // Restaurar encabezados originales
+  thead.innerHTML = `
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Serial</th>
+      <th>Modelo</th>
+      <th>Marca</th>
+      <th>Proveedor</th>
+      <th>Depósito</th>
+      <th>Estado</th>
+      <th>Stock</th>
+      <th>Acciones</th>
+    </tr>
+  `;
+  
+  // Volver a mostrar todos los productos normalmente
+  mostrarProductos();
 }
 
 // Función para inicializar el modo masivo

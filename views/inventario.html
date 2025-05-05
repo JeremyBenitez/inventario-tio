@@ -85,6 +85,9 @@
           <button class="deposito-btn-rediseno" id="btn-secundario">
             Depósito Secundario
           </button>
+          <button class="deposito-btn-rediseno" id="btn-printom">
+            Printom
+          </button>  
         </div>
 
         <!-- Tabla de inventario -->
@@ -122,6 +125,36 @@
         </div>
       </div>
     </div>
+
+    <!-- Contenedor principal de tablas -->
+<div class="table-container-wrapper">
+  <!-- Tabla original (inventario) -->
+  <div class="table-container table-container-rediseno" id="inventarioTableContainer">
+    <table class="table-rediseno" id="tabla-inventario">
+      <!-- ... tu tabla actual de inventario ... -->
+    </table>
+  </div>
+  
+  <!-- Tabla alternativa (printom) - inicialmente oculta -->
+  <div class="table-container table-container-rediseno" id="printomTableContainer" style="display: none;">
+    <table class="table-rediseno" id="tabla-printom">
+      <thead>
+        <tr>
+          <th>N° Serial</th>
+          <th>Modelo</th>
+          <th>Proveedor</th>
+          <th>Foto</th>
+          <th>Cantidad</th>
+          <th>Sub categoría</th>
+          <th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody id="printomTableBody">
+        <!-- Los datos se cargarán aquí dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+</div>
 
     <!-- Modal para editar producto  -->
     <div
