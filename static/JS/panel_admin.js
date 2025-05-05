@@ -1,3 +1,38 @@
+// Modal functions
+function openModal() {
+    document.getElementById('editModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+
+window.onclick = function (event) {
+    const modal = document.getElementById('editModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+
+// Toggle password visibility
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.querySelector('.password-toggle');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+
 // Mostrar usuario logueado
 function displayLoggedUser() {
     try {
@@ -184,30 +219,69 @@ function getRoleName(role) {
     return roles[role] || role;
 }
 
+function openModal(userData) {
+    const modal = document.getElementById('editModal');
 
-// Editar usuario - Versión corregida
+    if (userData) {
+        // Rellenar el formulario con los datos del usuario
+        document.getElementById('userId').value = userData.id || '';
+        document.getElementById('editName').value = userData.username || '';
+        document.getElementById('editDepartment').value = userData.department || 'Almacén';
+        document.getElementById('editRole').value = userData.role || 'Usuario';
+    }
+
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
 async function editUser(userId) {
     try {
-        const response = await fetch(`http://localhost:5000/usuarios/${userId}`, {
+        console.log(`Intentando cargar usuario ID: ${userId}`); // Debug
+        const response = await fetch(`http://localhost:5000/usuarios/usuario/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'
         });
 
+        console.log('Respuesta del servidor:', response); // Debug
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al cargar usuario');
+            const errorText = await response.text();
+            console.error('Contenido del error:', errorText); // Debug
+            try {
+                const errorData = JSON.parse(errorText);
+                throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+            } catch {
+                throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
+            }
         }
 
         const user = await response.json();
-        openModal(user);
+        console.log('Usuario recibido:', user); // Debug
+
+        const userData = {
+            id: user.ID,
+            username: user.Usuario,
+            role: user.roles
+        };
+
+        openModal(userData);
     } catch (error) {
-        console.error('Error en editUser:', error);
+        console.error('Error completo en editUser:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         alert(`No se pudo cargar el usuario: ${error.message}`);
     }
 }
+
 
 // Confirmar eliminación de usuario
 function confirmDeleteUser(userId) {

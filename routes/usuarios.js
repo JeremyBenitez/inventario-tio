@@ -38,6 +38,28 @@ router.get('/allUser', (req, res) => {
     });
 });
 
+// Ruta para obtener un usuario específico por ID
+router.get('/usuario/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const row = await new Promise((resolve, reject) => {
+            db.get("SELECT ID, Usuario, roles FROM inicio_usuario WHERE ID = ?", 
+                  [userId], (err, row) => {
+                if (err) reject(err);
+                resolve(row);
+            });
+        });
+        
+        if (!row) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+        
+        res.json(row);
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 
