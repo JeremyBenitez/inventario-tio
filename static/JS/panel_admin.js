@@ -132,14 +132,16 @@ async function loadUsers() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
-        
+
         if (!response.ok) {
             throw new Error('Error al cargar usuarios');
         }
 
         const users = await response.json();
-    
+
+
         renderUsersTable(users);
+
     } catch (error) {
         console.error('Error:', error);
         alert('No se pudieron cargar los usuarios');
@@ -148,12 +150,14 @@ async function loadUsers() {
 
 // Renderizar tabla de usuarios
 function renderUsersTable(users) {
+
     const tbody = document.getElementById('usersTableBody');
-     tbody.innerHTML = '';
-    
+    tbody.innerHTML = '';
+
     users.forEach(user => {
-;
-        
+        ;
+        console.log(user);
+
         const tr = document.createElement('tr');
 
         // Avatar y nombre
@@ -172,10 +176,10 @@ function renderUsersTable(users) {
             </td>
        
                 <div class="action-buttons">
-                    <button class="action-btn edit-btn" data-id="${user._id}">
+                    <button class="action-btn edit-btn" data-id="${user.ID}">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button class="action-btn delete-btn" data-id="${user._id}">
+                    <button class="action-btn delete-btn" data-id="${user.ID}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -214,24 +218,22 @@ function getRoleName(role) {
         'user': 'Usuario',
         'supervisor': 'Supervisor',
         'admin': 'Administrador',
-      
+
     };
     return roles[role] || role;
 }
 
 function openModal(userData) {
+    document.getElementById('userId').value = userData.id;
+    document.getElementById('editName').value = userData.username;
+    document.getElementById('editDepartment').value = userData.department || 'Logística'; // Asigna un valor por defecto si no hay
+    document.getElementById('editRole').value = userData.role || 'Usuario'; // Asigna un valor por defecto si no hay
+
+    // Muestra el modal
     const modal = document.getElementById('editModal');
-
-    if (userData) {
-        // Rellenar el formulario con los datos del usuario
-        document.getElementById('userId').value = userData.id || '';
-        document.getElementById('editName').value = userData.username || '';
-        document.getElementById('editDepartment').value = userData.department || 'Almacén';
-        document.getElementById('editRole').value = userData.role || 'Usuario';
-    }
-
-    modal.style.display = 'block';
+    modal.style.display = 'block'; // Asegúrate de que el modal se muestre
 }
+
 
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
@@ -240,7 +242,7 @@ function closeModal() {
 async function editUser(userId) {
     try {
         console.log(`Intentando cargar usuario ID: ${userId}`); // Debug
-        const response = await fetch(`http://localhost:5000/usuarios/usuario/${userId}`, {
+        const response = await fetch(`http://localhost:5000/Usuarios/Usuario/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -254,12 +256,7 @@ async function editUser(userId) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Contenido del error:', errorText); // Debug
-            try {
-                const errorData = JSON.parse(errorText);
-                throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-            } catch {
-                throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
-            }
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         const user = await response.json();
@@ -281,6 +278,7 @@ async function editUser(userId) {
         alert(`No se pudo cargar el usuario: ${error.message}`);
     }
 }
+
 
 
 // Confirmar eliminación de usuario
@@ -313,26 +311,27 @@ async function deleteUser(userId) {
 
 // Guardar usuario (crear o actualizar)
 async function saveUser() {
-    const form = document.getElementById('userForm');
+    // Obtener datos del formulario
     const userId = document.getElementById('userId').value;
     const isEdit = !!userId;
 
+    // Preparar datos en el formato que espera tu backend
     const userData = {
-        username: document.getElementById('username').value,
-        email: document.getElementById('email').value,
-        department: document.getElementById('department').value,
-        role: document.getElementById('role').value
+        Usuario: document.getElementById('editName').value,
+        roles: document.getElementById('editRole').value
+        // Agrega otros campos según corresponda
     };
 
-    // Solo incluir password si se proporcionó
-    const password = document.getElementById('password').value;
-    if (password) {
-        userData.password = password;
+    // Solo incluir contraseña si se proporcionó una nueva
+    const newPassword = document.getElementById('editPassword').value;
+    if (newPassword) {
+        userData.password = newPassword;
     }
 
     try {
-        const url = isEdit ? `http://localhost:5000/registro/${userId}` : '/api/users';
-        const method = isEdit ? 'PUT' : 'POST';
+        // Usar la misma ruta que para obtener el usuario individual
+        const url = `http://localhost:5000/usuarios/usuario/${userId}`;
+        const method = 'PUT'; // O 'PATCH' según tu backend
 
         const response = await fetch(url, {
             method,
@@ -340,20 +339,35 @@ async function saveUser() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(userData),
+            credentials: 'include' // Importante si usas cookies de sesión
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al guardar usuario');
+            const errorText = await response.text();
+            console.error('Error del servidor:', errorText);
+
+            // Manejar diferentes tipos de respuestas de error
+            try {
+                const errorData = JSON.parse(errorText);
+                throw new Error(errorData.message || 'Error al guardar usuario');
+            } catch {
+                throw new Error(errorText || 'Error al guardar usuario');
+            }
         }
 
+        const result = await response.json();
+        console.log('Usuario actualizado:', result);
+
         closeModal();
-        loadUsers(); // Recargar la lista
-        alert(`Usuario ${isEdit ? 'actualizado' : 'creado'} correctamente`);
+        loadUsers(); // Recargar la lista de usuarios
+        alert(result.message || 'Usuario actualizado correctamente');
     } catch (error) {
-        console.error('Error:', error);
-        alert(error.message || 'Error al guardar usuario');
+        console.error('Error al guardar usuario:', {
+            message: error.message,
+            stack: error.stack
+        });
+        alert(`Error al guardar cambios: ${error.message}`);
     }
 }
 
@@ -389,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listeners
     document.getElementById('addUserBtn').addEventListener('click', () => openModal());
-    document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+    //document.getElementById('saveUserBtn').addEventListener('click', saveUser);
 
     // Cerrar modales al hacer clic fuera
     window.onclick = function (event) {
