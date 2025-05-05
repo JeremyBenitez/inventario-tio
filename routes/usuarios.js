@@ -7,10 +7,10 @@ const router = express.Router();
 const JWT_SECRET = 'tu_clave_secreta';
 
 router.post('/registro', (req, res) => {
-    const { Usuario, Password } = req.body;
+    const { Usuario, Password, roles } = req.body;
 
-    if (!Usuario || !Password) {
-        return res.status(400).json({ error: 'El usuario y la contraseña son obligatorios' });
+    if (!Usuario || !Password || !roles) {
+        return res.status(400).json({ error: 'Usuario, contraseña y rol son obligatorios' });
     }
 
     bcrypt.hash(Password, 10, (err, hashedPassword) => {
@@ -18,8 +18,8 @@ router.post('/registro', (req, res) => {
             return res.status(500).json({ error: 'Error al generar el hash de la contraseña' });
         }
 
-        const sql = `INSERT INTO inicio_usuario (Usuario, Password) VALUES (?, ?)`;
-        db.run(sql, [Usuario, hashedPassword], function (err) {
+        const sql = `INSERT INTO inicio_usuario (Usuario, Password, roles) VALUES (?, ?, ?)`;
+        db.run(sql, [Usuario, hashedPassword, roles], function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
@@ -29,7 +29,7 @@ router.post('/registro', (req, res) => {
 });
 
 router.get('/allUser', (req, res) => {
-    db.all("SELECT ID, Usuario, roles FROM inicio_usuario", [], (err, rows) => {
+    db.all("SELECT ID, Usuario, roles, Password FROM inicio_usuario", [], (err, rows) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Error al obtener usuarios' });
@@ -119,6 +119,55 @@ router.put('/usuario/:id', async (req, res) => {
     }
 });
 
+// Ruta para eliminar usuario
+router.delete('/usuarios/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Validación del ID
+        if (!userId || isNaN(userId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'ID de usuario no válido'
+            });
+        }
+
+        // Verificar si el usuario existe
+        const userExists = await new Promise((resolve, reject) => {
+            db.get("SELECT ID FROM inicio_usuario WHERE ID = ?", [userId], (err, row) => {
+                if (err) return reject(err);
+                resolve(!!row);
+            });
+        });
+
+        if (!userExists) {
+            return res.status(404).json({
+                success: false,
+                error: 'Usuario no encontrado'
+            });
+        }
+
+        // Eliminar usuario
+        await new Promise((resolve, reject) => {
+            db.run("DELETE FROM inicio_usuario WHERE ID = ?", [userId], function (err) {
+                if (err) return reject(err);
+                resolve(this.changes);
+            });
+        });
+
+        res.json({
+            success: true,
+            message: 'Usuario eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error en el servidor al eliminar usuario'
+        });
+    }
+});
 
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
