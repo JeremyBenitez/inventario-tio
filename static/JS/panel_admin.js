@@ -112,7 +112,6 @@ function displayLoggedUser() {
         // Ocultar elementos según el rol
         if (userRole !== 'admin') {
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-            document.getElementById('addUserBtn').style.display = 'none';
         }
 
     } catch (error) {
@@ -220,6 +219,7 @@ async function editUser(userId) {
         const userData = {
             id: user.ID,
             username: user.Usuario,
+            password: user.Password,
             role: user.roles
         };
 
@@ -250,6 +250,7 @@ async function saveUser() {
         // Crear objeto con los datos a actualizar
         const userData = {
             Usuario: username,
+            Password: password,
             roles: role
         };
         
