@@ -60,6 +60,7 @@ router.get('/usuario/:id', async (req, res) => {
         res.status(500).json({ error: 'Error del servidor' });
     }
 });
+
 router.post('/login', (req, res) => {
     const { Usuario, Password } = req.body;
 
