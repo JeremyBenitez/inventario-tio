@@ -49,7 +49,7 @@ router.get('/Usuario/:id', async (req, res) => {
         }
 
         const user = await new Promise((resolve, reject) => {
-            db.get("SELECT ID, Usuario, roles FROM inicio_usuario WHERE ID = ?", 
+            db.get("SELECT ID, Usuario, roles, Password FROM inicio_usuario WHERE ID = ?", 
                  [userId], (err, row) => {
                 if (err) return reject(err);
                 resolve(row);
@@ -67,31 +67,34 @@ router.get('/Usuario/:id', async (req, res) => {
     }
 });
 
-//actualizar usuario
+
+// Ruta PUT para actualizar usuario
 router.put('/usuario/:id', async (req, res) => {
     try {
         const userId = req.params.id;
-        const { username, password, role } = req.body; // Asegúrate de que estos campos se envíen en el cuerpo de la solicitud
+        const { username, password, role } = req.body;
 
-        console.log(`Actualizando usuario con ID: ${userId}`);
-
+        // Validaciones
         if (!userId || isNaN(userId)) {
             return res.status(400).json({ error: 'ID no válido' });
         }
+        if (!username || !role) {
+            return res.status(400).json({ error: 'Username y role son requeridos' });
+        }
 
-        // Verifica si el usuario existe antes de actualizar
-        const user = await new Promise((resolve, reject) => {
+        // Verificar si el usuario existe
+        const userExists = await new Promise((resolve, reject) => {
             db.get("SELECT ID FROM inicio_usuario WHERE ID = ?", [userId], (err, row) => {
                 if (err) return reject(err);
-                resolve(row);
+                resolve(!!row);
             });
         });
 
-        if (!user) {
+        if (!userExists) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        // Actualiza el usuario en la base de datos
+        // Actualizar usuario (con o sin contraseña)
         await new Promise((resolve, reject) => {
             const query = `
                 UPDATE inicio_usuario 
@@ -105,17 +108,16 @@ router.put('/usuario/:id', async (req, res) => {
 
             db.run(query, params, function (err) {
                 if (err) return reject(err);
-                resolve(this.changes); // Devuelve el número de filas afectadas
+                resolve(this.changes);
             });
         });
 
-        res.json({ message: 'Usuario actualizado correctamente' });
+        res.json({ success: true, message: 'Usuario actualizado correctamente' });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-
 
 
 router.post('/login', (req, res) => {

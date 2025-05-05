@@ -1,35 +1,94 @@
-// Modal functions
-function openModal() {
-    document.getElementById('editModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+function showEditModal(userId, username, role, password) {
+    // Llenar los campos del modal
+    document.getElementById('userId').value = userId;
+    document.getElementById('editName').value = username;
+    document.getElementById('editRole').value = role;
+    document.getElementById('editPassword').value = password || ''; // Si no hay contraseña, dejar vacío
+
+    // Mostrar el modal
+    document.getElementById('editModal').style.display = 'block';
 }
 
 function closeModal() {
     document.getElementById('editModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
 }
 
+// Mostrar modal de creación
+function showCreateModal() {
+    document.getElementById('createUserModal').style.display = 'block';
+    document.getElementById('createUserForm').reset();
+}
 
-window.onclick = function (event) {
-    const modal = document.getElementById('editModal');
-    if (event.target == modal) {
-        closeModal();
+// Cerrar modal de creación
+function closeCreateModal() {
+    document.getElementById('createUserModal').style.display = 'none';
+}
+
+// Función para crear usuario
+async function createUser() {
+    const username = document.getElementById('newUsername').value;
+    const password = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const role = document.getElementById('userRole').value;
+
+    // Validaciones
+    if (!username.trim()) {
+        alert('El nombre de usuario es requerido');
+        return;
+    }
+
+    if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                Usuario: username,
+                password: password,
+                roles: role
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al crear el usuario');
+        }
+
+        // Cerrar el modal y actualizar la tabla
+        closeCreateModal();
+        fetchUsers(); // Función que recarga los usuarios
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ocurrió un error al crear el usuario');
     }
 }
 
-// Toggle password visibility
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const toggleIcon = document.querySelector('.password-toggle');
+// Asignar evento al botón "Nuevo Usuario"
+document.getElementById('addUserBtn').addEventListener('click', showCreateModal);
 
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = input.nextElementSibling;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
     } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
     }
 }
 
@@ -66,63 +125,7 @@ function displayLoggedUser() {
     }
 }
 
-// Funciones del modal
-function openModal(user = null) {
-    const modal = document.getElementById('userModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const form = document.getElementById('userForm');
 
-    if (user) {
-        // Modo edición
-        modalTitle.innerHTML = '<i class="fas fa-user-edit"></i> Editar Usuario';
-        document.getElementById('userId').value = user.id;
-        document.getElementById('username').value = user.Usuario;
-        document.getElementById('department').value = user.departmento;
-        document.getElementById('role').value = user.roles;
-    } else {
-        // Modo creación
-        modalTitle.innerHTML = '<i class="fas fa-user-plus"></i> Crear Usuario';
-        form.reset();
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-    document.getElementById('userModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-// Modal de confirmación
-function openConfirmModal(message, action) {
-    const modal = document.getElementById('confirmModal');
-    document.getElementById('confirmMessage').textContent = message;
-    document.getElementById('confirmActionBtn').onclick = action;
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeConfirmModal() {
-    document.getElementById('confirmModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-// Toggle password visibility
-function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const toggleIcon = document.querySelector('.password-toggle');
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
-    }
-}
 
 // Cargar usuarios desde la API
 async function loadUsers() {
@@ -139,49 +142,47 @@ async function loadUsers() {
 
         const users = await response.json();
 
-
         renderUsersTable(users);
-
     } catch (error) {
         console.error('Error:', error);
         alert('No se pudieron cargar los usuarios');
     }
 }
 
-// Renderizar tabla de usuarios
 function renderUsersTable(users) {
-
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
 
     users.forEach(user => {
-        ;
-        console.log(user);
-
         const tr = document.createElement('tr');
 
-        // Avatar y nombre
         tr.innerHTML = `
             <td>
                 <div class="user-avatar">
                     <span>${user.Usuario}</span>
                 </div>
             </td>
-            <td>${user.email}</td>
+             <td>
+                <div class="password">
+                    <span>${user.Password}</span>
+                </div>
+            </td>
             <td>
                 <div class="department">
-                    <i class="fas ${getDepartmentIcon(user.department)}"></i>
                     <span>${user.roles}</span>
                 </div>
             </td>
-       
+           
+            <td>
                 <div class="action-buttons">
-                    <button class="action-btn edit-btn" data-id="${user.ID}">
+                    <button class="action-btn edit-btn" data-id="${user.id}" 
+                            data-username="${user.Usuario}" data-role="${user.roles}">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-                    <button class="action-btn delete-btn" data-id="${user.ID}">
+                    <button class="action-btn delete-btn" data-id="${user.id}">
                         <i class="fas fa-trash"></i>
                     </button>
+                 
                 </div>
             </td>
         `;
@@ -189,60 +190,22 @@ function renderUsersTable(users) {
         tbody.appendChild(tr);
     });
 
-    // Agregar event listeners a los botones
+    // Agregar event listeners a los botones de editar
     document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', () => editUser(btn.dataset.id));
+        btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-id');
+            const username = btn.getAttribute('data-username');
+            const role = btn.getAttribute('data-role');
+
+            showEditModal(userId, username, role);
+        });
     });
-
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', () => confirmDeleteUser(btn.dataset.id));
-    });
-}
-
-// Obtener ícono según departamento
-function getDepartmentIcon(department) {
-    const icons = {
-        'Logística': 'fa-truck',
-        'Almacén': 'fa-warehouse',
-        'Compras': 'fa-shopping-cart',
-        'Ventas': 'fa-chart-line',
-        'TI': 'fa-laptop-code',
-        'RH': 'fa-users'
-    };
-    return icons[department] || 'fa-building';
-}
-
-// Obtener nombre legible del rol
-function getRoleName(role) {
-    const roles = {
-        'user': 'Usuario',
-        'supervisor': 'Supervisor',
-        'admin': 'Administrador',
-
-    };
-    return roles[role] || role;
-}
-
-function openModal(userData) {
-    document.getElementById('userId').value = userData.id;
-    document.getElementById('editName').value = userData.username;
-    document.getElementById('editDepartment').value = userData.department || 'Logística'; // Asigna un valor por defecto si no hay
-    document.getElementById('editRole').value = userData.role || 'Usuario'; // Asigna un valor por defecto si no hay
-
-    // Muestra el modal
-    const modal = document.getElementById('editModal');
-    modal.style.display = 'block'; // Asegúrate de que el modal se muestre
-}
-
-
-function closeModal() {
-    document.getElementById('editModal').style.display = 'none';
 }
 
 async function editUser(userId) {
     try {
-        console.log(`Intentando cargar usuario ID: ${userId}`); // Debug
-        const response = await fetch(`http://localhost:5000/Usuarios/Usuario/${userId}`, {
+        console.log(`Cargando usuario ID: ${userId}`);
+        const response = await fetch(`http://localhost:5000/Usuario/${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -251,126 +214,87 @@ async function editUser(userId) {
             credentials: 'include'
         });
 
-        console.log('Respuesta del servidor:', response); // Debug
-
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Contenido del error:', errorText); // Debug
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            console.error('Error del servidor:', errorText);
+            throw new Error(`Error al cargar usuario: ${response.status} ${response.statusText}`);
         }
 
         const user = await response.json();
-        console.log('Usuario recibido:', user); // Debug
+        console.log('Datos del usuario:', user);
 
+        // Mapear los campos del backend al frontend
+        document.getElementById('userId').value = user.ID; // Usar ID como viene del backend
+        document.getElementById('editName').value = user.Usuario; // Campo Usuario
+        document.getElementById('editRole').value = user.roles; // Campo roles
+        
+        // Limpiar el campo de contraseña por seguridad (no mostramos la actual)
+        document.getElementById('editPassword').value = '';
+
+        // Mostrar el modal
+        document.getElementById('editModal').style.display = 'block';
+
+    } catch (error) {
+        console.error('Error en editUser:', error);
+        alert(error.message || 'Error al cargar el usuario');
+    }
+}
+
+async function saveUser() {
+    const userId = document.getElementById('userId').value;
+    const username = document.getElementById('editName').value;
+    const password = document.getElementById('editPassword').value;
+    const role = document.getElementById('editRole').value;
+
+    // Validaciones básicas
+    if (!username.trim()) {
+        alert('El nombre de usuario es requerido');
+        return;
+    }
+    if (!role) {
+        alert('Debe seleccionar un rol');
+        return;
+    }
+
+    try {
+        // Preparar datos para enviar al backend
         const userData = {
-            id: user.ID,
-            username: user.Usuario,
-            role: user.roles
+            username: username,
+            password: password,
+            role: role
         };
 
-        openModal(userData);
-    } catch (error) {
-        console.error('Error completo en editUser:', {
-            message: error.message,
-            stack: error.stack,
-            name: error.name
-        });
-        alert(`No se pudo cargar el usuario: ${error.message}`);
-    }
-}
-
-
-
-// Confirmar eliminación de usuario
-function confirmDeleteUser(userId) {
-    openConfirmModal('¿Estás seguro de que deseas eliminar este usuario?', () => deleteUser(userId));
-}
-
-// Eliminar usuario
-async function deleteUser(userId) {
-    try {
-        const response = await fetch(`http://localhost:5000/allUser/${userId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al eliminar usuario');
+        // Solo incluir password si se proporcionó uno nuevo
+        if (password.trim()) {
+            userData.password = password;
         }
 
-        closeConfirmModal();
-        loadUsers(); // Recargar la lista
-        alert('Usuario eliminado correctamente');
-    } catch (error) {
-        console.error('Error:', error);
-        alert('No se pudo eliminar el usuario');
-    }
-}
+        console.log('Enviando datos:', userData);
 
-// Guardar usuario (crear o actualizar)
-async function saveUser() {
-    // Obtener datos del formulario
-    const userId = document.getElementById('userId').value;
-    const isEdit = !!userId;
-
-    // Preparar datos en el formato que espera tu backend
-    const userData = {
-        Usuario: document.getElementById('editName').value,
-        roles: document.getElementById('editRole').value
-        // Agrega otros campos según corresponda
-    };
-
-    // Solo incluir contraseña si se proporcionó una nueva
-    const newPassword = document.getElementById('editPassword').value;
-    if (newPassword) {
-        userData.password = newPassword;
-    }
-
-    try {
-        // Usar la misma ruta que para obtener el usuario individual
-        const url = `http://localhost:5000/usuarios/usuario/${userId}`;
-        const method = 'PUT'; // O 'PATCH' según tu backend
-
-        const response = await fetch(url, {
-            method,
+        const response = await fetch(`http://localhost:5000/usuario/${userId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify(userData),
-            credentials: 'include' // Importante si usas cookies de sesión
+            body: JSON.stringify(userData)
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error del servidor:', errorText);
-
-            // Manejar diferentes tipos de respuestas de error
-            try {
-                const errorData = JSON.parse(errorText);
-                throw new Error(errorData.message || 'Error al guardar usuario');
-            } catch {
-                throw new Error(errorText || 'Error al guardar usuario');
-            }
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al actualizar usuario');
         }
 
         const result = await response.json();
-        console.log('Usuario actualizado:', result);
-
+        alert(result.message);
         closeModal();
         loadUsers(); // Recargar la lista de usuarios
-        alert(result.message || 'Usuario actualizado correctamente');
+
     } catch (error) {
-        console.error('Error al guardar usuario:', {
-            message: error.message,
-            stack: error.stack
-        });
-        alert(`Error al guardar cambios: ${error.message}`);
+        console.error('Error en saveUser:', error);
+        alert(error.message || 'Error al guardar los cambios');
     }
 }
-
 // Cerrar sesión
 function setupLogout() {
     document.getElementById('close-btn').addEventListener('click', function (e) {
@@ -403,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Event listeners
     document.getElementById('addUserBtn').addEventListener('click', () => openModal());
-    //document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+    document.getElementById('saveUserBtn').addEventListener('click', saveUser);
 
     // Cerrar modales al hacer clic fuera
     window.onclick = function (event) {
