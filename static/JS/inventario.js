@@ -156,64 +156,6 @@ function mostrarProductos() {
   agregarEventosBotones();
 }
 
-function mostrarTablaPrintom() {
-  const table = document.getElementById('tabla-inventario');
-  const thead = table.querySelector('thead');
-  const tbody = table.querySelector('tbody');
-  
-  // Cambiar los encabezados de la tabla
-  thead.innerHTML = `
-    <tr>
-      <th>N Serial</th>
-      <th>Nombre</th>
-      <th>Modelo</th>
-      <th>Proveedor</th>
-      <th>Cantidad</th>
-      <th>Categoría</th>
-      <th>Sub Categoría</th>
-      <th>Observaciones</th>
-      <th>Foto</th>
-      <th>Acciones</th>
-    </tr>
-  `;
-  
-  // Reconstruir el cuerpo de la tabla con los nuevos campos
-  const rows = tbody.querySelectorAll('tr[data-deposito="printom"]');
-  rows.forEach(row => {
-    const id = row.querySelector('td:first-child').textContent;
-    const producto = buscarProductoPorId(id);
-    
-    if (producto) {
-      row.innerHTML = `
-        <td>${producto.Serial || 'N/A'}</td>
-        <td>${producto.Nombre || 'Sin nombre'}</td>
-        <td>${producto.Modelo || 'N/A'}</td>
-        <td>${producto.Proveedor || 'N/A'}</td>
-        <td>${producto.Stock || '0'}</td>
-        <td>${producto.Categoria || 'Sin categoría'}</td>
-        <td>${producto.Subcategoria || 'N/A'}</td>
-        <td>
-          ${producto.Foto ? `<img src="${producto.Foto}" alt="${producto.Nombre}" style="max-width: 50px; max-height: 50px;">` : 'Sin imagen'}
-        </td>
-        <td>${producto.Observaciones || 'Ninguna'}</td>
-        <td class="action-buttons">
-          <div class="action-group">
-            <button class="action-btn edit-btn" data-id="${producto.ID || ''}" title="Editar">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="action-btn delete-btn" data-id="${producto.ID || ''}" title="Eliminar">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </td>
-      `;
-    }
-  });
-  
-  // Reagregar eventos a los botones
-  agregarEventosBotones();
-}
-
 async function mostrarTablaPrintom() {
   const table = document.getElementById('tabla-inventario');
   const thead = table.querySelector('thead');
