@@ -214,6 +214,92 @@ function mostrarTablaPrintom() {
   agregarEventosBotones();
 }
 
+async function mostrarTablaPrintom() {
+  const table = document.getElementById('tabla-inventario');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Cambiar los encabezados de la tabla
+  thead.innerHTML = `
+    <tr>
+      <th>N Serial</th>
+      <th>Nombre</th>
+      <th>Modelo</th>
+      <th>Proveedor</th>
+      <th>Cantidad</th>
+      <th>Categoría</th>
+      <th>Sub Categoría</th>
+      <th>Observaciones</th>
+      <th>Foto</th>
+      <th>Acciones</th>
+    </tr>
+  `;
+
+  // Limpiar el cuerpo de la tabla
+  tbody.innerHTML = '';
+
+  try {
+    // Realiza una solicitud al endpoint para obtener los datos
+    const response = await fetch('inventario/printom');
+
+    // Verifica si la respuesta es exitosa
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('Respuesta del servidor:', data); // Agrega esta línea para depuración
+
+    // Verifica si la respuesta contiene datos
+    if (data.success && Array.isArray(data.data)) {
+      const impresoras = data.data;
+
+      impresoras.forEach(printom => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-deposito', 'printom'); // Asegúrate de que el atributo sea correcto
+
+        // Template seguro con valores por defecto
+        row.innerHTML = `
+          <td>${printom.N_serial || 'N/A'}</td>
+          <td>${printom.Nombre || 'Sin nombre'}</td>
+          <td>${printom.Modelo || 'N/A'}</td>
+          <td>${printom.Proveedor || 'N/A'}</td>
+          <td>${printom.Cantidad || '0'}</td>
+          <td>${printom.Categoria || 'Sin categoría'}</td>
+          <td>${printom.Sub_categoria || 'N/A'}</td>
+          <td>${printom.Observaciones || 'Ninguna'}</td>
+          <td>
+            ${printom.Foto ? `<img src="${printom.Foto}" alt="${printom.Nombre}" style="max-width: 50px; max-height: 50px;">` : 'Sin imagen'}
+          </td>
+          <td class="action-buttons">
+            <div class="action-group">
+              <button class="action-btn edit-btn" data-id="${printom.N_serial || ''}" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn delete-btn" data-id="${printom.N_serial || ''}" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Llama a agregarEventosBotones después de llenar la tabla
+      agregarEventosBotones();
+    } else {
+      console.error('Formato de respuesta no válido:', data);
+    }
+  } catch (error) {
+    console.error('Error al cargar los datos:', error);
+  }
+}
+
+// Asegúrate de llamar a esta función cuando necesites cargar los datos
+mostrarTablaPrintom();
+
+
 function mostrarTablaNormal() {
   const table = document.getElementById('tabla-inventario');
   const thead = table.querySelector('thead');
@@ -468,223 +554,6 @@ function obtenerFechaActual() {
   const mes = String(hoy.getMonth() + 1).padStart(2, '0');
   const dia = String(hoy.getDate()).padStart(2, '0');
   return `${año}-${mes}-${dia}`;
-}
-
-// Función para agregar los estilos CSS necesarios
-function agregarEstilosModoMasivo() {
-  if (!document.getElementById('estilosModoMasivo')) {
-    const estilos = document.createElement('style');
-    estilos.id = 'estilosModoMasivo';
-    estilos.textContent = `
-      .seleccion-masiva-disponible {
-        cursor: pointer;
-      }
-      
-      .seleccion-masiva-disponible:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-      
-      .seleccionado {
-        background-color: rgba(66, 135, 245, 0.15) !important;
-      }
-      
-      #toggleModoMasivo {
-        padding: 8px 12px;
-        background-color: #f1f1f1;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      
-      #toggleModoMasivo.active {
-        background-color: #4287f5;
-        color: white;
-        border-color: #3273dc;
-      }
-      
-      #accionesMasivas {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #f8f9fa;
-        padding: 10px 15px;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      }
-      
-      .contador-container {
-        font-weight: bold;
-      }
-      
-      #contadorSeleccionados {
-        color: #4287f5;
-        font-size: 1.2em;
-      }
-      
-      .btn-accion-masiva {
-        padding: 6px 12px;
-        margin-left: 8px;
-        background-color: #4287f5;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      
-      .btn-accion-masiva:hover {
-        background-color: #3273dc;
-      }
-      
-      .checkbox-seleccion {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.2em;
-        color: #4287f5;
-      }
-      
-      /* Estilos para los modales */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-      }
-      
-      .modal-content {
-        position: relative;
-        background-color: #fff;
-        margin: 10% auto;
-        padding: 0;
-        border-radius: 8px;
-        width: 60%;
-        max-width: 700px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        animation: modalFadeIn 0.3s;
-      }
-      
-      @keyframes modalFadeIn {
-        from {opacity: 0; transform: translateY(-30px);}
-        to {opacity: 1; transform: translateY(0);}
-      }
-      
-      .modal-header {
-        padding: 15px 20px;
-        background-color: #4287f5;
-        color: white;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-      }
-      
-      .modal-header h2 {
-        margin: 0;
-        font-size: 1.5em;
-      }
-      
-      .modal-body {
-        padding: 20px;
-        max-height: 60vh;
-        overflow-y: auto;
-      }
-      
-      .modal-footer {
-        padding: 15px 20px;
-        background-color: #f8f9fa;
-        border-top: 1px solid #ddd;
-        display: flex;
-        justify-content: flex-end;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-      }
-      
-      .close-modal {
-        color: white;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      
-      .close-modal:hover {
-        color: #f8f9fa;
-      }
-      
-      .form-group {
-        margin-bottom: 15px;
-      }
-      
-      .form-control {
-        width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-      }
-      
-      .btn-confirmar {
-        padding: 8px 16px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-      }
-      
-      .btn-confirmar:hover {
-        background-color: #218838;
-      }
-      
-      .btn-cancelar {
-        padding: 8px 16px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-left: 10px;
-      }
-      
-      .btn-cancelar:hover {
-        background-color: #c82333;
-      }
-      
-      .elementos-seleccionados {
-        max-height: 150px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px;
-        margin-top: 5px;
-      }
-      
-      .item-seleccionado {
-        padding: 8px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      
-      .item-seleccionado:last-child {
-        border-bottom: none;
-      }
-      
-      .cantidad-input {
-        width: 60px;
-        padding: 4px 6px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        text-align: center;
-      }
-    `;
-    document.head.appendChild(estilos);
-  }
 }
 
 // Función para agregar eventos a los botones de acciones masivas
@@ -1148,7 +1017,6 @@ function generarPDFRecepcion(recepciones, origen, fecha, proveedor) {
 // Función para inicializar todo el modo masivo
 function inicializarSeleccionMasiva() {
   agregarHTMLAccionesMasivas();
-  agregarEstilosModoMasivo();
   inicializarModoMasivo();
   agregarEventosBotonesAccionesMasivas();
 }

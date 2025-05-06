@@ -271,6 +271,20 @@ router.post('/articulos', (req, res) => {
     });
 });
 
+router.get('/printom', (req, res) => {
+    const sql = `SELECT N_serial, Nombre, Modelo, Proveedor, Foto, Cantidad, Sub_categoria, Observaciones, Categoria FROM printom`;
+
+    console.log("Consulta SQL:", sql); // Agrega esta línea para depuración
+
+    db.all(sql, (err, rows) => {
+        if (err) {
+            console.error("Error en consulta SQL:", err);
+            return res.status(500).json({ error: 'Error en la base de datos' });
+        }
+        res.json({ success: true, data: rows });
+        console.log(rows);
+    });
+});
 
 
 module.exports = router;
