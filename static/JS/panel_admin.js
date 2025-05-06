@@ -24,56 +24,6 @@ function closeCreateModal() {
     document.getElementById('createUserModal').style.display = 'none';
 }
 
-// Función para crear usuario
-async function createUser() {
-    const username = document.getElementById('newUsername').value;
-    const password = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const role = document.getElementById('userRole').value;
-
-    // Validaciones
-    if (!username.trim()) {
-        alert('El nombre de usuario es requerido');
-        return;
-    }
-
-    if (password.length < 6) {
-        alert('La contraseña debe tener al menos 6 caracteres');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        alert('Las contraseñas no coinciden');
-        return;
-    }
-
-    try {
-        const response = await fetch('http://localhost:5000/usuarios/registro', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Usuario: username,
-                password: password,
-                roles: role
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Error al crear el usuario');
-        }
-
-        // Cerrar el modal y actualizar la tabla
-        closeCreateModal();
-        fetchUsers(); // Función que recarga los usuarios
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Ocurrió un error al crear el usuario');
-    }
-}
-
 // Asignar evento al botón "Nuevo Usuario"
 document.getElementById('addUserBtn').addEventListener('click', showCreateModal);
 
@@ -266,34 +216,48 @@ async function editUser(userId) {
 }
 
 async function saveUser() {
-    const userId = document.getElementById('userId').value;
-    const username = document.getElementById('editName').value;
-    const password = document.getElementById('editPassword').value;
-    const role = document.getElementById('editRole').value;
-
-    // Validaciones básicas
-    if (!username.trim()) {
-        alert('El nombre de usuario es requerido');
-        return;
-    }
-    if (!role) {
-        alert('Debe seleccionar un rol');
-        return;
-    }
+    // Mostrar alerta de carga
+    const loadingAlert = Swal.fire({
+        title: 'Guardando cambios',
+        html: 'Por favor espere...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     try {
-        // Preparar datos para enviar al backend
-        const userData = {
-            username: username,
-            password: password,
-            role: role
-        };
+        const userId = document.getElementById('userId').value;
+        const username = document.getElementById('editName').value.trim();
+        const password = document.getElementById('editPassword').value;
+        const role = document.getElementById('editRole').value;
 
-        console.log(userId);
-        
+        // Validaciones
+        if (!username) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El nombre de usuario es requerido',
+                confirmButtonText: 'Entendido',
+                timer: 3000
+            });
+            return;
+        }
 
-        console.log('Enviando datos:', userData);
+        if (!role) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Debe seleccionar un rol',
+                confirmButtonText: 'Entendido',
+                timer: 3000
+            });
+            return;
+        }
 
+        const userData = { username, password, role };
         const response = await fetch(`http://localhost:5000/usuarios/usuario/${userId}`, {
             method: 'PUT',
             headers: {
@@ -304,24 +268,42 @@ async function saveUser() {
         });
 
         if (!response.ok) {
-            console.log('Error en la respuesta:', response.status, response.statusText);
-            
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error al actualizar usuario');
         }
 
         const result = await response.json();
-        console.log();
         
-        alert(result.message);
+        await loadingAlert.close();
         closeModal();
-        loadUsers(); // Recargar la lista de usuarios
+        await loadUsers();
+        
+        // Alerta de éxito con tiempo controlado
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Guardado!',
+            text: result.message || 'Cambios guardados correctamente',
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar',
+            timer: 5000, // 5 segundos
+            timerProgressBar: true,
+            willClose: () => {
+                // Acciones adicionales al cerrar
+            }
+        });
 
     } catch (error) {
-        console.error('Error en saveUser:', error);
-        alert(error.message || 'Error al guardar los cambios');
+        await loadingAlert.close();
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Error al guardar los cambios',
+            confirmButtonText: 'Entendido',
+            timer: 4000 // 4 segundos para errores
+        });
     }
 }
+
 
 // eliminar usuario
 let userIdToDelete = null;
@@ -480,35 +462,77 @@ function closeCreateModal() {
     document.getElementById('createUserModal').style.display = 'none';
 }
 
-// Función para crear un nuevo usuario
+// Función para crear un nuevo usuario con SweetAlert
 async function createUser() {
-    const username = document.getElementById('newUsername').value.trim();
-    const password = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const role = document.getElementById('userRole').value;
-
-    // Validaciones
-    if (!username) {
-        alert('El nombre de usuario es requerido');
-        return;
-    }
-
-    if (!password || password.length < 6) {
-        alert('La contraseña debe tener al menos 6 caracteres');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        alert('Las contraseñas no coinciden');
-        return;
-    }
-
-    if (!role) {
-        alert('Debe seleccionar un rol');
-        return;
-    }
+    // Mostrar alerta de carga
+    const loadingAlert = Swal.fire({
+        title: 'Creando usuario',
+        html: 'Por favor espere...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     try {
+        const username = document.getElementById('newUsername').value.trim();
+        const password = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const role = document.getElementById('userRole').value;
+
+        // Validaciones con SweetAlert
+        if (!username) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Campo requerido',
+                text: 'El nombre de usuario es requerido',
+                confirmButtonText: 'Entendido',
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        if (!password || password.length < 6) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Contraseña inválida',
+                text: 'La contraseña debe tener al menos 6 caracteres',
+                confirmButtonText: 'Entendido',
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error de coincidencia',
+                text: 'Las contraseñas no coinciden',
+                confirmButtonText: 'Entendido',
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        if (!role) {
+            await loadingAlert.close();
+            await Swal.fire({
+                icon: 'error',
+                title: 'Rol requerido',
+                text: 'Debe seleccionar un rol',
+                confirmButtonText: 'Entendido',
+                timer: 3000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
         // Preparar los datos para enviar al backend
         const userData = {
             Usuario: username,
@@ -527,21 +551,42 @@ async function createUser() {
             body: JSON.stringify(userData)
         });
 
+        // Cerrar alerta de carga
+        await loadingAlert.close();
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Error al crear el usuario');
         }
 
         const result = await response.json();
-        alert(result.mensaje || 'Usuario creado exitosamente');
+        
+        // Mostrar éxito
+        await Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: result.mensaje || 'Usuario creado exitosamente',
+            confirmButtonText: 'Aceptar',
+            timer: 4000,
+            timerProgressBar: true
+        });
 
         // Cerrar el modal y recargar la lista de usuarios
         closeCreateModal();
-        loadUsers();
+        await loadUsers();
 
     } catch (error) {
+        await loadingAlert.close();
         console.error('Error en createUser:', error);
-        alert(error.message || 'Error al crear el usuario');
+        
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'Error al crear el usuario',
+            confirmButtonText: 'Entendido',
+            timer: 4000,
+            timerProgressBar: true
+        });
     }
 }
 
