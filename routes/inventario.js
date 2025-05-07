@@ -286,5 +286,64 @@ router.get('/printom', (req, res) => {
     });
 });
 
+// Endpoint para editar un registro en la tabla printom
+router.put('/printom/:id', (req, res) => {
+    const { id } = req.params; // N_serial del registro a editar
+    const { 
+        Nombre, 
+        Modelo, 
+        Proveedor, 
+        Foto, 
+        Cantidad, 
+        Sub_categoria, 
+        Observaciones, 
+        Categoria 
+    } = req.body;
+
+    const sql = `
+        UPDATE printom 
+        SET 
+            Nombre = ?, 
+            Modelo = ?, 
+            Proveedor = ?, 
+            Foto = ?, 
+            Cantidad = ?, 
+            Sub_categoria = ?, 
+            Observaciones = ?, 
+            Categoria = ?
+        WHERE N_serial = ?
+    `;
+
+    const params = [
+        Nombre, 
+        Modelo, 
+        Proveedor, 
+        Foto, 
+        Cantidad, 
+        Sub_categoria, 
+        Observaciones, 
+        Categoria,
+        id
+    ];
+
+    console.log("Consulta SQL:", sql, "Parámetros:", params);
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error("Error al actualizar:", err);
+            return res.status(500).json({ error: 'Error al actualizar el registro' });
+        }
+        
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Registro no encontrado' });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Registro actualizado correctamente',
+            changes: this.changes
+        });
+    });
+});
 
 module.exports = router;

@@ -296,6 +296,8 @@ margin-left: -11px;
 
 .nuevo-item-btn-rediseno:hover {
   background-color: #2563eb;
+  color: white;
+  text-decoration: none;
 }
 
 /* Asegurar que el modal sea completamente interactivo */
@@ -1840,4 +1842,20 @@ margin-left: -11px;
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
+}
+
+/* En tu archivo styles.css */
+#imageModal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 1060 !important;
+}
+
+#imageModal .modal-dialog {
+  z-index: 1060 !important;
+}
+
+#imageModal .modal-content {
+  z-index: 1060 !important;
 }

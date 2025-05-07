@@ -190,7 +190,7 @@ async function mostrarTablaPrintom() {
     }
 
     const data = await response.json();
-    console.log('Respuesta del servidor:', data); // Agrega esta línea para depuración
+    console.log('Respuesta del servidor:', data); // Depuración
 
     // Verifica si la respuesta contiene datos
     if (data.success && Array.isArray(data.data)) {
@@ -211,18 +211,18 @@ async function mostrarTablaPrintom() {
           <td>${printom.Sub_categoria || 'N/A'}</td>
           <td>${printom.Observaciones || 'Ninguna'}</td>
           <td>
-            ${printom.Foto ? `<img src="${printom.Foto}" alt="${printom.Nombre}" style="max-width: 50px; max-height: 50px;">` : 'Sin imagen'}
+            ${printom.Foto ? `<img src="${printom.Foto}" alt="${printom.Nombre}" class="zoomable img-thumbnail" style="cursor: pointer;">` : 'Sin imagen'}
           </td>
           <td class="action-buttons">
             <div class="action-group">
-              <button class="action-btn edit-btn" data-id="${printom.N_serial || ''}" title="Editar">
+              <button id="edit-printom" class="action-btn edit-btn" data-id="${printom.N_serial || ''}" title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="action-btn delete-btn" data-id="${printom.N_serial || ''}" title="Eliminar">
+              <button id="delete-printom" class="action-btn delete-btn" data-id="${printom.N_serial || ''}" title="Eliminar">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
-          </td>
+          </td> 
         `;
 
         tbody.appendChild(row);
@@ -230,6 +230,7 @@ async function mostrarTablaPrintom() {
 
       // Llama a agregarEventosBotones después de llenar la tabla
       agregarEventosBotones();
+      agregarEventosImagenes();
     } else {
       console.error('Formato de respuesta no válido:', data);
     }
@@ -238,8 +239,63 @@ async function mostrarTablaPrintom() {
   }
 }
 
-// Asegúrate de llamar a esta función cuando necesites cargar los datos
-mostrarTablaPrintom();
+function mostrarModalImagen(src) {
+  // Método 1: Usando jQuery puro (si Bootstrap falla)
+  $('#modalImage').attr('src', src);
+  $('#imageModal').css('display', 'block');
+  
+  // Método 2: Alternativa con animación
+  // $('#imageModal').fadeIn(300);
+}
+
+function agregarEventosImagenes() {
+  $('.zoomable').off('click').on('click', function() {
+    const imgSrc = $(this).attr('src');
+    console.log('Mostrando imagen:', imgSrc);
+    
+    // Método 1: Bootstrap (si está disponible)
+    try {
+      $('#modalImageContent').attr('src', imgSrc);
+      const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+      modal.show();
+    } 
+    // Método 2: jQuery puro (como fallback)
+    catch (e) {
+      console.log('Usando fallback jQuery');
+      $('#modalImageContent').attr('src', imgSrc);
+      $('#imageModal').css('display', 'block');
+    }
+  });
+}
+
+// Inicialización segura
+$(document).ready(function() {
+  // Asegura que el modal esté en el body
+  if ($('#imageModal').parent().is('#modalEditarItem')) {
+    $('#imageModal').appendTo('body');
+  }
+  
+  agregarEventosImagenes();
+});
+
+ // Función para cerrar el modal correctamente
+ function cerrarModalImagen() {
+  const modal = bootstrap.Modal.getInstance(document.getElementById('imageModal'));
+  if (modal) {
+    modal.hide();
+  } else {
+    // Fallback manual si Bootstrap no está disponible
+    $('#imageModal').hide();
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+  }
+}
+
+// Evento cuando el modal se oculta
+$('#imageModal').on('hidden.bs.modal', function () {
+  $('.modal-backdrop').remove();
+  $('body').removeClass('modal-open');
+});
 
 
 function mostrarTablaNormal() {
@@ -972,10 +1028,7 @@ function agregarEventosBotones() {
   document.querySelectorAll('.edit-btn').forEach(button => {
     button.addEventListener('click', () => abrirModalEditar(button.getAttribute('data-id')));
   });
-
- 
 }
-
 
 // Función para eliminar un producto
 async function eliminarProducto(id) {
